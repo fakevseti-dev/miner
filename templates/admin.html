@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON Admin — Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #050914;
+            --bg-secondary: #0a0e27;
+            --bg-card: rgba(10, 16, 42, 0.85);
+            --bg-card-hover: rgba(15, 24, 58, 0.9);
+            --border: rgba(59, 130, 246, 0.15);
+            --border-bright: rgba(59, 130, 246, 0.4);
+            --blue: #3b82f6;
+            --blue-dim: rgba(59, 130, 246, 0.12);
+            --cyan: #06b6d4;
+            --cyan-dim: rgba(6, 182, 212, 0.12);
+            --green: #10b981;
+            --green-dim: rgba(16, 185, 129, 0.12);
+            --amber: #f59e0b;
+            --amber-dim: rgba(245, 158, 11, 0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239, 68, 68, 0.12);
+            --purple: #8b5cf6;
+            --purple-dim: rgba(139, 92, 246, 0.12);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-dim: #475569;
+            --mono: 'Space Mono', monospace;
+            --sans: 'Outfit', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ── GRID BG ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 240px;
+            min-height: 100vh;
+            background: rgba(5, 9, 20, 0.95);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(20px);
+        }
+
+        .sidebar-logo {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-mark {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-tag {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--red);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logo-tag::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--red);
+            animation: blink 1.2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nav-section-label {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 8px 12px 4px;
+            margin-top: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+
+        .nav-item:hover {
+            background: var(--blue-dim);
+            color: var(--text-primary);
+            border-color: var(--border);
+        }
+
+        .nav-item.active {
+            background: var(--blue-dim);
+            color: var(--blue);
+            border-color: rgba(59,130,246,0.25);
+        }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--red);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-family: var(--mono);
+        }
+
+        .sidebar-footer {
+            padding: 16px 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(139,92,246,0.1));
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 10px;
+        }
+
+        .admin-avatar {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--red), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .admin-info-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .admin-info-role {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--red);
+            letter-spacing: 1px;
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            height: 60px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            background: rgba(5, 9, 20, 0.6);
+            backdrop-filter: blur(20px);
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .topbar-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .topbar-subtitle {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-dot {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--green);
+        }
+
+        .status-dot::before {
+            content: '';
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse-green 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+            50% { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+        }
+
+        /* ── PAGE CONTENT ── */
+        .page {
+            padding: 28px;
+            display: none;
+            flex-direction: column;
+            gap: 24px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── STATS GRID ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-bright);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            border-radius: 14px 14px 0 0;
+        }
+
+        .stat-card.blue::after { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+        .stat-card.green::after { background: linear-gradient(90deg, var(--green), #34d399); }
+        .stat-card.amber::after { background: linear-gradient(90deg, var(--amber), #fcd34d); }
+        .stat-card.purple::after { background: linear-gradient(90deg, var(--purple), #a78bfa); }
+
+        .stat-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .stat-value span {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .stat-meta {
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-meta.up { color: var(--green); }
+        .stat-meta.down { color: var(--red); }
+
+        /* ── SECTION HEADER ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 3px; height: 16px;
+            background: linear-gradient(to bottom, var(--blue), var(--cyan));
+            border-radius: 2px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-family: var(--sans);
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), #2563eb);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59,130,246,0.35);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--blue-dim);
+            color: var(--text-primary);
+            border-color: var(--border-bright);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--red), #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(239,68,68,0.35);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--green), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(16,185,129,0.35);
+        }
+
+        /* ── TABLE ── */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .table-card-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .search-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 7px 12px;
+            color: var(--text-primary);
+            font-family: var(--sans);
+            font-size: 12px;
+            width: 200px;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--border-bright);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .search-input::placeholder { color: var(--text-dim); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 20px;
+            text-align: left;
+            background: rgba(5,9,20,0.4);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(59,130,246,0.05);
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        tr:hover td {
+            background: rgba(59,130,246,0.03);
+            color: var(--text-primary);
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .user-email {
+            font-size: 11px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            margin-top: 1px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: var(--mono);
+        }
+
+        .badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+        .badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+        .badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+        .badge-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+        .badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
+
+        .balance-cell {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: var(--sans);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .action-btn-fund {
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(16,185,129,0.25);
+        }
+        .action-btn-fund:hover {
+            background: var(--green);
+            color: white;
+        }
+
+        .action-btn-ban {
+            background: var(--red-dim);
+            color: var(--red);
+            border: 1px solid rgba(239,68,68,0.25);
+        }
+        .action-btn-ban:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: rgba(10, 16, 42, 0.98);
+            border: 1px solid var(--border-bright);
+            border-radius: 18px;
+            padding: 32px;
+            width: 420px;
+            max-width: 90vw;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.1);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .modal-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .modal-user-info {
+            background: rgba(59,130,246,0.06);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group { margin-bottom: 16px; }
+
+        .form-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: var(--text-primary);
+            font-family: var(--sans);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        }
+
+        .form-input::placeholder { color: var(--text-dim); }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn { flex: 1; justify-content: center; padding: 12px; font-size: 13px; }
+
+        /* ── NOTIFICATION ── */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 200;
+            background: rgba(10, 16, 42, 0.98);
+            border: 1px solid var(--border-bright);
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 380px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            transform: translateX(420px);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .notification.show { transform: translateX(0); }
+        .notification.success { border-color: rgba(16,185,129,0.4); }
+        .notification.error { border-color: rgba(239,68,68,0.4); }
+
+        .notif-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .notif-icon.success { background: var(--green-dim); }
+        .notif-icon.error { background: var(--red-dim); }
+
+        .notif-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .notif-msg {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ── ACTIVITY PAGE ── */
+        .activity-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: var(--sans);
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--blue-dim);
+            border-color: var(--border-bright);
+            color: var(--blue);
+        }
+
+        /* ── CHARTS (CSS-only sparklines) ── */
+        .sparkline {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 36px;
+            margin-top: 12px;
+        }
+
+        .spark-bar {
+            flex: 1;
+            border-radius: 3px 3px 0 0;
+            min-height: 4px;
+            transition: height 0.3s ease;
+        }
+
+        .spark-bar.blue { background: linear-gradient(to top, rgba(59,130,246,0.2), var(--blue)); }
+        .spark-bar.green { background: linear-gradient(to top, rgba(16,185,129,0.2), var(--green)); }
+
+        /* ── ACTIVITY TIMELINE ── */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 14px;
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(59,130,246,0.05);
+            transition: background 0.2s;
+        }
+
+        .activity-item:last-child { border-bottom: none; }
+        .activity-item:hover { background: rgba(59,130,246,0.03); }
+
+        .activity-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .activity-dot.mining { background: var(--blue); box-shadow: 0 0 6px rgba(59,130,246,0.5); }
+        .activity-dot.scanner { background: var(--cyan); box-shadow: 0 0 6px rgba(6,182,212,0.5); }
+        .activity-dot.deposit { background: var(--green); box-shadow: 0 0 6px rgba(16,185,129,0.5); }
+        .activity-dot.withdraw { background: var(--amber); box-shadow: 0 0 6px rgba(245,158,11,0.5); }
+
+        .activity-body { flex: 1; }
+
+        .activity-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .activity-meta {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .activity-time {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+            flex-shrink: 0;
+        }
+
+        /* ── USER SESSION TIME ── */
+        .session-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .session-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+
+        .loading-row td {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .two-col { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-mark">⚡ NEON</div>
+        <div class="logo-tag">Admin Control</div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Обзор</div>
+        <div class="nav-item active" onclick="showPage('dashboard', this)">
+            <span class="nav-icon">⬡</span> Дашборд
+        </div>
+
+        <div class="nav-section-label">Управление</div>
+        <div class="nav-item" onclick="showPage('users', this)">
+            <span class="nav-icon">◈</span> Пользователи
+            <span class="nav-badge" id="usersBadge">—</span>
+        </div>
+        <div class="nav-item" onclick="showPage('finance', this)">
+            <span class="nav-icon">◎</span> Начисления
+        </div>
+
+        <div class="nav-section-label">Аналитика</div>
+        <div class="nav-item" onclick="showPage('activity', this)">
+            <span class="nav-icon">◈</span> Активность
+        </div>
+        <div class="nav-item" onclick="showPage('transactions', this)">
+            <span class="nav-icon">◇</span> Транзакции
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="admin-badge">
+            <div class="admin-avatar">A</div>
+            <div>
+                <div class="admin-info-name">Administrator</div>
+                <div class="admin-info-role">ROOT ACCESS</div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div>
+            <div class="topbar-title" id="topbarTitle">Дашборд</div>
+            <div class="topbar-subtitle" id="topbarSubtitle">Общая статистика платформы</div>
+        </div>
+        <div class="topbar-actions">
+            <div class="status-dot">СИСТЕМА ОНЛАЙН</div>
+            <button class="btn btn-ghost" onclick="refreshData()">↻ Обновить</button>
+        </div>
+    </div>
+
+    <!-- ── PAGE: DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-label">Пользователей</div>
+                <div class="stat-value" id="stat-users">—</div>
+                <div class="stat-meta up" id="stat-users-active">загрузка...</div>
+                <div class="sparkline" id="spark-users"></div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-label">Общий баланс</div>
+                <div class="stat-value" id="stat-balance">—</div>
+                <div class="stat-meta">на балансах пользователей</div>
+                <div class="sparkline" id="spark-balance"></div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-label">Майнинг сегодня</div>
+                <div class="stat-value" id="stat-mining">—</div>
+                <div class="stat-meta">часов активного майнинга</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-label">Транзакций</div>
+                <div class="stat-value" id="stat-tx">—</div>
+                <div class="stat-meta">за все время</div>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <!-- Recent Users -->
+            <div>
+                <div class="section-header" style="margin-bottom: 14px;">
+                    <div class="section-title">Последние пользователи</div>
+                    <button class="btn btn-ghost" onclick="showPage('users', document.querySelector('[onclick*=users]'))">Все</button>
+                </div>
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Пользователь</th>
+                                <th>Баланс</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-users-table">
+                            <tr class="loading-row"><td colspan="3">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div>
+                <div class="section-header" style="margin-bottom: 14px;">
+                    <div class="section-title">Последняя активность</div>
+                </div>
+                <div class="table-card">
+                    <div class="activity-list" id="dashboard-activity"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PAGE: USERS ── -->
+    <div class="page" id="page-users">
+        <div class="section-header">
+            <div class="section-title">Управление пользователями</div>
+        </div>
+        <div class="table-card">
+            <div class="table-card-header">
+                <input class="search-input" type="text" placeholder="🔍  Поиск по имени или email..." oninput="filterUsers(this.value)">
+                <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim)" id="users-count">—</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Пользователь</th>
+                        <th>Баланс</th>
+                        <th>Заработано</th>
+                        <th>Последний вход</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table">
+                    <tr class="loading-row"><td colspan="6">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── PAGE: FINANCE ── -->
+    <div class="page" id="page-finance">
+        <div class="section-header">
+            <div class="section-title">Начисление баланса</div>
+        </div>
+
+        <!-- Quick fund -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Быстрое начисление</span>
+                <input class="search-input" type="text" placeholder="🔍  Поиск пользователя..." oninput="filterFinanceUsers(this.value)">
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Пользователь</th>
+                        <th>Email</th>
+                        <th>Текущий баланс</th>
+                        <th>Начислить</th>
+                    </tr>
+                </thead>
+                <tbody id="finance-table">
+                    <tr class="loading-row"><td colspan="4">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── PAGE: ACTIVITY ── -->
+    <div class="page" id="page-activity">
+        <div class="section-header">
+            <div class="section-title">Активность пользователей</div>
+            <div class="activity-filters">
+                <button class="filter-btn active" onclick="filterActivity('all', this)">Все</button>
+                <button class="filter-btn" onclick="filterActivity('MINER_NODE', this)">Майнинг</button>
+                <button class="filter-btn" onclick="filterActivity('NETWORK_SCANNER', this)">Сканер</button>
+            </div>
+        </div>
+
+        <!-- Session time stats -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Время сессий сегодня</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Пользователь</th>
+                        <th>Майнер (мин)</th>
+                        <th>Сканер (мин)</th>
+                        <th>Всего событий</th>
+                        <th>Последняя активность</th>
+                    </tr>
+                </thead>
+                <tbody id="activity-sessions-table">
+                    <tr class="loading-row"><td colspan="5">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Full log -->
+        <div class="section-header" style="margin-top:8px;">
+            <div class="section-title">Журнал событий</div>
+        </div>
+        <div class="table-card">
+            <div class="activity-list" id="activity-log-list">
+                <div class="loading-row" style="padding:40px;text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:12px;">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PAGE: TRANSACTIONS ── -->
+    <div class="page" id="page-transactions">
+        <div class="section-header">
+            <div class="section-title">Все транзакции</div>
+        </div>
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Пользователь</th>
+                        <th>Тип</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th>Описание</th>
+                        <th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody id="transactions-table">
+                    <tr class="loading-row"><td colspan="7">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- ── FUND MODAL ── -->
+<div class="modal-overlay" id="fundModal">
+    <div class="modal">
+        <div class="modal-title">💰 Начисление баланса</div>
+        <div class="modal-subtitle">Введите сумму для начисления пользователю</div>
+        <div class="modal-user-info" id="fund-user-info">
+            <div class="user-avatar" id="fund-avatar" style="background: linear-gradient(135deg, #3b82f6, #06b6d4); width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;"></div>
+            <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)" id="fund-username">—</div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim)" id="fund-balance-info">Текущий баланс: —</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Сумма начисления (USD)</label>
+            <input class="form-input" type="number" id="fund-amount" placeholder="0.00" min="0.01" step="0.01">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Комментарий (необязательно)</label>
+            <input class="form-input" type="text" id="fund-comment" placeholder="Причина начисления...">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeFundModal()">Отмена</button>
+            <button class="btn btn-success" onclick="submitFund()">✓ Начислить</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── NOTIFICATION ── -->
+<div class="notification" id="notification">
+    <div class="notif-icon" id="notif-icon">✓</div>
+    <div>
+        <div class="notif-title" id="notif-title">Успешно</div>
+        <div class="notif-msg" id="notif-msg"></div>
+    </div>
+</div>
+
+<script>
+// ── STATE ──
+let allUsers = [];
+let allActivity = [];
+let allTransactions = [];
+let currentFundUserId = null;
+let activityFilter = 'all';
+
+const COLORS = ['#3b82f6','#06b6d4','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899'];
+function userColor(name) { return COLORS[name.charCodeAt(0) % COLORS.length]; }
+function userInitial(name) { return (name || '?')[0].toUpperCase(); }
+function fmt(n) { return '$' + parseFloat(n || 0).toFixed(2); }
+function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+
+// ── NAVIGATION ──
+function showPage(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+
+    const titles = {
+        dashboard: ['Дашборд', 'Общая статистика платформы'],
+        users: ['Пользователи', 'Управление аккаунтами'],
+        finance: ['Начисления', 'Управление балансами пользователей'],
+        activity: ['Активность', 'Мониторинг сессий в реальном времени'],
+        transactions: ['Транзакции', 'Полная история операций'],
+    };
+    document.getElementById('topbarTitle').textContent = titles[id][0];
+    document.getElementById('topbarSubtitle').textContent = titles[id][1];
+
+    if (id === 'users') loadUsers();
+    if (id === 'finance') loadFinance();
+    if (id === 'activity') loadActivity();
+    if (id === 'transactions') loadTransactions();
+}
+
+// ── API ──
+async function api(url, method = 'GET', body = null) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(url, opts);
+    return r.json();
+}
+
+// ── SPARKLINE ──
+function makeSparkline(el, vals, color) {
+    if (!el) return;
+    const max = Math.max(...vals, 1);
+    el.innerHTML = vals.map(v => `<div class="spark-bar ${color}" style="height:${Math.max(8, (v/max)*36)}px"></div>`).join('');
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+    try {
+        const data = await api('/api/admin/stats');
+        if (data.status !== 'success') return;
+
+        document.getElementById('stat-users').innerHTML = data.total_users + ' <span>чел.</span>';
+        document.getElementById('stat-balance').innerHTML = fmt(data.total_balance);
+        document.getElementById('stat-mining').innerHTML = (data.mining_minutes_today / 60).toFixed(1) + ' <span>ч</span>';
+        document.getElementById('stat-tx').innerHTML = data.total_transactions + ' <span>шт</span>';
+        document.getElementById('stat-users-active').textContent = `${data.active_users} активных сегодня`;
+        document.getElementById('usersBadge').textContent = data.total_users;
+
+        makeSparkline(document.getElementById('spark-users'), [2,5,3,8,6,data.total_users,data.total_users], 'blue');
+        makeSparkline(document.getElementById('spark-balance'), [10,25,15,40,30,data.total_balance,data.total_balance], 'green');
+
+        // Recent users
+        const tbody = document.getElementById('dashboard-users-table');
+        tbody.innerHTML = (data.recent_users || []).map(u => `
+            <tr>
+                <td><div class="user-cell">
+                    <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(u.username)},${userColor(u.username+'x')})">${userInitial(u.username)}</div>
+                    <div><div class="user-name">${u.username}</div><div class="user-email">${u.email}</div></div>
+                </div></td>
+                <td class="balance-cell">${fmt(u.balance)}</td>
+                <td><span class="badge badge-green">● активен</span></td>
+            </tr>
+        `).join('') || '<tr class="loading-row"><td colspan="3">Нет данных</td></tr>';
+
+        // Recent activity
+        const actEl = document.getElementById('dashboard-activity');
+        actEl.innerHTML = (data.recent_activity || []).map(a => {
+            const type = (a.module || '').includes('SCANNER') ? 'scanner' : 'mining';
+            return `<div class="activity-item">
+                <div class="activity-dot ${type}"></div>
+                <div class="activity-body">
+                    <div class="activity-title">${a.username || 'Аноним'} — ${a.action || ''}</div>
+                    <div class="activity-meta">${a.module || ''}</div>
+                </div>
+                <div class="activity-time">${fmtDate(a.timestamp)}</div>
+            </div>`;
+        }).join('') || '<div class="empty-state"><div class="empty-state-icon">◎</div><div>Нет событий</div></div>';
+
+    } catch(e) { console.error(e); }
+}
+
+// ── USERS ──
+async function loadUsers() {
+    try {
+        const data = await api('/api/admin/users');
+        allUsers = data.users || [];
+        document.getElementById('users-count').textContent = `${allUsers.length} пользователей`;
+        renderUsers(allUsers);
+    } catch(e) {}
+}
+
+function renderUsers(users) {
+    const tbody = document.getElementById('users-table');
+    if (!users.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="6">Нет пользователей</td></tr>'; return; }
+    tbody.innerHTML = users.map(u => `
+        <tr>
+            <td><div class="user-cell">
+                <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(u.username)},${userColor(u.username+'1')})">${userInitial(u.username)}</div>
+                <div><div class="user-name">${u.username}</div><div class="user-email">${u.email}</div></div>
+            </div></td>
+            <td class="balance-cell">${fmt(u.balance)}</td>
+            <td style="color:var(--text-secondary);font-family:var(--mono);font-size:12px">${fmt(u.total_earned)}</td>
+            <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${fmtDate(u.last_login)}</td>
+            <td><span class="badge ${u.is_active ? 'badge-green' : 'badge-red'}">${u.is_active ? '● онлайн' : '✕ заблокирован'}</span></td>
+            <td>
+                <div style="display:flex;gap:6px">
+                    <button class="action-btn action-btn-fund" onclick="openFundModal(${u.id}, '${u.username}', ${u.balance})">+ Начислить</button>
+                    <button class="action-btn action-btn-ban" onclick="toggleUser(${u.id}, ${u.is_active})">${u.is_active ? 'Блок.' : 'Разблок.'}</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function filterUsers(q) {
+    const f = allUsers.filter(u => u.username.toLowerCase().includes(q.toLowerCase()) || u.email.toLowerCase().includes(q.toLowerCase()));
+    renderUsers(f);
+}
+
+// ── FINANCE ──
+async function loadFinance() {
+    try {
+        const data = await api('/api/admin/users');
+        allUsers = data.users || [];
+        renderFinance(allUsers);
+    } catch(e) {}
+}
+
+function renderFinance(users) {
+    const tbody = document.getElementById('finance-table');
+    if (!users.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="4">Нет пользователей</td></tr>'; return; }
+    tbody.innerHTML = users.map(u => `
+        <tr>
+            <td><div class="user-cell">
+                <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(u.username)},${userColor(u.username+'1')})">${userInitial(u.username)}</div>
+                <div class="user-name">${u.username}</div>
+            </div></td>
+            <td style="font-family:var(--mono);font-size:12px;color:var(--text-secondary)">${u.email}</td>
+            <td class="balance-cell">${fmt(u.balance)}</td>
+            <td>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    <button class="btn btn-success" style="font-size:11px;padding:7px 14px" onclick="openFundModal(${u.id}, '${u.username}', ${u.balance})">+ Начислить</button>
+                    <button class="btn" style="font-size:11px;padding:7px 14px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white" onclick="confirmPayment(${u.id}, '${u.username}')">⚡ Платёж</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function filterFinanceUsers(q) {
+    const f = allUsers.filter(u => u.username.toLowerCase().includes(q.toLowerCase()) || u.email.toLowerCase().includes(q.toLowerCase()));
+    renderFinance(f);
+}
+
+// ── ACTIVITY ──
+async function loadActivity() {
+    try {
+        const data = await api('/api/admin/activity');
+        allActivity = data.activity || [];
+        renderActivityLog(allActivity);
+        renderSessionsTable(data.sessions || []);
+    } catch(e) {}
+}
+
+function filterActivity(type, btn) {
+    activityFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = type === 'all' ? allActivity : allActivity.filter(a => (a.module || '').includes(type));
+    renderActivityLog(filtered);
+}
+
+function renderActivityLog(items) {
+    const el = document.getElementById('activity-log-list');
+    if (!items.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">◎</div><div>Нет событий</div></div>'; return; }
+    el.innerHTML = items.slice(0, 50).map(a => {
+        const isScanner = (a.module || '').includes('SCANNER');
+        const type = isScanner ? 'scanner' : 'mining';
+        return `<div class="activity-item">
+            <div class="activity-dot ${type}"></div>
+            <div class="activity-body">
+                <div class="activity-title">${a.username || 'Система'} <span style="color:var(--text-dim);font-weight:400">→</span> ${a.action || ''}</div>
+                <div class="activity-meta">${a.module || ''} · статус: ${a.status || ''}</div>
+            </div>
+            <div class="activity-time">${fmtDate(a.timestamp)}</div>
+        </div>`;
+    }).join('');
+}
+
+function renderSessionsTable(sessions) {
+    const tbody = document.getElementById('activity-sessions-table');
+    if (!sessions.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="5">Нет данных о сессиях</td></tr>'; return; }
+    tbody.innerHTML = sessions.map(s => {
+        const minerPct = Math.min(100, (s.miner_minutes / Math.max(s.miner_minutes + s.scanner_minutes, 1)) * 100);
+        return `<tr>
+            <td><div class="user-cell">
+                <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(s.username)},${userColor(s.username+'1')})">${userInitial(s.username)}</div>
+                <div class="user-name">${s.username}</div>
+            </div></td>
+            <td>
+                <div style="font-family:var(--mono);font-size:13px;color:var(--blue)">${s.miner_minutes || 0} мин</div>
+                <div class="session-bar"><div class="session-fill" style="width:${minerPct}%;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div></div>
+            </td>
+            <td>
+                <div style="font-family:var(--mono);font-size:13px;color:var(--cyan)">${s.scanner_minutes || 0} мин</div>
+                <div class="session-bar"><div class="session-fill" style="width:${100-minerPct}%;background:linear-gradient(90deg,var(--cyan),var(--purple))"></div></div>
+            </td>
+            <td style="font-family:var(--mono);font-size:12px;color:var(--text-secondary)">${s.total_events || 0}</td>
+            <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${fmtDate(s.last_activity)}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ── TRANSACTIONS ──
+async function loadTransactions() {
+    try {
+        const data = await api('/api/admin/transactions');
+        const txs = data.transactions || [];
+        const tbody = document.getElementById('transactions-table');
+        if (!txs.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="7">Нет транзакций</td></tr>'; return; }
+
+        const typeLabel = { deposit:'Пополнение', withdraw:'Вывод', plan_purchase:'Покупка плана', admin_credit:'Начисление' };
+        const typeBadge = { deposit:'badge-green', withdraw:'badge-amber', plan_purchase:'badge-blue', admin_credit:'badge-purple' };
+        const statusBadge = { completed:'badge-green', pending:'badge-amber', failed:'badge-red' };
+
+        tbody.innerHTML = txs.map(t => `
+            <tr>
+                <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">#${t.id}</td>
+                <td><div class="user-cell">
+                    <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(t.username||'?')},#06b6d4);width:26px;height:26px;border-radius:6px;font-size:11px">${userInitial(t.username||'?')}</div>
+                    <span style="font-size:12px;color:var(--text-primary)">${t.username||'—'}</span>
+                </div></td>
+                <td><span class="badge ${typeBadge[t.type]||'badge-blue'}">${typeLabel[t.type]||t.type}</span></td>
+                <td class="balance-cell" style="color:${t.type==='withdraw'?'var(--amber)':'var(--green)'}">${t.type==='withdraw'?'-':'+'} ${fmt(t.amount)}</td>
+                <td><span class="badge ${statusBadge[t.status]||'badge-amber'}">${t.status||'—'}</span></td>
+                <td style="font-size:12px;color:var(--text-dim);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.description||'—'}</td>
+                <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${fmtDate(t.timestamp)}</td>
+            </tr>
+        `).join('');
+    } catch(e) {}
+}
+
+// ── FUND MODAL ──
+function openFundModal(userId, username, balance) {
+    currentFundUserId = userId;
+    document.getElementById('fund-avatar').textContent = userInitial(username);
+    document.getElementById('fund-avatar').style.background = `linear-gradient(135deg, ${userColor(username)}, ${userColor(username+'1')})`;
+    document.getElementById('fund-username').textContent = username;
+    document.getElementById('fund-balance-info').textContent = 'Текущий баланс: ' + fmt(balance);
+    document.getElementById('fund-amount').value = '';
+    document.getElementById('fund-comment').value = '';
+    document.getElementById('fundModal').classList.add('open');
+    setTimeout(() => document.getElementById('fund-amount').focus(), 300);
+}
+
+function closeFundModal() {
+    document.getElementById('fundModal').classList.remove('open');
+    currentFundUserId = null;
+}
+
+async function submitFund() {
+    const amount = parseFloat(document.getElementById('fund-amount').value);
+    const comment = document.getElementById('fund-comment').value.trim();
+
+    if (!amount || amount <= 0) { showNotif('error', 'Ошибка', 'Введите корректную сумму'); return; }
+    if (!currentFundUserId) return;
+
+    try {
+        const data = await api('/api/admin/fund-user', 'POST', {
+            user_id: currentFundUserId,
+            amount,
+            comment: comment || 'Начисление от администратора'
+        });
+
+        if (data.status === 'success') {
+            closeFundModal();
+            showNotif('success', 'Баланс начислен', `${fmt(amount)} успешно зачислено пользователю`);
+            refreshData();
+        } else {
+            showNotif('error', 'Ошибка', data.message || 'Не удалось начислить');
+        }
+    } catch(e) {
+        showNotif('error', 'Ошибка сети', 'Проверьте подключение');
+    }
+}
+
+// ── TOGGLE USER ──
+async function toggleUser(userId, isActive) {
+    try {
+        const data = await api('/api/admin/toggle-user', 'POST', { user_id: userId, active: !isActive });
+        if (data.status === 'success') {
+            showNotif('success', isActive ? 'Пользователь заблокирован' : 'Пользователь разблокирован', '');
+            loadUsers();
+        }
+    } catch(e) {}
+}
+
+// ── NOTIFICATION ──
+function showNotif(type, title, msg) {
+    const el = document.getElementById('notification');
+    const icon = document.getElementById('notif-icon');
+    document.getElementById('notif-title').textContent = title;
+    document.getElementById('notif-msg').textContent = msg;
+    el.className = `notification ${type}`;
+    icon.className = `notif-icon ${type}`;
+    icon.textContent = type === 'success' ? '✓' : '✕';
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ── REFRESH ──
+function refreshData() {
+    const active = document.querySelector('.page.active');
+    if (!active) return;
+    const id = active.id.replace('page-', '');
+    if (id === 'dashboard') loadDashboard();
+    if (id === 'users') loadUsers();
+    if (id === 'finance') loadFinance();
+    if (id === 'activity') loadActivity();
+    if (id === 'transactions') loadTransactions();
+}
+
+// ── CLOSE MODAL ON OVERLAY CLICK ──
+document.getElementById('fundModal').addEventListener('click', function(e) {
+    if (e.target === this) closeFundModal();
+});
+
+// ── CONFIRM PAYMENT MODAL ──
+let confirmPaymentUserId = null;
+
+function confirmPayment(userId, username) {
+    confirmPaymentUserId = userId;
+    document.getElementById('confirmPaymentUsername').textContent = username;
+    document.getElementById('confirmPaymentModal').classList.add('open');
+}
+
+function closeConfirmPaymentModal() {
+    document.getElementById('confirmPaymentModal').classList.remove('open');
+    confirmPaymentUserId = null;
+}
+
+async function submitConfirmPayment() {
+    if (!confirmPaymentUserId) return;
+    const amount = parseFloat(document.getElementById('confirmPaymentAmount').value);
+    if (!amount || amount <= 0) { showNotif('error', 'Ошибка', 'Введите сумму платежа'); return; }
+
+    try {
+        const data = await api('/api/admin/confirm-payment', 'POST', {
+            user_id: confirmPaymentUserId,
+            amount: amount
+        });
+        if (data.status === 'success') {
+            closeConfirmPaymentModal();
+            showNotif('success', 'Платёж подтверждён', 'Пользователь получил уведомление с анимацией транзакции');
+            refreshData();
+        } else {
+            showNotif('error', 'Ошибка', data.message || 'Не удалось подтвердить');
+        }
+    } catch(e) {
+        showNotif('error', 'Ошибка сети', 'Проверьте подключение');
+    }
+}
+
+// ── INIT ──
+loadDashboard();
+setInterval(loadDashboard, 30000);
+</script>
+<!-- ── CONFIRM PAYMENT MODAL ── -->
+<div class="modal-overlay" id="confirmPaymentModal">
+    <div class="modal">
+        <div class="modal-title">⚡ Подтвердить платёж</div>
+        <div class="modal-subtitle">Пользователь увидит анимацию "Транзакция в обработке" с прогрессом подтверждений</div>
+
+        <div class="modal-user-info">
+            <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;">⚡</div>
+            <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)" id="confirmPaymentUsername">—</div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">USDT TRC-20 · Ожидает подтверждения</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Сумма платежа (USD)</label>
+            <input class="form-input" type="number" id="confirmPaymentAmount" placeholder="0.00" min="0.01" step="0.01">
+        </div>
+
+        <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:#f59e0b;line-height:1.5;margin-bottom:4px;">
+            ⚠️ После подтверждения пользователю придёт уведомление, в его модальном окне пополнения запустится анимация «Транзакция в обработке. Подтверждения сети: 1 из 12»
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeConfirmPaymentModal()">Отмена</button>
+            <button class="btn" style="flex:1;justify-content:center;padding:12px;font-size:13px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none" onclick="submitConfirmPayment()">⚡ Подтвердить</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

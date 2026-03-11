@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Miner Pro - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow-x: hidden; /* Жестко отрезаем вылезающие элементы по бокам */
+            background-color: #0f172a; /* Задаем темный фон самому окну браузера */
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            background-attachment: fixed;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 99999; /* ИСПРАВЛЕНО: теперь модалки 100% перекрывают верхнее меню */
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-gradient-1 {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .floating-card {
+            position: relative;
+            overflow: visible !important;
+        }
+
+        .floating-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            animation: slideIn 0.3s ease-out;
+            z-index: 100000; /* ИСПРАВЛЕНО: Уведомления всегда поверх всего */
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .copy-button {
+            position: relative;
+        }
+
+        .copy-button.copied::after {
+            content: 'Скопирован!';
+            position: absolute;
+            top: -30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #10b981;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── TX PROCESSING OVERLAY ── */
+        .tx-overlay {
+            display: none;
+            position: absolute;
+            inset: -2px;
+            border-radius: 1rem;
+            background: rgba(8, 12, 30, 0.99);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 28px 24px 24px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            animation: txFadeIn 0.4s ease;
+        }
+        .tx-overlay.show { display: flex; }
+        @keyframes txFadeIn { from{opacity:0} to{opacity:1} }
+
+        .tx-header { text-align:center; margin-bottom: 20px; }
+
+        .tx-ring-wrap { position:relative; width:72px; height:72px; margin: 0 auto 16px; }
+        .tx-ring {
+            width:72px; height:72px; border-radius:50%;
+            border: 3px solid rgba(59,130,246,0.12);
+            border-top-color: #3b82f6;
+            border-right-color: #06b6d4;
+            animation: txSpin 1.1s cubic-bezier(.4,0,.2,1) infinite;
+            position:absolute; inset:0;
+        }
+        .tx-ring-inner {
+            position:absolute; inset:9px; border-radius:50%;
+            border: 2px solid transparent;
+            border-top-color: rgba(6,182,212,0.35);
+            animation: txSpin 2.2s linear infinite reverse;
+        }
+        .tx-ring-icon {
+            position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+            font-size:20px;
+        }
+        @keyframes txSpin { to{transform:rotate(360deg)} }
+
+        .tx-title { font-size:16px; font-weight:700; color:#f1f5f9; margin-bottom:3px; }
+        .tx-sub { font-size:12px; color:#475569; margin-bottom:18px; }
+
+        /* confirm bar */
+        .tx-confirm-bar {
+            background: rgba(15,23,42,0.9);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius:12px;
+            padding:14px 18px;
+            width:100%;
+            margin-bottom:14px;
+        }
+        .tx-confirm-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+        .tx-confirm-label { font-size:10px; color:#475569; text-transform:uppercase; letter-spacing:1.5px; font-family:monospace; }
+        .tx-confirm-num { font-size:22px; font-weight:800; color:#3b82f6; font-family:monospace; }
+        .tx-confirm-num span { font-size:13px; font-weight:400; color:#334155; }
+        .tx-dots { display:flex; gap:4px; flex-wrap:wrap; }
+        .tx-dot {
+            height:5px; flex:1; min-width:14px; border-radius:3px;
+            background: rgba(59,130,246,0.1);
+            transition: background 0.4s ease, box-shadow 0.4s ease;
+        }
+        .tx-dot.done { background:#3b82f6; box-shadow:0 0 6px rgba(59,130,246,0.5); }
+        .tx-dot.active { background:#06b6d4; box-shadow:0 0 8px rgba(6,182,212,0.7); animation:dotPulse 0.8s ease infinite; }
+        @keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+        /* info rows */
+        .tx-info-grid { width:100%; display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+        .tx-info-cell {
+            background: rgba(15,23,42,0.8);
+            border: 1px solid rgba(59,130,246,0.12);
+            border-radius:9px; padding:10px 12px;
+        }
+        .tx-info-cell-label { font-size:9px; color:#334155; text-transform:uppercase; letter-spacing:1.5px; font-family:monospace; margin-bottom:4px; }
+        .tx-info-cell-val { font-size:12px; font-weight:700; color:#94a3b8; font-family:monospace; word-break:break-all; }
+        .tx-info-cell-val.green { color:#10b981; }
+        .tx-info-cell-val.blue { color:#3b82f6; }
+        .tx-info-cell-val.amber { color:#f59e0b; }
+
+        /* hash line */
+        .tx-hash-row {
+            width:100%; background:rgba(15,23,42,0.8); border:1px solid rgba(59,130,246,0.12);
+            border-radius:9px; padding:10px 12px; margin-bottom:14px;
+        }
+        .tx-hash-label { font-size:9px; color:#334155; text-transform:uppercase; letter-spacing:1.5px; font-family:monospace; margin-bottom:4px; }
+        .tx-hash-val { font-size:10px; color:#3b82f6; font-family:monospace; word-break:break-all; }
+
+        /* status log */
+        .tx-log { width:100%; }
+        .tx-log-item {
+            display:flex; align-items:flex-start; gap:8px;
+            padding:6px 0; border-bottom:1px solid rgba(59,130,246,0.05);
+            font-size:11px; color:#475569; font-family:monospace;
+        }
+        .tx-log-item:last-child { border-bottom:none; }
+        .tx-log-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+        .tx-log-dot.ok { background:#10b981; }
+        .tx-log-dot.pending { background:#3b82f6; animation:dotPulse 1s ease infinite; }
+        .tx-log-dot.wait { background:#334155; }
+        .tx-log-time { color:#1e293b; flex-shrink:0; }
+        .tx-log-text { flex:1; }
+        .tx-log-text.hi { color:#94a3b8; }
+
+        /* pulse status */
+        .tx-status-row { display:flex; align-items:center; gap:6px; margin-top:12px; font-size:11px; color:#3b82f6; font-family:monospace; }
+        .tx-pulse { width:6px; height:6px; border-radius:50%; background:#3b82f6; animation:dotPulse 1.2s ease infinite; }
+
+        /* ── ERROR PANEL ── */
+        .error-panel {
+            display:none;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius:12px;
+            padding:14px 16px;
+            margin-bottom:12px;
+            animation: errShake 0.4s ease;
+        }
+        .error-panel.show { display:block; }
+        @keyframes errShake {
+            0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 60%{transform:translateX(4px)}
+        }
+
+        /* ── CUSTOM SCROLLBAR ── */
+        ::-webkit-scrollbar {
+            width: 6px; 
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3); 
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.7); 
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+        }
+
+        .error-panel-title { font-size:12px; font-weight:700; color:#ef4444; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+        .error-panel-msg { font-size:11px; color:#fca5a5; font-family:monospace; margin-bottom:10px; }
+        .error-fix-btn {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:7px 14px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4);
+            border-radius:8px; font-size:11px; font-weight:700; color:#ef4444;
+            cursor:pointer; transition:all 0.2s; font-family:monospace;
+        }
+        .error-fix-btn:hover { background:rgba(239,68,68,0.25); }
+
+        .warn-line { color: #fbbf24 !important; }
+    </style>
+</head>
+<body>
+
+    <nav class="glass border-b border-slate-700 sticky top-0" style="z-index:1000;pointer-events:all;">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 icon-gradient-1 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-cube text-white text-lg"></i>
+                </div>
+                <h1 class="text-xl font-bold gradient-text">CRYPTO MINER PRO</h1>
+            </div>
+
+            <div class="flex items-center gap-8">
+                <div class="text-lg font-mono text-emerald-400 font-bold" id="top-balance">$0.00</div>
+                
+                <div class="relative">
+                    <button onclick="toggleProfile(event)" style="position:relative;z-index:1001;cursor:pointer;" class="glass px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-slate-700/50 transition">
+                        <div class="w-8 h-8 icon-gradient-1 rounded-full flex items-center justify-center text-white text-sm font-bold" id="profileInit">U</div>
+                        <span id="profileName">User</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+
+                    <div id="profileMenu" class="hidden absolute top-full right-0 mt-2 w-64 glass rounded-lg shadow-2xl border border-slate-700 overflow-hidden" style="z-index:9999">
+                        <div class="p-4 border-b border-slate-700/60" style="background:rgba(15,23,42,0.8)">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 icon-gradient-1 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0" id="profileInitBig">U</div>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-white truncate" id="profileNameBig">User</p>
+                                    <p class="text-xs text-slate-500 truncate" id="profileEmail">—</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-slate-400">Баланс</span>
+                                <span class="text-lg font-bold text-emerald-400" id="profileBalance">$0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 space-y-1">
+                            <button onclick="openUSDTDepositModal()" class="w-full px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition text-sm font-semibold flex items-center gap-2">
+                                <i class="fas fa-plus"></i> Пополнить
+                            </button>
+                            <button onclick="openWithdrawModal()" class="w-full px-3 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-600 transition text-sm font-semibold flex items-center gap-2">
+                                <i class="fas fa-arrow-up-right"></i> Вывести
+                            </button>
+                            <button onclick="openTransactionsModal()" class="w-full px-3 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-600 transition text-sm font-semibold flex items-center gap-2">
+                                <i class="fas fa-history"></i> История
+                            </button>
+                        </div>
+
+                        <div class="px-3 pb-3">
+                            <button onclick="logout()" class="w-full px-3 py-2 rounded-lg text-red-400 hover:bg-red-900/20 border border-red-900/20 transition text-sm font-semibold flex items-center gap-2">
+                                <i class="fas fa-sign-out-alt"></i> Выход
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-12">
+
+        <section id="menuSection" class="section active">
+            <div class="mb-12">
+                <h2 class="text-4xl font-bold mb-2">Выберите сервис</h2>
+                <p class="text-slate-400">Начните с выбора подходящего для вас модуля</p>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;">
+
+                <div id="minerCard" style="cursor:pointer;border-radius:20px;overflow:hidden;transition:transform 0.3s,box-shadow 0.3s;background:rgba(15,23,42,0.7);border:1px solid rgba(148,163,184,0.15);padding:32px;"
+                     onmouseenter="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 60px rgba(59,130,246,0.25)'"
+                     onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='none'"
+                     onclick="handleMinerClick()">
+                    <div style="width:64px;height:64px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;">
+                        <i class="fas fa-microchip" style="font-size:28px;color:white;"></i>
+                    </div>
+                    <h3 style="font-size:22px;font-weight:700;margin-bottom:8px;color:#f1f5f9;">Miner Node</h3>
+                    <p style="color:#94a3b8;margin-bottom:16px;font-size:14px;">Добывайте криптовалюту с профессиональными параметрами</p>
+                    <div style="display:flex;align-items:center;gap:8px;color:#10b981;font-size:14px;font-weight:600;">
+                        <i class="fas fa-check-circle"></i> Ready
+                    </div>
+                </div>
+
+                <div style="cursor:pointer;border-radius:20px;overflow:hidden;transition:transform 0.3s,box-shadow 0.3s;background:rgba(15,23,42,0.7);border:1px solid rgba(16,185,129,0.2);padding:32px;"
+                     onmouseenter="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 60px rgba(16,185,129,0.25)'"
+                     onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='none'"
+                     onclick="window.location.href='/scanner'">
+                    <div style="width:64px;height:64px;background:linear-gradient(135deg,#10b981,#059669);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;">
+                        <i class="fas fa-chart-line" style="font-size:28px;color:white;"></i>
+                    </div>
+                    <h3 style="font-size:22px;font-weight:700;margin-bottom:8px;color:#f1f5f9;">Crypto Scanner</h3>
+                    <p style="color:#94a3b8;margin-bottom:16px;font-size:14px;">Ищите арбитражные связки в реальном времени</p>
+                    <div style="display:flex;align-items:center;gap:8px;color:#10b981;font-size:14px;font-weight:600;">
+                        <i class="fas fa-check-circle"></i> Ready
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="planSection" class="section">
+            <button onclick="showSection('menuSection')" class="mb-8 flex items-center gap-2 text-blue-400 hover:text-blue-300 transition">
+                <i class="fas fa-arrow-left"></i> Вернуться
+            </button>
+
+            <div class="mb-12">
+                <h2 class="text-4xl font-bold mb-2">Выберите тариф</h2>
+                <p class="text-slate-400">Подберите подходящий план для вашего майнинга</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div id="planCard_starter" class="glass rounded-2xl border border-slate-700 overflow-hidden floating-card transition-all duration-300">
+                    <div class="h-2 icon-gradient-1"></div>
+                    <div class="p-8">
+                        <div class="inline-block px-3 py-1 bg-blue-900/30 rounded-full text-xs font-bold text-blue-300 mb-4">STARTER</div>
+                        <h3 class="text-2xl font-bold mb-2">$50</h3>
+                        <p class="text-slate-400 text-sm mb-6">/месяц</p>
+
+                        <div class="space-y-3 mb-8 text-sm">
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-blue-400"></i>
+                                <span>[CPU] 2 vCPU Cores</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-blue-400"></i>
+                                <span>[RAM] 4 GB DDR4</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-blue-400"></i>
+                                <span>[SSD] 80 GB NVMe</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-blue-400"></i>
+                                <span>[HASH] ~120 MH/s</span>
+                            </div>
+                        </div>
+
+                        <button id="planBtn_starter" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition">
+                            Выбрать
+                        </button>
+                    </div>
+                </div>
+
+                <div id="planCard_pro" class="glass rounded-2xl border-2 border-blue-500/50 relative overflow-hidden floating-card transition-all duration-300">
+                    <div class="absolute top-4 right-4 px-3 py-1 bg-amber-900/30 rounded-full text-xs font-bold text-amber-300 z-10">🌟 POPULAR</div>
+                    <div class="h-2 bg-gradient-to-r from-blue-500 to-cyan-400 relative z-10"></div>
+                    <div class="p-8 relative z-10">
+                        <div class="inline-block px-3 py-1 bg-blue-900/30 rounded-full text-xs font-bold text-blue-300 mb-4">PRO</div>
+                        <h3 class="text-2xl font-bold mb-2">$150</h3>
+                        <p class="text-slate-400 text-sm mb-6">/месяц</p>
+
+                        <div class="space-y-3 mb-8 text-sm">
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-cyan-400"></i>
+                                <span>[CPU] 8 vCPU Cores</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-cyan-400"></i>
+                                <span>[RAM] 16 GB DDR5</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-cyan-400"></i>
+                                <span>[SSD] 320 GB NVMe</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-cyan-400"></i>
+                                <span>[HASH] ~480 MH/s</span>
+                            </div>
+                        </div>
+
+                        <button id="planBtn_pro" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-lg font-bold text-white transition">
+                            Выбрать
+                        </button>
+                    </div>
+                </div>
+
+                <div id="planCard_elite" class="glass rounded-2xl border border-slate-700 overflow-hidden floating-card transition-all duration-300">
+                    <div class="h-2 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+                    <div class="p-8">
+                        <div class="inline-block px-3 py-1 bg-amber-900/30 rounded-full text-xs font-bold text-amber-300 mb-4">ELITE</div>
+                        <h3 class="text-2xl font-bold mb-2">$300</h3>
+                        <p class="text-slate-400 text-sm mb-6">/месяц</p>
+
+                        <div class="space-y-3 mb-8 text-sm">
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-amber-400"></i>
+                                <span>[CPU] 32 vCPU Cores</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-amber-400"></i>
+                                <span>[RAM] 64 GB DDR5</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-amber-400"></i>
+                                <span>[SSD] 1 TB NVMe RAID</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fas fa-check-circle text-amber-400"></i>
+                                <span>[HASH] ~1.2 GH/s</span>
+                            </div>
+                        </div>
+
+                        <button id="planBtn_elite" class="w-full py-3 bg-amber-600 hover:bg-amber-700 rounded-lg font-bold text-white transition">
+                            Выбрать
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="minerSection" class="section">
+            <div class="mb-6 flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <button onclick="showSection('menuSection')" class="glass px-3 py-1.5 rounded-lg border border-slate-700 hover:border-blue-500/50 text-slate-400 hover:text-blue-400 transition flex items-center gap-2 text-sm font-semibold cursor-pointer">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                    
+                    <div class="glass px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-mono text-slate-400 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block" style="animation:pulse 1.5s infinite"></span>
+                        Активный план: <span id="activePlanBadge" class="text-blue-400 font-bold">—</span>
+                    </div>
+                </div>
+                
+                <button onclick="openChangePlanModal()" class="glass px-4 py-2 rounded-lg border border-slate-700 hover:border-blue-500/50 text-sm font-semibold text-slate-300 hover:text-white transition flex items-center gap-2">
+                    <i class="fas fa-exchange-alt text-blue-400"></i> Изменить план
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="glass rounded-2xl border border-slate-700 overflow-hidden">
+                        <div class="bg-black/50 border-b border-slate-700 p-4 flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+
+                        <div id="terminal" class="p-6 font-mono text-sm h-96 overflow-y-auto text-slate-300">
+                            <p class="text-slate-500">[system] Hardware initialized. Awaiting user command...</p>
+                            <p class="mt-4">root@miner:~# <span class="animate-pulse">█</span></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex gap-4">
+                        <button onclick="startMining()" id="startBtn" class="flex-1 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-xl font-bold text-white transition">
+                            <i class="fas fa-play mr-2"></i> START MINING
+                        </button>
+                        <button onclick="stopMining()" id="stopBtn" class="hidden flex-1 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-xl font-bold text-white transition">
+                            <i class="fas fa-stop mr-2"></i> STOP MINING
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="glass rounded-2xl border border-slate-700 p-6 floating-card">
+                        <p class="text-slate-400 text-sm mb-1">Total Revenue</p>
+                        <p class="text-4xl font-bold text-emerald-400" id="minerBalance">$0.00</p>
+                        <p class="text-slate-500 text-xs mt-1" id="planEstLabel">Est. Output: $10.00 / 6h</p>
+                        <div class="mt-3">
+                            <div class="flex justify-between text-xs text-slate-500 mb-1">
+                                <span>Прогресс сессии</span>
+                                <span id="sessionPct">0%</span>
+                            </div>
+                            <div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden">
+                                <div id="sessionBar" style="height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#06b6d4);border-radius:2px;transition:width 2s ease"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="error-panel" id="errorPanel">
+                        <div class="error-panel-title">
+                            <span>⚠</span> <span id="errorTitle">Критическая ошибка</span>
+                        </div>
+                        <div class="error-panel-msg" id="errorMsg">—</div>
+                        <button class="error-fix-btn" id="errorFixBtn" onclick="fixError()">
+                            <span id="errorFixIcon">⚡</span> <span id="errorFixLabel">Fix Error</span>
+                        </button>
+                    </div>
+
+                    <div class="glass rounded-2xl border border-slate-700 p-5">
+                        <h3 class="font-bold mb-3 text-sm flex items-center gap-2">
+                            <i class="fas fa-chart-bar text-blue-400"></i> Live Stats
+                        </h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Hashrate</span>
+                                <span class="text-emerald-400 font-mono font-bold" id="liveHashrate">— MH/s</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Shares accepted</span>
+                                <span class="text-blue-400 font-mono" id="liveShares">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Время сессии</span>
+                                <span class="text-slate-300 font-mono" id="liveTime">00:00:00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">$/час</span>
+                                <span class="text-amber-400 font-mono" id="liveRate">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass rounded-2xl border border-slate-700 p-5">
+                        <h3 class="font-bold mb-3 text-sm flex items-center gap-2">
+                            <i class="fas fa-circle text-green-400" style="font-size:8px;animation:pulse 1s infinite"></i> Activity
+                        </h3>
+                        <div id="activity" class="space-y-1 text-xs text-slate-400">
+                            <p>Waiting for mining...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="depositWarningModal" class="modal-backdrop">
+        <div class="glass rounded-2xl border border-slate-700 p-8 max-w-md w-full mx-4">
+            <div class="w-16 h-16 icon-gradient-1 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-wallet text-2xl text-white"></i>
+            </div>
+
+            <h2 class="text-2xl font-bold text-center mb-2">Недостаточно средств</h2>
+            <p class="text-slate-400 text-center mb-6">Пополните ваш баланс, чтобы начать майнинг</p>
+
+            <button onclick="openUSDTDepositModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition mb-2 flex items-center justify-center gap-2">
+                <i class="fas fa-coins"></i> Пополнить через USDT
+            </button>
+            <button onclick="closeDepositWarningModal()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+                Отмена
+            </button>
+        </div>
+    </div>
+
+    <div id="usdtDepositModal" class="modal-backdrop">
+        <div class="glass rounded-2xl border border-slate-700 p-8 max-w-2xl w-full mx-4" style="position:relative;overflow:visible;">
+
+            <div class="tx-overlay" id="txProcessingOverlay">
+                <div class="tx-header">
+                    <div class="tx-ring-wrap">
+                        <div class="tx-ring"></div>
+                        <div class="tx-ring-inner"></div>
+                        <div class="tx-ring-icon">⚡</div>
+                    </div>
+                    <div class="tx-title">Транзакция в обработке</div>
+                    <div class="tx-sub">Сеть TRON (TRC-20) · USDT</div>
+                </div>
+
+                <div class="tx-confirm-bar">
+                    <div class="tx-confirm-row">
+                        <div class="tx-confirm-label">Подтверждения сети</div>
+                        <div class="tx-confirm-num" id="txConfirmCount">1 <span>/ 12</span></div>
+                    </div>
+                    <div class="tx-dots" id="txDots">
+                        <div class="tx-dot done" id="txDot0"></div>
+                        <div class="tx-dot" id="txDot1"></div>
+                        <div class="tx-dot" id="txDot2"></div>
+                        <div class="tx-dot" id="txDot3"></div>
+                        <div class="tx-dot" id="txDot4"></div>
+                        <div class="tx-dot" id="txDot5"></div>
+                        <div class="tx-dot" id="txDot6"></div>
+                        <div class="tx-dot" id="txDot7"></div>
+                        <div class="tx-dot" id="txDot8"></div>
+                        <div class="tx-dot" id="txDot9"></div>
+                        <div class="tx-dot" id="txDot10"></div>
+                        <div class="tx-dot" id="txDot11"></div>
+                    </div>
+                </div>
+
+                <div class="tx-info-grid">
+                    <div class="tx-info-cell">
+                        <div class="tx-info-cell-label">Сеть</div>
+                        <div class="tx-info-cell-val blue">TRON TRC-20</div>
+                    </div>
+                    <div class="tx-info-cell">
+                        <div class="tx-info-cell-label">Токен</div>
+                        <div class="tx-info-cell-val green">USDT</div>
+                    </div>
+                    <div class="tx-info-cell">
+                        <div class="tx-info-cell-label">Статус</div>
+                        <div class="tx-info-cell-val amber" id="txStatusBadge">PENDING</div>
+                    </div>
+                    <div class="tx-info-cell">
+                        <div class="tx-info-cell-label">Блок</div>
+                        <div class="tx-info-cell-val" id="txBlockNum">67,241,8<span id="txBlockTick">33</span></div>
+                    </div>
+                    <div class="tx-info-cell">
+                        <div class="tx-info-cell-label">Gas Fee</div>
+                        <div class="tx-info-cell-val">~1.0 TRX</div>
+                    </div>
+                    <div class="tx-info-cell">
+                        <div class="tx-info-cell-label">Время блока</div>
+                        <div class="tx-info-cell-val" id="txBlockTime">~3 сек</div>
+                    </div>
+                </div>
+
+                <div class="tx-hash-row">
+                    <div class="tx-hash-label">TX Hash</div>
+                    <div class="tx-hash-val" id="txHashVal">0x—</div>
+                </div>
+
+                <div class="tx-log" id="txLog">
+                    <div class="tx-log-item">
+                        <div class="tx-log-dot ok"></div>
+                        <div class="tx-log-time" id="txTime0"></div>
+                        <div class="tx-log-text hi">Транзакция обнаружена в mempool</div>
+                    </div>
+                    <div class="tx-log-item">
+                        <div class="tx-log-dot pending" id="txLogDot1"></div>
+                        <div class="tx-log-time" id="txTime1"></div>
+                        <div class="tx-log-text" id="txLogText1">Ожидание включения в блок...</div>
+                    </div>
+                    <div class="tx-log-item">
+                        <div class="tx-log-dot wait" id="txLogDot2"></div>
+                        <div class="tx-log-time" id="txTime2"></div>
+                        <div class="tx-log-text" id="txLogText2" style="color:#1e293b">Верификация Super Representatives...</div>
+                    </div>
+                    <div class="tx-log-item">
+                        <div class="tx-log-dot wait" id="txLogDot3"></div>
+                        <div class="tx-log-time" id="txTime3"></div>
+                        <div class="tx-log-text" id="txLogText3" style="color:#1e293b">Финальное подтверждение...</div>
+                    </div>
+                </div>
+
+                <div class="tx-status-row">
+                    <div class="tx-pulse"></div>
+                    <span id="txStatusMsg">Ожидание подтверждений от SR-нод TRON...</span>
+                </div>
+            </div>
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 icon-gradient-1 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-coins text-4xl text-white"></i>
+                </div>
+                <h2 class="text-3xl font-bold mb-2">Пополнить баланс</h2>
+                <p class="text-slate-400">Отправьте USDT (TRC-20) на указанный адрес</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="flex justify-center items-start">
+                    <div class="qr-container" id="qrCodeContainer"></div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-slate-400 mb-2">Сеть</p>
+                        <div class="glass rounded-lg p-3 border border-slate-700">
+                            <p class="font-bold flex items-center gap-2">
+                                <i class="fas fa-link text-blue-400"></i> TRON (TRC-20)
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-400 mb-2">Адрес кошелька</p>
+                        <div class="glass rounded-lg p-3 border border-slate-700 flex items-center justify-between">
+                            <p class="font-mono text-sm break-all" id="walletAddress">TQCz49r91qcFJ8wvcKxJqRNWJNSH24YqcK</p>
+                            <button onclick="copyAddress()" class="copy-button ml-2 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-bold">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                        <p class="text-sm text-blue-300 flex items-start gap-2">
+                            <i class="fas fa-info-circle mt-0.5 flex-shrink-0"></i>
+                            <span>Отправляйте только USDT. Минимум: $1. Баланс пополнится автоматически в течение 5 минут.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="copyAddress()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition flex items-center justify-center gap-2">
+                    <i class="fas fa-copy"></i> Копировать адрес
+                </button>
+                <button onclick="closeUSDTDepositModal()" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+                    Готово
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="withdrawModal" class="modal-backdrop">
+        <div class="glass rounded-2xl border border-slate-700 p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6">Вывести средства</h2>
+
+            <div class="mb-4">
+                <label class="text-sm text-slate-400 mb-2 block">Сумма (USD)</label>
+                <input type="number" id="withdrawAmount" placeholder="100.00" class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none text-white">
+            </div>
+
+            <div class="mb-4">
+                <label class="text-sm text-slate-400 mb-2 block">Адрес кошелька</label>
+                <input type="text" id="walletAddressWithdraw" placeholder="0x..." class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:border-blue-500 focus:outline-none text-white">
+            </div>
+
+            <button onclick="submitWithdraw()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition mb-2">
+                Вывести
+            </button>
+            <button onclick="closeWithdrawModal()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+                Отмена
+            </button>
+        </div>
+    </div>
+
+    <div id="transactionsModal" class="modal-backdrop">
+        <div class="glass rounded-2xl border border-slate-700 p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-6">История транзакций</h2>
+            <div id="transactionsList" class="space-y-2">
+                <p class="text-slate-400">Загрузка...</p>
+            </div>
+            <button onclick="closeTransactionsModal()" class="w-full mt-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+                Закрыть
+            </button>
+        </div>
+    </div>
+
+    <div id="changePlanModal" class="modal-backdrop">
+        <div class="glass rounded-2xl border border-slate-700 p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-2">Изменить тарифный план</h2>
+            <p class="text-slate-400 mb-6">Текущий план будет деактивирован, средства за новый спишутся с баланса.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div id="changePlanCard_starter" onclick="selectChangePlan('starter', 50)" class="glass p-4 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition">
+                    <div class="text-xs font-bold text-blue-400 mb-1">STARTER</div>
+                    <div class="text-xl font-bold">$50</div>
+                    <div class="text-xs text-slate-400 mt-2">~120 MH/s</div>
+                </div>
+                <div id="changePlanCard_pro" onclick="selectChangePlan('pro', 150)" class="glass p-4 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition relative">
+                    <div class="absolute top-2 right-2 text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded">POPULAR</div>
+                    <div class="text-xs font-bold text-cyan-400 mb-1">PRO</div>
+                    <div class="text-xl font-bold">$150</div>
+                    <div class="text-xs text-slate-400 mt-2">~480 MH/s</div>
+                </div>
+                <div id="changePlanCard_elite" onclick="selectChangePlan('elite', 300)" class="glass p-4 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition">
+                    <div class="text-xs font-bold text-amber-400 mb-1">ELITE</div>
+                    <div class="text-xl font-bold">$300</div>
+                    <div class="text-xs text-slate-400 mt-2">~1.2 GH/s</div>
+                </div>
+            </div>
+
+            <div id="changePlanSummary" style="display: none;" class="bg-slate-900/50 border border-slate-700 rounded-xl p-4 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-slate-400 text-sm">Новый тариф:</span>
+                    <span id="changePlanSummaryName" class="font-bold text-white">—</span>
+                </div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-slate-400 text-sm">Стоимость:</span>
+                    <span id="changePlanSummaryPrice" class="font-bold text-white">—</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-slate-700/50 pt-2 mt-2">
+                    <span class="text-slate-400 text-sm">Ваш баланс:</span>
+                    <span id="changePlanSummaryBalance" class="font-bold text-emerald-400">—</span>
+                </div>
+                <div id="changePlanWarning" class="mt-3 text-xs text-red-400 bg-red-900/20 p-2 rounded hidden">
+                    <i class="fas fa-exclamation-triangle"></i> Недостаточно средств на балансе
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button id="changePlanSubmitBtn" onclick="submitChangePlan()" disabled class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-white transition">
+                    Подтвердить смену
+                </button>
+                <button onclick="closeChangePlanModal()" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+                    Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ══════════════════════════════════════════════════
+        //  GLOBAL STATE
+        // ══════════════════════════════════════════════════
+        let currentBalance  = 0;
+        let profileLoaded   = false;
+        let hasPlan         = false;
+        const USDT_ADDRESS  = 'TQCz49r91qcFJ8wvcKxJqRNWJNSH24YqcK';
+
+        // Безопасная установка текста элемента
+        const safeSet = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        };
+
+        // ══════════════════════════════════════════════════
+        //  LOAD PROFILE — подключено к /api/user/profile + /api/plan/active
+        // ══════════════════════════════════════════════════
+        async function loadProfile() {
+            try {
+                const [profRes, planRes] = await Promise.all([
+                    fetch('/api/user/profile'),
+                    fetch('/api/plan/active'),
+                ]);
+
+                if (!profRes.ok) { console.error('Profile fetch failed:', profRes.status); return; }
+
+                const user     = await profRes.json();
+                const planData = await planRes.json();
+
+                // Обновляем баланс
+                currentBalance  = parseFloat(user.balance) || 0;
+                profileLoaded   = true;
+
+                // Заполняем профиль в navbar
+                const initial = (user.username || 'U').charAt(0).toUpperCase();
+                safeSet('profileInit',    initial);
+                safeSet('profileInitBig', initial);
+                safeSet('profileName',    user.username);
+                safeSet('profileNameBig', user.username);
+                safeSet('profileEmail',   user.email || '');
+                safeSet('profileBalance', '$' + currentBalance.toFixed(2));
+                safeSet('top-balance',    '$' + currentBalance.toFixed(2));
+
+                // Если есть активный план
+                if (planData && planData.has_plan) {
+                    hasPlan = true;
+                    const pn = planData.plan_name;
+                    localStorage.setItem('selectedPlan', JSON.stringify({
+                        name: pn, price: planData.plan_price
+                    }));
+                    safeSet('activePlanBadge',  pn.toUpperCase());
+                    safeSet('currentPlanLabel', pn.toUpperCase());
+                }
+                
+                renderPlanSection(); // Рендерим тарифы в зависимости от статуса
+
+            } catch (e) {
+                console.error('loadProfile error:', e);
+            }
+        }
+
+        // ══════════════════════════════════════════════════
+        //  MINER CARD CLICK — ждём loadProfile если нужно
+        // ══════════════════════════════════════════════════
+        async function handleMinerClick() {
+            // Если профиль ещё не загружен — ждём
+            if (!profileLoaded) {
+                await loadProfile();
+            }
+
+            if (currentBalance <= 0 && !hasPlan) {
+                document.getElementById('depositWarningModal').classList.add('show');
+            } else {
+                showSection('planSection');
+            }
+        }
+
+        // Оставляем для совместимости
+        function checkBalanceAndSelectModule(module) {
+            if (module === 'miner') handleMinerClick();
+        }
+
+        // Покупка плана
+        async function purchasePlan(planName, planPrice) {
+            try {
+                // Если юзер кликнул на тот план, который у него уже есть, просто отправляем в майнер
+                let currentPlan = null;
+                if (hasPlan) {
+                    try { currentPlan = JSON.parse(localStorage.getItem('selectedPlan')).name; } catch(e) {}
+                }
+                if (currentPlan === planName) {
+                    showSection('minerSection');
+                    return;
+                }
+
+                // Проверка баланса
+                if (currentBalance < planPrice) {
+                    showMessage('❌ Недостаточно средств!', 'error');
+                    showSection('menuSection');
+                    document.getElementById('depositWarningModal').classList.add('show');
+                    return;
+                }
+
+                // Отправляем запрос на покупку
+                const res = await fetch('/api/plan/purchase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan_name: planName, plan_price: planPrice })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    currentBalance = parseFloat(data.new_balance) || 0;
+                    hasPlan = true;
+                    safeSet('top-balance',    '$' + currentBalance.toFixed(2));
+                    safeSet('profileBalance', '$' + currentBalance.toFixed(2));
+                    localStorage.setItem('selectedPlan', JSON.stringify({ name: planName, price: planPrice }));
+                    safeSet('activePlanBadge',  planName.toUpperCase());
+                    safeSet('currentPlanLabel', planName.toUpperCase());
+                    
+                    renderPlanSection(); // Обновляем кнопки тарифов
+
+                    showMessage('✅ ' + data.message, 'success');
+                    setTimeout(() => { showSection('minerSection'); }, 800);
+                } else {
+                    showMessage(`❌ ${data.message}`, 'error');
+                }
+            } catch (e) {
+                showMessage('❌ Ошибка при покупке плана', 'error');
+                console.error('Error:', e);
+            }
+        }
+        
+        // РЕНДЕР КАРТОЧЕК ТАРИФОВ (отрисовка статуса куплено / доступно)
+        function renderPlanSection() {
+            let currentPlan = null;
+            if (hasPlan) {
+                try {
+                    currentPlan = JSON.parse(localStorage.getItem('selectedPlan')).name;
+                } catch(e) {}
+            }
+
+            const plans = [
+                { id: 'starter', price: 50, colorClass: 'bg-blue-600 hover:bg-blue-700', borderClass: 'border-slate-700' },
+                { id: 'pro', price: 150, colorClass: 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700', borderClass: 'border-blue-500/50' },
+                { id: 'elite', price: 300, colorClass: 'bg-amber-600 hover:bg-amber-700', borderClass: 'border-slate-700' }
+            ];
+
+            plans.forEach(p => {
+                const btn = document.getElementById('planBtn_' + p.id);
+                const card = document.getElementById('planCard_' + p.id);
+                if (!btn || !card) return;
+
+                // Базовые стили карточки
+                card.className = `glass rounded-2xl overflow-hidden floating-card transition-all duration-300 border ${p.id === 'pro' ? 'border-2 relative' : ''}`;
+                
+                if (currentPlan === p.id) {
+                    // План КУПЛЕН
+                    card.classList.add('border-emerald-500'); 
+                    if (p.id === 'pro') card.classList.remove('border-blue-500/50');
+                    
+                    card.onclick = null; // Отключаем клик по самой карточке
+                    
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        showSection('minerSection');
+                    };
+                    btn.className = 'w-full py-3 bg-emerald-600 hover:bg-emerald-700 rounded-lg font-bold text-white transition flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)]';
+                    btn.innerHTML = '<i class="fas fa-play"></i> Перейти в майнер';
+                } else {
+                    // План ДОСТУПЕН ДЛЯ ПОКУПКИ
+                    card.classList.add(p.borderClass, 'cursor-pointer', 'card-hover');
+                    card.onclick = () => purchasePlan(p.id, p.price);
+                    
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        purchasePlan(p.id, p.price);
+                    };
+                    btn.className = `w-full py-3 ${p.colorClass} rounded-lg font-bold text-white transition`;
+                    btn.innerHTML = 'Выбрать';
+                }
+            });
+        }
+
+        // Вывод сообщения
+        function showMessage(message, type = 'success') {
+            const div = document.createElement('div');
+            div.className = 'success-message';
+            div.textContent = message;
+            if (type === 'error') {
+                div.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            }
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // Навигация между секциями
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            if (sectionId === 'planSection') {
+                renderPlanSection(); // Обновляем UI тарифов при входе в секцию
+            }
+        }
+
+        // Модали
+        function toggleProfile(e) {
+            if (e) e.stopPropagation();
+            document.getElementById('profileMenu').classList.toggle('hidden');
+        }
+
+        function openUSDTDepositModal() {
+            document.getElementById('depositWarningModal').classList.remove('show');
+            document.getElementById('usdtDepositModal').classList.add('show');
+            generateQRCode();
+        }
+
+        function closeUSDTDepositModal() {
+            document.getElementById('usdtDepositModal').classList.remove('show');
+        }
+
+        function closeDepositWarningModal() {
+            document.getElementById('depositWarningModal').classList.remove('show');
+        }
+
+        function openWithdrawModal() {
+            document.getElementById('withdrawModal').classList.add('show');
+        }
+
+        function closeWithdrawModal() {
+            document.getElementById('withdrawModal').classList.remove('show');
+        }
+
+        function openTransactionsModal() {
+            document.getElementById('transactionsModal').classList.add('show');
+            loadTransactions();
+        }
+
+        function closeTransactionsModal() {
+            document.getElementById('transactionsModal').classList.remove('show');
+        }
+
+        // QR код
+        function generateQRCode() {
+            document.getElementById('qrCodeContainer').innerHTML = '';
+            new QRCode(document.getElementById('qrCodeContainer'), {
+                text: `TRC20:${USDT_ADDRESS}`,
+                width: 256,
+                height: 256,
+                colorDark: '#1e293b',
+                colorLight: '#ffffff',
+            });
+        }
+
+        // Копировать адрес
+        function copyAddress() {
+            navigator.clipboard.writeText(USDT_ADDRESS).then(() => {
+                const btn = event.target.closest('button');
+                btn.classList.add('copied');
+                setTimeout(() => btn.classList.remove('copied'), 2000);
+            });
+        }
+
+        // Вывод средств
+        async function submitWithdraw() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const wallet = document.getElementById('walletAddressWithdraw').value;
+            if (!amount || !wallet) return showMessage('❌ Заполните все поля', 'error');
+
+            try {
+                const res = await fetch('/api/user/withdraw', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, wallet_address: wallet })
+                });
+                if (res.ok) {
+                    showMessage('✅ Запрос на вывод создан!', 'success');
+                    closeWithdrawModal();
+                    loadProfile();
+                }
+            } catch (e) {
+                showMessage('❌ Ошибка', 'error');
+            }
+        }
+
+        // Загрузка транзакций
+        async function loadTransactions() {
+            try {
+                const res = await fetch('/api/user/transactions');
+                const data = await res.json();
+                const html = data.transactions?.length > 0
+                    ? data.transactions.map(t => `<div class="p-3 bg-slate-900 rounded-lg text-xs"><strong>${t.type === 'deposit' ? '➕' : t.type === 'plan_purchase' ? '🛒' : '📤'} ${t.amount.toFixed(2)} USD</strong> - ${t.status}</div>`).join('')
+                    : '<p class="text-slate-500">Нет транзакций</p>';
+                document.getElementById('transactionsList').innerHTML = html;
+            } catch (e) {
+                console.error('Error:', e);
+            }
+        }
+
+        // ──────────────────────────────────────────────────────
+        //  PLAN CONFIG
+        // ──────────────────────────────────────────────────────
+        const PLANS = {
+            starter: { earn: 10,  hours: 6,  hashMin: 115, hashMax: 130, label:'STARTER' },
+            pro:     { earn: 13,  hours: 6,  hashMin: 460, hashMax: 510, label:'PRO' },
+            elite:   { earn: 21,  hours: 6,  hashMin: 1150, hashMax: 1280, label:'ELITE' },
+        };
+        // fallback
+        const DEFAULT_PLAN = 'starter';
+
+        // ──────────────────────────────────────────────────────
+        //  MINING STATE
+        // ──────────────────────────────────────────────────────
+        let isMining = false;
+        let miningBalance = 0;
+        let sessionSeconds = 0;
+        let sessionTimerInterval = null;
+        let miningTickTimeout = null;
+        let errorTimeout = null;
+        let errorActive = false;
+        let sharesCount = 0;
+        let activePlan = null;
+        let earningPerSecond = 0;
+
+        // ──────────────────────────────────────────────────────
+        //  ERROR DEFINITIONS
+        // ──────────────────────────────────────────────────────
+        const ERRORS = [
+            {
+                id:'dag',
+                title: 'DAG Build Error',
+                msg:   'ERR_DAG_EPOCH_0: DAG file corrupted or missing. Epoch mismatch detected.',
+                fixLabel: 'Rebuild DAG Cache',
+                fixIcon: '🔧',
+                fixLog: '[FIX] DAG cache cleared. Rebuilding epoch data... Done.',
+                fixDelay: 3200,
+            },
+            {
+                id:'conn',
+                title: 'Pool Connection Lost',
+                msg:   'POOL_DISCONNECT: stratum+tcp timeout. Reconnecting to eu.pool.tron.com:4444',
+                fixLabel: 'Reconnect to Pool',
+                fixIcon: '🔌',
+                fixLog: '[FIX] TCP handshake re-established. Pool latency: 42ms.',
+                fixDelay: 2000,
+            },
+            {
+                id:'mem',
+                title: 'GPU Memory Error',
+                msg:   'CUDA_ERR_OUT_OF_MEMORY: Insufficient VRAM. Worker thread #3 halted.',
+                fixLabel: 'Flush GPU Memory',
+                fixIcon: '💾',
+                fixLog: '[FIX] VRAM flushed. Worker #3 restarted. All threads active.',
+                fixDelay: 2500,
+            },
+            {
+                id:'share',
+                title: 'Stale Share Rejected',
+                msg:   'SHARE_STALE: 5 consecutive stale shares. Job hash outdated.',
+                fixLabel: 'Sync New Job Hash',
+                fixIcon: '⚡',
+                fixLog: '[FIX] New job received from pool. Share counter reset.',
+                fixDelay: 1800,
+            },
+            {
+                id:'temp',
+                title: 'Thermal Throttle Warning',
+                msg:   'TEMP_WARN: GPU0 @ 89°C — throttling to 70% TDP. Risk of shutdown.',
+                fixLabel: 'Apply Thermal Limit',
+                fixIcon: '🌡️',
+                fixLog: '[FIX] Fan curve adjusted. Temp stable @ 74°C. Full power restored.',
+                fixDelay: 3000,
+            },
+            {
+                id:'nonce',
+                title: 'Nonce Overflow',
+                msg:   'NONCE_OVERFLOW: 32-bit nonce space exhausted. ExtraNonce required.',
+                fixLabel: 'Reset Nonce Range',
+                fixIcon: '🔄',
+                fixLog: '[FIX] ExtraNonce2 assigned. Nonce range refreshed.',
+                fixDelay: 1500,
+            },
+        ];
+
+        // Жёлтые предупреждения
+        const WARN_PHRASES = [
+            'Latency spike detected on pool',
+            'Block found by another miner',
+            'Difficulty adjustment incoming',
+            'Share submission delayed',
+            'Network propagation lag 120ms',
+            'SR node sync delta +2 blocks',
+            'Mempool congestion moderate',
+            'TRX fee estimate rising',
+            'Worker heartbeat 4s delayed',
+            'Hashrate variance ±8%',
+            'Epoch boundary approaching',
+            'Pool job refresh queued',
+        ];
+
+        let activeError = null;
+
+        function getActivePlan() {
+            try {
+                const p = JSON.parse(localStorage.getItem('selectedPlan') || '{}');
+                return PLANS[p.name] ? p.name : DEFAULT_PLAN;
+            } catch(e) { return DEFAULT_PLAN; }
+        }
+
+        function startMining() {
+            activePlan = getActivePlan();
+            const plan = PLANS[activePlan];
+            earningPerSecond = plan.earn / (plan.hours * 3600);
+
+            isMining = true;
+            errorActive = false;
+            sessionSeconds = 0;
+            sharesCount = 0;
+
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            document.getElementById('planEstLabel').textContent =
+                `Est. Output: $${plan.earn.toFixed(2)} / ${plan.hours}h · ${plan.label}`;
+
+            clearTerminal();
+            addLog(`[SYSTEM] Initializing ${plan.label} mining node...`);
+            setTimeout(() => addLog(`[SYSTEM] CUDA devices detected: 1x A100 GPU`), 600);
+            setTimeout(() => addLog(`[SYSTEM] Connecting to stratum+tcp://eu.pool.tron.com:4444`), 1200);
+            setTimeout(() => addLog(`[POOL] Authorized. Difficulty: ${plan.hashMin} MH/s target`), 2000);
+            setTimeout(() => {
+                addLog(`[MINING] Mining started. Plan: ${plan.label} · Target: $${plan.earn}/${plan.hours}h`);
+                miningLoop();
+                sessionTimerLoop();
+                scheduleErrors();
+                scheduleWarnings();
+            }, 2800);
+        }
+
+        function stopMining() {
+            isMining = false;
+            clearTimeout(miningTickTimeout);
+            clearTimeout(errorTimeout);
+            clearInterval(sessionTimerInterval);
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            addLog(`[MINING] Session stopped. Earned: $${miningBalance.toFixed(4)}`);
+            hideError();
+        }
+
+        function clearTerminal() {
+            document.getElementById('terminal').innerHTML =
+                '<p style="color:#334155">[system] Hardware initialized. Awaiting user command...</p>';
+        }
+
+        // ── MAIN MINING LOOP ──
+        function miningLoop() {
+            if (!isMining) return;
+            if (errorActive) {
+                miningTickTimeout = setTimeout(miningLoop, 1000);
+                return;
+            }
+
+            const plan = PLANS[activePlan];
+            const hash = (plan.hashMin + Math.random() * (plan.hashMax - plan.hashMin)).toFixed(2);
+            const unit = activePlan === 'elite' ? 'GH/s' : 'MH/s';
+            const displayHash = activePlan === 'elite'
+                ? (parseFloat(hash) / 1000).toFixed(3)
+                : hash;
+
+            sharesCount++;
+            miningBalance += earningPerSecond * (1.5 + Math.random());
+            if (miningBalance < 0) miningBalance = 0;
+
+            document.getElementById('minerBalance').textContent = '$' + miningBalance.toFixed(4);
+            document.getElementById('liveHashrate').textContent = displayHash + ' ' + unit;
+            document.getElementById('liveShares').textContent = sharesCount;
+            document.getElementById('liveRate').textContent =
+                '$' + (earningPerSecond * 3600).toFixed(3) + '/hr';
+
+            const ts = new Date().toTimeString().slice(0,8);
+            addLog(`[${ts}] Share #${sharesCount} accepted · ${displayHash} ${unit} · job 0x${randHex(8)}`);
+
+            miningTickTimeout = setTimeout(miningLoop, 1800 + Math.random() * 2200);
+        }
+
+        // ── SESSION TIMER ──
+        function sessionTimerLoop() {
+            clearInterval(sessionTimerInterval);
+            sessionTimerInterval = setInterval(() => {
+                if (!isMining) return;
+                sessionSeconds++;
+                const plan = PLANS[activePlan];
+                const totalSec = plan.hours * 3600;
+                const pct = Math.min(100, (sessionSeconds / totalSec * 100)).toFixed(1);
+                const h = String(Math.floor(sessionSeconds / 3600)).padStart(2,'0');
+                const m = String(Math.floor((sessionSeconds % 3600) / 60)).padStart(2,'0');
+                const s = String(sessionSeconds % 60).padStart(2,'0');
+                document.getElementById('liveTime').textContent = `${h}:${m}:${s}`;
+                document.getElementById('sessionPct').textContent = pct + '%';
+                document.getElementById('sessionBar').style.width = pct + '%';
+            }, 1000);
+        }
+
+        // ── ERRORS ──
+        function scheduleErrors() {
+            if (!isMining) return;
+            // 1–6 ошибок в течение часа, интервал 4–18 мин
+            const count = 1 + Math.floor(Math.random() * 6);
+            let delay = 0;
+            for (let i = 0; i < count; i++) {
+                delay += (4 + Math.random() * 14) * 60 * 1000;  // 4–18 min
+                // для демо ускорим до 20–90 сек
+                const demoDelay = (20 + Math.random() * 70) * 1000;
+                scheduleOneError(demoDelay + i * (15000 + Math.random() * 20000));
+            }
+        }
+
+        function scheduleOneError(delay) {
+            setTimeout(() => {
+                if (!isMining || errorActive) return;
+                const err = ERRORS[Math.floor(Math.random() * ERRORS.length)];
+                triggerError(err);
+            }, delay);
+        }
+
+        function triggerError(err) {
+            if (!isMining) return;
+            errorActive = true;
+            activeError = err;
+
+            // красная строка в терминале
+            const ts = new Date().toTimeString().slice(0,8);
+            addLog(`[${ts}] ❌ ${err.title}: ${err.msg}`, 'error');
+            addLog(`[MINING] PAUSED — resolve the error to continue`, 'error');
+
+            // показываем панель
+            document.getElementById('errorTitle').textContent = err.title;
+            document.getElementById('errorMsg').textContent = err.msg;
+            document.getElementById('errorFixIcon').textContent = err.fixIcon;
+            document.getElementById('errorFixLabel').textContent = err.fixLabel;
+            document.getElementById('errorPanel').classList.add('show');
+        }
+
+        function fixError() {
+            if (!activeError) return;
+            const err = activeError;
+            document.getElementById('errorFixBtn').disabled = true;
+            document.getElementById('errorFixLabel').textContent = 'Fixing...';
+
+            setTimeout(() => {
+                errorActive = false;
+                activeError = null;
+                hideError();
+                const ts = new Date().toTimeString().slice(0,8);
+                addLog(`[${ts}] ✅ ${err.fixLog}`, 'fix');
+                addLog(`[MINING] RESUMED`, 'fix');
+                document.getElementById('errorFixBtn').disabled = false;
+                if (isMining) miningLoop();
+            }, err.fixDelay);
+        }
+
+        function hideError() {
+            document.getElementById('errorPanel').classList.remove('show');
+            activeError = null;
+            errorActive = false;
+        }
+
+        // ── YELLOW WARNINGS ──
+        function scheduleWarnings() {
+            if (!isMining) return;
+            const delay = (8 + Math.random() * 22) * 1000;
+            setTimeout(() => {
+                if (!isMining) return;
+                // 2–8 слов из одной фразы
+                const phrase = WARN_PHRASES[Math.floor(Math.random() * WARN_PHRASES.length)];
+                const words = phrase.split(' ');
+                const count = 2 + Math.floor(Math.random() * Math.min(7, words.length - 1));
+                const warn = words.slice(0, count).join(' ');
+                const ts = new Date().toTimeString().slice(0,8);
+                addLog(`[${ts}] ⚠ WARN: ${warn}`, 'warn');
+                scheduleWarnings();
+            }, delay);
+        }
+
+        // ── ADD LOG ──
+        function addLog(msg, type) {
+            const term = document.getElementById('terminal');
+            const p = document.createElement('p');
+            p.style.marginBottom = '2px';
+            if (type === 'error') {
+                p.style.color = '#ef4444';
+            } else if (type === 'warn') {
+                p.className = 'warn-line';
+                p.style.color = '#fbbf24';
+            } else if (type === 'fix') {
+                p.style.color = '#10b981';
+            } else {
+                p.style.color = '#94a3b8';
+            }
+            p.textContent = msg;
+            term.appendChild(p);
+            term.scrollTop = term.scrollHeight;
+
+            // activity sidebar (last 5)
+            const act = document.getElementById('activity');
+            const a = document.createElement('p');
+            a.textContent = msg.length > 52 ? msg.slice(0,52) + '…' : msg;
+            a.style.color = type === 'error' ? '#ef4444' : type === 'warn' ? '#fbbf24' : '#64748b';
+            act.appendChild(a);
+            while (act.children.length > 5) act.removeChild(act.firstChild);
+        }
+
+        // ── UTILS ──
+        function randHex(n) {
+            return Array.from({length:n}, () => Math.floor(Math.random()*16).toString(16)).join('');
+        }
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('profileMenu');
+            if (!menu) return;
+            // Закрываем только если клик вне nav-кнопки и вне самого меню
+            if (!e.target.closest('#profileMenu') && !e.target.closest('[onclick*="toggleProfile"]')) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // ──────────────────────────────────────────────────────
+        //  TX PROCESSING OVERLAY
+        // ──────────────────────────────────────────────────────
+        let txConfirmInterval = null;
+
+        function showTxProcessing() {
+            const overlay = document.getElementById('txProcessingOverlay');
+            overlay.classList.add('show');
+
+            let count = 1;
+            const hash = '0x' + randHex(64);
+            document.getElementById('txHashVal').textContent = hash;
+            document.getElementById('txConfirmCount').innerHTML = count + ' <span>/ 12</span>';
+            document.getElementById('txStatusBadge').textContent = 'PENDING';
+            document.getElementById('txStatusBadge').style.color = '#f59e0b';
+
+            // block number animation
+            let block = 67241800 + Math.floor(Math.random() * 1000);
+            const blockInterval = setInterval(() => {
+                block++;
+                document.getElementById('txBlockNum').textContent = block.toLocaleString();
+            }, 3000);
+
+            // reset dots
+            for (let i = 0; i < 12; i++) {
+                const d = document.getElementById('txDot'+i);
+                if (d) { d.className = 'tx-dot' + (i === 0 ? ' done' : ''); }
+            }
+
+            // log times
+            const now = new Date();
+            document.getElementById('txTime0').textContent = now.toTimeString().slice(0,8);
+
+            const msgs = [
+                'Транзакция включена в блок',
+                'Верификация SR-нодами...',
+                'Консенсус достигнут',
+                'Финальное подтверждение',
+                'Запись в блокчейн',
+                'Обновление баланса',
+            ];
+            const logKeys = ['txLogDot1','txLogDot2','txLogDot3'];
+            const logTexts = ['txLogText1','txLogText2','txLogText3'];
+            const logTimes = ['txTime1','txTime2','txTime3'];
+            let logStep = 0;
+
+            clearInterval(txConfirmInterval);
+            txConfirmInterval = setInterval(() => {
+                if (count >= 12) {
+                    clearInterval(txConfirmInterval);
+                    clearInterval(blockInterval);
+                    document.getElementById('txStatusBadge').textContent = 'CONFIRMED';
+                    document.getElementById('txStatusBadge').style.color = '#10b981';
+                    document.getElementById('txStatusMsg').textContent = 'Транзакция подтверждена!';
+                    return;
+                }
+                count++;
+                document.getElementById('txConfirmCount').innerHTML = count + ' <span>/ 12</span>';
+                for (let i = 0; i < 12; i++) {
+                    const d = document.getElementById('txDot'+i);
+                    if (!d) continue;
+                    if (i < count - 1) { d.className = 'tx-dot done'; }
+                    else if (i === count - 1) { d.className = 'tx-dot active'; }
+                    else { d.className = 'tx-dot'; }
+                }
+
+                const stepMsgs = [
+                    'Ожидание SR-нод TRON...',
+                    'Проверка подписи транзакции...',
+                    'Синхронизация mempool...',
+                    'Голосование нод завершено...',
+                    'Запись в immutable ledger...',
+                    'Верификация USDT контракта...',
+                ];
+                document.getElementById('txStatusMsg').textContent =
+                    stepMsgs[count % stepMsgs.length];
+
+                if (logStep < 3) {
+                    const t = new Date().toTimeString().slice(0,8);
+                    document.getElementById(logTimes[logStep]).textContent = t;
+                    document.getElementById(logTexts[logStep]).textContent = msgs[logStep] || msgs[0];
+                    document.getElementById(logTexts[logStep]).style.color = '#94a3b8';
+                    document.getElementById(logKeys[logStep]).className = 'tx-log-dot ok';
+                    if (logStep + 1 < 3) {
+                        document.getElementById(logKeys[logStep+1]).className = 'tx-log-dot pending';
+                    }
+                    logStep++;
+                }
+            }, 3500);
+        }
+
+        function hideTxProcessing() {
+            document.getElementById('txProcessingOverlay').classList.remove('show');
+            clearInterval(txConfirmInterval);
+        }
+
+        function openUSDTDepositModal() {
+            document.getElementById('depositWarningModal').classList.remove('show');
+            document.getElementById('usdtDepositModal').classList.add('show');
+            hideTxProcessing();
+            generateQRCode();
+        }
+
+        // ──────────────────────────────────────────────────────
+        //  NOTIFICATION POLLING
+        // ──────────────────────────────────────────────────────
+        function startNotificationPolling() {
+            setInterval(checkNotifications, 7000);
+        }
+
+        async function checkNotifications() {
+            try {
+                const res = await fetch('/api/user/notifications');
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data.notifications || data.notifications.length === 0) return;
+                data.notifications.forEach(n => {
+                    if (n.title && (n.title.includes('Баланс') || n.title.includes('баланс'))) {
+                        const modal = document.getElementById('usdtDepositModal');
+                        if (!modal.classList.contains('show')) modal.classList.add('show');
+                        showTxProcessing();
+                        setTimeout(() => {
+                            hideTxProcessing();
+                            showMessage('✅ Баланс успешно пополнен!', 'success');
+                            loadProfile();
+                        }, 44000);
+                    } else {
+                        showMessage('🔔 ' + n.title, 'success');
+                    }
+                });
+            } catch (e) {}
+        }
+
+        // ──────────────────────────────────────────────────────
+        //  CHANGE PLAN MODAL
+        // ──────────────────────────────────────────────────────
+        let selectedChangePlan = null;
+        let selectedChangePlanPrice = 0;
+
+        function openChangePlanModal() {
+            selectedChangePlan = null;
+            selectedChangePlanPrice = 0;
+            document.getElementById('changePlanSummary').style.display = 'none';
+            document.getElementById('changePlanSubmitBtn').disabled = true;
+
+            // Highlight current plan
+            const cur = getActivePlan();
+            ['starter','pro','elite'].forEach(p => {
+                const card = document.getElementById('changePlanCard_' + p);
+                if (!card) return;
+                card.classList.remove('border-blue-500', 'border-cyan-500', 'border-amber-500', 'opacity-50');
+                if (p === cur) {
+                    card.style.opacity = '0.45';
+                    card.style.pointerEvents = 'none';
+                } else {
+                    card.style.opacity = '1';
+                    card.style.pointerEvents = '';
+                }
+            });
+
+            document.getElementById('changePlanModal').classList.add('show');
+        }
+
+        function closeChangePlanModal() {
+            document.getElementById('changePlanModal').classList.remove('show');
+        }
+
+        function selectChangePlan(planName, planPrice) {
+            selectedChangePlan = planName;
+            selectedChangePlanPrice = planPrice;
+
+            // Card highlight
+            ['starter','pro','elite'].forEach(p => {
+                const card = document.getElementById('changePlanCard_' + p);
+                if (!card) return;
+                card.style.outline = p === planName ? '2px solid #3b82f6' : 'none';
+                card.style.outlineOffset = '2px';
+            });
+
+            // Summary
+            document.getElementById('changePlanSummary').style.display = 'block';
+            document.getElementById('changePlanSummaryName').textContent = planName.toUpperCase();
+            document.getElementById('changePlanSummaryPrice').textContent = '$' + planPrice.toFixed(2);
+            document.getElementById('changePlanSummaryBalance').textContent = '$' + currentBalance.toFixed(2);
+
+            const canAfford = currentBalance >= planPrice;
+            document.getElementById('changePlanWarning').style.display = canAfford ? 'none' : 'block';
+            document.getElementById('changePlanSubmitBtn').disabled = !canAfford;
+        }
+
+        async function submitChangePlan() {
+            if (!selectedChangePlan) return;
+            const btn = document.getElementById('changePlanSubmitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Меняю план...';
+
+            try {
+                const res = await fetch('/api/plan/change', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan_name: selectedChangePlan, plan_price: selectedChangePlanPrice })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    currentBalance = data.new_balance;
+                    document.getElementById('top-balance').textContent = '$' + currentBalance.toFixed(2);
+                    document.getElementById('profileBalance').textContent = '$' + currentBalance.toFixed(2);
+                    localStorage.setItem('selectedPlan', JSON.stringify({ name: selectedChangePlan, price: selectedChangePlanPrice }));
+                    document.getElementById('activePlanBadge').textContent = selectedChangePlan.toUpperCase();
+                    document.getElementById('currentPlanLabel').textContent = selectedChangePlan.toUpperCase();
+
+                    // Если майнинг идёт — остановить
+                    if (isMining) {
+                        stopMining();
+                        addLog('[PLAN] Plan changed — mining session reset.', 'warn');
+                    }
+
+                    closeChangePlanModal();
+                    
+                    renderPlanSection(); // Обновляем карточки после смены плана
+
+                    showMessage('✅ План изменён на ' + selectedChangePlan.toUpperCase(), 'success');
+                } else {
+                    showMessage('❌ ' + (data.message || 'Ошибка смены плана'), 'error');
+                }
+            } catch(e) {
+                showMessage('❌ Ошибка подключения', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Сменить план';
+            }
+        }
+
+        // Запуск инициализации при загрузке страницы
+        loadProfile();
+        startNotificationPolling();
+    </script>
+</body>
+</html>

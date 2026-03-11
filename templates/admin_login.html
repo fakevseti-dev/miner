@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Access — NEON</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #050914;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(239,68,68,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(239,68,68,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .glow-1 {
+            position: absolute;
+            width: 400px; height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(239,68,68,0.08), transparent 70%);
+            top: -100px; left: -100px;
+            pointer-events: none;
+        }
+
+        .glow-2 {
+            position: absolute;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139,92,246,0.08), transparent 70%);
+            bottom: -50px; right: -50px;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: rgba(10, 16, 42, 0.95);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 20px;
+            padding: 40px 32px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(239,68,68,0.08);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header { text-align: center; margin-bottom: 32px; }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .admin-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            color: #ef4444;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .admin-tag::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        .header h1 {
+            font-size: 20px;
+            color: #f1f5f9;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: #64748b;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .form-group { margin-bottom: 16px; }
+
+        label {
+            display: block;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1.5px solid rgba(239,68,68,0.15);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #f1f5f9;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+        }
+
+        input::placeholder { color: #334155; }
+
+        .error {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #fca5a5;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .error.show { display: block; }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(239,68,68,0.35);
+        }
+
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .back {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .back a { color: #3b82f6; text-decoration: none; }
+        .back a:hover { color: #60a5fa; }
+    </style>
+</head>
+<body>
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <div class="logo">⚡ NEON</div>
+            <div class="admin-tag">Admin Access</div>
+            <h1>Панель управления</h1>
+            <p>Только для авторизованных</p>
+        </div>
+
+        <div class="error" id="errorMsg"></div>
+
+        <div class="form-group">
+            <label>Логин администратора</label>
+            <input type="text" id="username" placeholder="admin" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label>Пароль</label>
+            <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter') login()">
+        </div>
+
+        <button class="btn" id="loginBtn" onclick="login()">→ Войти в панель</button>
+
+        <div class="back"><a href="/">← Вернуться на сайт</a></div>
+    </div>
+</div>
+
+<script>
+async function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const err = document.getElementById('errorMsg');
+    const btn = document.getElementById('loginBtn');
+
+    if (!username || !password) { err.textContent = 'Заполните все поля'; err.classList.add('show'); return; }
+    err.classList.remove('show');
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+        const r = await fetch('/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await r.json();
+        if (r.ok) {
+            window.location.href = '/admin';
+        } else {
+            err.textContent = data.message || 'Неверные данные';
+            err.classList.add('show');
+        }
+    } catch(e) {
+        err.textContent = 'Ошибка подключения';
+        err.classList.add('show');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '→ Войти в панель';
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Scanner — NEON</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            overflow-x: hidden;
+            background-color: #0f172a;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #0d1f3c 50%, #0f172a 100%);
+            background-attachment: fixed;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        /* ── CONSOLE ── */
+        .console-wrap {
+            background: #060d1f;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 60px rgba(16, 185, 129, 0.04), inset 0 0 40px rgba(0,0,0,0.3);
+        }
+
+        .console-header {
+            background: rgba(10, 20, 40, 0.9);
+            border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .console-dots { display: flex; gap: 7px; }
+        .console-dot {
+            width: 11px; height: 11px; border-radius: 50%;
+        }
+        .dot-r { background: #ef4444; }
+        .dot-y { background: #f59e0b; }
+        .dot-g { background: #10b981; }
+
+        .console-title {
+            font-size: 11px;
+            color: #334155;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .console-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #10b981;
+            letter-spacing: 1.5px;
+        }
+
+        .console-status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .console-status-dot.scanning {
+            animation: scanPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes scanPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 6px #10b981; }
+            50% { opacity: 0.3; box-shadow: none; }
+        }
+
+        .console-body {
+            height: 460px;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            scroll-behavior: smooth;
+        }
+
+        .console-body::-webkit-scrollbar { width: 4px; }
+        .console-body::-webkit-scrollbar-track { background: #060d1f; }
+        .console-body::-webkit-scrollbar-thumb { background: rgba(16,185,129,0.2); border-radius: 4px; }
+        .console-body::-webkit-scrollbar-thumb:hover { background: rgba(16,185,129,0.5); }
+
+        /* ── SCAN LINE ── */
+        .scan-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.4;
+            transition: background 0.2s;
+            animation: lineAppear 0.25s ease-out;
+            cursor: default;
+            user-select: none;
+        }
+
+        @keyframes lineAppear {
+            from { opacity: 0; transform: translateX(-8px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .scan-line:hover { background: rgba(255,255,255,0.03); }
+
+        /* ── COLOR STATES ── */
+        .line-green {
+            background: rgba(16, 185, 129, 0.07);
+            border-left: 2px solid #10b981;
+        }
+        .line-green:hover { background: rgba(16, 185, 129, 0.12); }
+
+        .line-gray {
+            border-left: 2px solid transparent;
+        }
+
+        .line-red {
+            border-left: 2px solid rgba(239,68,68,0.4);
+        }
+
+        .line-sys {
+            border-left: 2px solid rgba(59,130,246,0.4);
+        }
+
+        .spread-green { color: #10b981; font-weight: 700; }
+        .spread-gray  { color: #475569; }
+        .spread-red   { color: #ef4444; }
+
+        .pair-green { color: #f1f5f9; font-weight: 600; }
+        .pair-gray  { color: #475569; }
+        .pair-red   { color: #64748b; }
+
+        .exchange-tag {
+            font-size: 9px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .ex-green { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+        .ex-gray  { background: rgba(71,85,105,0.15); color: #475569; border: 1px solid rgba(71,85,105,0.2); }
+        .ex-red   { background: rgba(239,68,68,0.08); color: #64748b; border: 1px solid rgba(239,68,68,0.1); }
+
+        .timestamp { font-size: 10px; color: #1e293b; flex-shrink: 0; width: 58px; }
+        .arrow-icon { font-size: 10px; flex-shrink: 0; }
+        .arrow-green { color: #10b981; }
+        .arrow-gray  { color: #334155; }
+        .arrow-red   { color: #3f3f3f; }
+
+        .save-btn {
+            margin-left: auto;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #10b981;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Sora', sans-serif;
+            flex-shrink: 0;
+        }
+        .save-btn:hover { background: rgba(16,185,129,0.25); }
+        .save-btn.saved { color: #6ee7b7; border-color: transparent; background: transparent; cursor: default; }
+
+        /* ── STATS BAR ── */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: rgba(6, 13, 31, 0.8);
+            border: 1px solid rgba(16,185,129,0.1);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+            font-family: monospace;
+        }
+
+        .stat-val {
+            font-size: 22px;
+            font-weight: 800;
+            font-family: monospace;
+        }
+
+        .stat-sub { font-size: 10px; color: #475569; margin-top: 2px; }
+
+        /* ── CONTROLS ── */
+        .ctrl-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .btn-start:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(16,185,129,0.35); }
+        .btn-start:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-stop {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #ef4444;
+        }
+        .btn-stop:hover { background: rgba(239,68,68,0.25); }
+
+        .btn-clear {
+            background: rgba(71,85,105,0.2);
+            border: 1px solid rgba(71,85,105,0.3);
+            color: #64748b;
+        }
+        .btn-clear:hover { background: rgba(71,85,105,0.35); color: #94a3b8; }
+
+        .btn-settings {
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.25);
+            color: #3b82f6;
+        }
+        .btn-settings:hover { background: rgba(59,130,246,0.2); }
+
+        /* ── MODAL ── */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+        }
+        .modal-backdrop.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-box {
+            background: #0a1020;
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 20px;
+            padding: 32px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #f1f5f9;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-row {
+            margin-bottom: 20px;
+        }
+
+        .setting-label {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .opt-btn {
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(59,130,246,0.18);
+            background: rgba(15,23,42,0.8);
+            color: #475569;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .opt-btn:hover { border-color: rgba(59,130,246,0.4); color: #94a3b8; }
+
+        .opt-btn.active {
+            background: rgba(59,130,246,0.15);
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+
+        .opt-btn.active-green {
+            background: rgba(16,185,129,0.12);
+            border-color: #10b981;
+            color: #34d399;
+        }
+
+        /* ── SAVED TABLE ── */
+        .saved-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .saved-table th {
+            text-align: left;
+            font-size: 9px;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(16,185,129,0.08);
+        }
+
+        .saved-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(16,185,129,0.05);
+            color: #94a3b8;
+        }
+
+        .saved-table tr:last-child td { border-bottom: none; }
+        .saved-table tr:hover td { background: rgba(16,185,129,0.04); }
+
+        /* ── NOTIFICATION ── */
+        .notif {
+            position: fixed;
+            top: 20px; right: 20px;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 12px;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(16,185,129,0.3);
+            z-index: 100000;
+            animation: notifIn 0.3s ease-out;
+            pointer-events: none;
+        }
+        @keyframes notifIn {
+            from { transform: translateX(300px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #0f172a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.25); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.5); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.35s ease-out; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="glass border-b border-slate-700/50 sticky top-0" style="z-index:1000;">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <span style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">⚡ NEON</span>
+            <span style="font-size:11px;color:#334155;letter-spacing:2px;text-transform:uppercase;font-family:monospace;">/ Crypto Scanner</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div style="font-family:monospace;font-size:13px;" id="scanCountBadge">
+                <span style="color:#334155;">FOUND: </span><span style="color:#10b981;font-weight:700;" id="totalFound">0</span>
+            </div>
+            <a href="/miner" style="font-size:12px;color:#475569;text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.2s;" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#475569'">
+                <i class="fas fa-arrow-left" style="font-size:10px;"></i> Назад
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-7xl mx-auto px-6 py-8">
+
+    <!-- HEADER -->
+    <div class="mb-8 flex items-start justify-between flex-wrap gap-4">
+        <div>
+            <h1 style="font-size:32px;font-weight:800;color:#f1f5f9;margin-bottom:6px;">
+                <span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Crypto</span> Scanner
+            </h1>
+            <p style="color:#475569;font-size:13px;font-family:monospace;">Поиск арбитражных связок в реальном времени</p>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+            <button class="ctrl-btn btn-settings" onclick="openSettings()">
+                <i class="fas fa-sliders-h"></i> Настройки
+            </button>
+            <button class="ctrl-btn btn-clear" id="clearBtn" onclick="clearConsole()">
+                <i class="fas fa-trash-alt"></i> Очистить
+            </button>
+            <button class="ctrl-btn btn-stop" id="stopBtn" onclick="stopScanner()" style="display:none;">
+                <i class="fas fa-stop"></i> Стоп
+            </button>
+            <button class="ctrl-btn btn-start" id="startBtn" onclick="startScanner()">
+                <i class="fas fa-search"></i> Запустить сканер
+            </button>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-bar mb-6">
+        <div class="stat-card">
+            <div class="stat-label">Всего проверено</div>
+            <div class="stat-val" id="statTotal" style="color:#60a5fa;">0</div>
+            <div class="stat-sub">пар</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Прибыльных</div>
+            <div class="stat-val" id="statGreen" style="color:#10b981;">0</div>
+            <div class="stat-sub">спред ≥ мин.</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Сохранено</div>
+            <div class="stat-val" id="statSaved" style="color:#f59e0b;">0</div>
+            <div class="stat-sub">связок</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Макс. спред</div>
+            <div class="stat-val" id="statMaxSpread" style="color:#a78bfa;">0.00%</div>
+            <div class="stat-sub">за сессию</div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid rgba(16,185,129,0.08);">
+        <button class="tab-btn active-tab" id="tab-console" onclick="switchTab('console')" style="padding:9px 20px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;font-family:'Sora',sans-serif;color:#10b981;border-bottom:2px solid #10b981;transition:all 0.2s;">
+            <i class="fas fa-terminal"></i> &nbsp;Консоль
+        </button>
+        <button class="tab-btn" id="tab-saved" onclick="switchTab('saved')" style="padding:9px 20px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;font-family:'Sora',sans-serif;color:#334155;border-bottom:2px solid transparent;transition:all 0.2s;">
+            <i class="fas fa-bookmark"></i> &nbsp;Сохранённые
+        </button>
+    </div>
+
+    <!-- CONSOLE SECTION -->
+    <div id="section-console">
+        <div class="console-wrap">
+            <div class="console-header">
+                <div class="console-dots">
+                    <div class="console-dot dot-r"></div>
+                    <div class="console-dot dot-y"></div>
+                    <div class="console-dot dot-g"></div>
+                </div>
+                <div class="console-title">arbitrage_scanner.sh</div>
+                <div class="console-status" id="consoleStatus">
+                    <div class="console-status-dot" id="statusDot"></div>
+                    <span id="statusText">IDLE</span>
+                </div>
+            </div>
+            <div class="console-body" id="consoleBody">
+                <div style="color:#1e293b;font-size:12px;font-family:monospace;padding:4px 0;">
+                    > Система готова. Нажмите «Запустить сканер» для начала работы.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAVED SECTION -->
+    <div id="section-saved" style="display:none;">
+        <div class="console-wrap">
+            <div class="console-header">
+                <div class="console-dots">
+                    <div class="console-dot dot-r"></div>
+                    <div class="console-dot dot-y"></div>
+                    <div class="console-dot dot-g"></div>
+                </div>
+                <div class="console-title">saved_bundles.db</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <span style="font-size:10px;color:#334155;font-family:monospace;" id="savedCount">0 записей</span>
+                    <button onclick="clearSaved()" style="font-size:9px;padding:3px 10px;border-radius:5px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;cursor:pointer;font-family:'Sora',sans-serif;">
+                        Очистить всё
+                    </button>
+                </div>
+            </div>
+            <div style="padding:16px 20px;min-height:200px;" id="savedBody">
+                <div style="color:#1e293b;font-size:12px;font-family:monospace;text-align:center;padding:40px 0;">
+                    Нет сохранённых связок
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ══════════════════════════════════
+     SETTINGS MODAL
+══════════════════════════════════ -->
+<div class="modal-backdrop" id="settingsModal">
+    <div class="modal-box">
+        <div class="modal-title">
+            <i class="fas fa-sliders-h" style="color:#3b82f6;"></i>
+            Настройки сканера
+        </div>
+
+        <!-- 1. Монеты -->
+        <div class="setting-row">
+            <div class="setting-label">1. Монеты для сканирования</div>
+            <div class="btn-group" id="grp-coins">
+                <button class="opt-btn active-green" data-val="ALL" onclick="toggleCoin(this)">Все монеты</button>
+                <button class="opt-btn" data-val="BTC" onclick="toggleCoin(this)">BTC</button>
+                <button class="opt-btn" data-val="ETH" onclick="toggleCoin(this)">ETH</button>
+                <button class="opt-btn" data-val="SOL" onclick="toggleCoin(this)">SOL</button>
+                <button class="opt-btn" data-val="BNB" onclick="toggleCoin(this)">BNB</button>
+                <button class="opt-btn" data-val="XRP" onclick="toggleCoin(this)">XRP</button>
+                <button class="opt-btn" data-val="AVAX" onclick="toggleCoin(this)">AVAX</button>
+                <button class="opt-btn" data-val="DOGE" onclick="toggleCoin(this)">DOGE</button>
+                <button class="opt-btn" data-val="MATIC" onclick="toggleCoin(this)">MATIC</button>
+                <button class="opt-btn" data-val="LTC" onclick="toggleCoin(this)">LTC</button>
+                <button class="opt-btn" data-val="TRX" onclick="toggleCoin(this)">TRX</button>
+                <button class="opt-btn" data-val="ADA" onclick="toggleCoin(this)">ADA</button>
+            </div>
+        </div>
+
+        <!-- 2. Биржи -->
+        <div class="setting-row">
+            <div class="setting-label">2. Биржи</div>
+            <div class="btn-group" id="grp-exchanges">
+                <button class="opt-btn active-green" data-val="ALL" onclick="toggleExchange(this)">Все биржи</button>
+                <button class="opt-btn" data-val="Binance" onclick="toggleExchange(this)">Binance</button>
+                <button class="opt-btn" data-val="Bybit" onclick="toggleExchange(this)">Bybit</button>
+                <button class="opt-btn" data-val="OKX" onclick="toggleExchange(this)">OKX</button>
+                <button class="opt-btn" data-val="Kraken" onclick="toggleExchange(this)">Kraken</button>
+                <button class="opt-btn" data-val="Huobi" onclick="toggleExchange(this)">Huobi</button>
+                <button class="opt-btn" data-val="Gate.io" onclick="toggleExchange(this)">Gate.io</button>
+                <button class="opt-btn" data-val="Kucoin" onclick="toggleExchange(this)">Kucoin</button>
+            </div>
+        </div>
+
+        <!-- 3. Скорость -->
+        <div class="setting-row">
+            <div class="setting-label">3. Скорость сканирования (задержка)</div>
+            <div class="btn-group" id="grp-speed">
+                <button class="opt-btn" data-val="400" onclick="pickOne(this,'grp-speed')">Очень быстро</button>
+                <button class="opt-btn active" data-val="900" onclick="pickOne(this,'grp-speed')">Быстро</button>
+                <button class="opt-btn" data-val="1800" onclick="pickOne(this,'grp-speed')">Средне</button>
+                <button class="opt-btn" data-val="3500" onclick="pickOne(this,'grp-speed')">Медленно</button>
+            </div>
+        </div>
+
+        <!-- 4. Минимальный спред -->
+        <div class="setting-row">
+            <div class="setting-label">4. Минимальный спред (порог прибыли)</div>
+            <div class="btn-group" id="grp-minspread">
+                <button class="opt-btn" data-val="0.3" onclick="pickOne(this,'grp-minspread')">0.3%</button>
+                <button class="opt-btn active" data-val="0.5" onclick="pickOne(this,'grp-minspread')">0.5%</button>
+                <button class="opt-btn" data-val="1.0" onclick="pickOne(this,'grp-minspread')">1.0%</button>
+                <button class="opt-btn" data-val="1.5" onclick="pickOne(this,'grp-minspread')">1.5%</button>
+                <button class="opt-btn" data-val="2.0" onclick="pickOne(this,'grp-minspread')">2.0%</button>
+                <button class="opt-btn" data-val="3.0" onclick="pickOne(this,'grp-minspread')">3.0%</button>
+            </div>
+        </div>
+
+        <!-- 5. Максимальный спред -->
+        <div class="setting-row">
+            <div class="setting-label">5. Максимальный спред (фильтр аномалий)</div>
+            <div class="btn-group" id="grp-maxspread">
+                <button class="opt-btn" data-val="5" onclick="pickOne(this,'grp-maxspread')">5%</button>
+                <button class="opt-btn active" data-val="10" onclick="pickOne(this,'grp-maxspread')">10%</button>
+                <button class="opt-btn" data-val="20" onclick="pickOne(this,'grp-maxspread')">20%</button>
+                <button class="opt-btn" data-val="50" onclick="pickOne(this,'grp-maxspread')">Без лимита</button>
+            </div>
+        </div>
+
+        <!-- 6. Котировочная валюта -->
+        <div class="setting-row">
+            <div class="setting-label">6. Котировочная валюта</div>
+            <div class="btn-group" id="grp-quote">
+                <button class="opt-btn active" data-val="USDT" onclick="pickOne(this,'grp-quote')">USDT</button>
+                <button class="opt-btn" data-val="USDC" onclick="pickOne(this,'grp-quote')">USDC</button>
+                <button class="opt-btn" data-val="BTC" onclick="pickOne(this,'grp-quote')">BTC</button>
+                <button class="opt-btn" data-val="ETH" onclick="pickOne(this,'grp-quote')">ETH</button>
+            </div>
+        </div>
+
+        <!-- 7. Автосохранение -->
+        <div class="setting-row">
+            <div class="setting-label">7. Автосохранение прибыльных связок</div>
+            <div class="btn-group" id="grp-autosave">
+                <button class="opt-btn active" data-val="true" onclick="pickOne(this,'grp-autosave')">Включено</button>
+                <button class="opt-btn" data-val="false" onclick="pickOne(this,'grp-autosave')">Выключено</button>
+            </div>
+        </div>
+
+        <!-- 8. Показ серых связок -->
+        <div class="setting-row">
+            <div class="setting-label">8. Отображать нейтральные связки (серые)</div>
+            <div class="btn-group" id="grp-showgray">
+                <button class="opt-btn active" data-val="true" onclick="pickOne(this,'grp-showgray')">Показывать</button>
+                <button class="opt-btn" data-val="false" onclick="pickOne(this,'grp-showgray')">Скрыть</button>
+            </div>
+        </div>
+
+        <!-- 9. Показ красных связок -->
+        <div class="setting-row">
+            <div class="setting-label">9. Отображать убыточные связки (красные)</div>
+            <div class="btn-group" id="grp-showred">
+                <button class="opt-btn" data-val="true" onclick="pickOne(this,'grp-showred')">Показывать</button>
+                <button class="opt-btn active" data-val="false" onclick="pickOne(this,'grp-showred')">Скрыть</button>
+            </div>
+        </div>
+
+        <!-- 10. Звуковой сигнал -->
+        <div class="setting-row">
+            <div class="setting-label">10. Звуковой сигнал при находке</div>
+            <div class="btn-group" id="grp-sound">
+                <button class="opt-btn active" data-val="true" onclick="pickOne(this,'grp-sound')">Включён</button>
+                <button class="opt-btn" data-val="false" onclick="pickOne(this,'grp-sound')">Выключен</button>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:28px;">
+            <button class="ctrl-btn btn-start" style="flex:1;" onclick="applySettings()">
+                <i class="fas fa-check"></i> Применить
+            </button>
+            <button class="ctrl-btn btn-clear" onclick="closeSettings()">
+                Отмена
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ══════════════════════════════════
+//  STATE
+// ══════════════════════════════════
+let scannerRunning = false;
+let scanInterval = null;
+let savedBundles = [];
+
+let statTotal = 0, statGreen = 0, statSaved = 0, statMax = 0;
+let sessionStartTime = null;   // для подсчёта минут
+
+let settings = {
+    coins: ['ALL'],
+    exchanges: ['ALL'],
+    speed: 900,
+    minSpread: 0.5,
+    maxSpread: 10,
+    quote: 'USDT',
+    autosave: true,
+    showGray: true,
+    showRed: false,
+    sound: true,
+};
+
+// ── DATA POOLS ──
+const ALL_COINS = ['BTC','ETH','SOL','BNB','XRP','AVAX','DOGE','MATIC','LTC','TRX','ADA','DOT','ATOM','NEAR','APT','ARB','OP'];
+const ALL_EXCHANGES = ['Binance','Bybit','OKX','Kraken','Huobi','Gate.io','Kucoin','MEXC','Bitget'];
+
+function getCoins() {
+    return settings.coins.includes('ALL') ? ALL_COINS : settings.coins;
+}
+
+function getExchanges() {
+    return settings.exchanges.includes('ALL') ? ALL_EXCHANGES : settings.exchanges;
+}
+
+// ══════════════════════════════════
+//  SCANNER ENGINE
+// ══════════════════════════════════
+function startScanner() {
+    if (scannerRunning) return;
+    scannerRunning = true;
+    sessionStartTime = Date.now();
+
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = 'inline-flex';
+    document.getElementById('statusDot').classList.add('scanning');
+    document.getElementById('statusText').textContent = 'SCANNING';
+
+    // Сообщаем бэкенду о старте
+    fetch('/api/scanner/start', { method: 'POST', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
+
+    addSysLine('> Сканер запущен. Ищем арбитражные связки...');
+    addSysLine('> Монеты: ' + getCoins().join(', '));
+    addSysLine('> Биржи: ' + getExchanges().join(', '));
+    addSysLine('> Мин. спред: ' + settings.minSpread + '%  |  Макс. спред: ' + settings.maxSpread + '%');
+
+    scanInterval = setInterval(generateLine, settings.speed);
+}
+
+function stopScanner() {
+    if (!scannerRunning) return;
+    clearInterval(scanInterval);
+    scannerRunning = false;
+
+    document.getElementById('startBtn').style.display = 'inline-flex';
+    document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('statusDot').classList.remove('scanning');
+    document.getElementById('statusText').textContent = 'STOPPED';
+
+    // Считаем минуты сессии и отправляем на бэкенд
+    const minutes = sessionStartTime ? Math.max(1, Math.round((Date.now() - sessionStartTime) / 60000)) : 0;
+    fetch('/api/scanner/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ minutes, found: statGreen, saved: statSaved })
+    }).catch(() => {});
+    sessionStartTime = null;
+
+    addSysLine('> Сканер остановлен. Итого проверено: ' + statTotal + ' пар. Прибыльных: ' + statGreen);
+}
+
+function clearConsole() {
+    document.getElementById('consoleBody').innerHTML = '<div style="color:#1e293b;font-size:12px;font-family:monospace;padding:4px 0;">> Консоль очищена.</div>';
+    statTotal = 0; statGreen = 0;
+    updateStats();
+}
+
+// ── GENERATE ONE ARBITRAGE LINE ──
+function generateLine() {
+    const coins = getCoins();
+    const exchanges = getExchanges();
+
+    const coin = coins[Math.floor(Math.random() * coins.length)];
+    const ex1 = exchanges[Math.floor(Math.random() * exchanges.length)];
+    let ex2 = exchanges[Math.floor(Math.random() * exchanges.length)];
+    if (ex2 === ex1) ex2 = exchanges[(exchanges.indexOf(ex1) + 1) % exchanges.length];
+
+    const quote = settings.quote;
+
+    // Weighted spread distribution: mostly small, some good
+    let spread;
+    const r = Math.random();
+    if (r < 0.45)      spread = +(Math.random() * 0.3).toFixed(3);          // tiny 0-0.3%
+    else if (r < 0.72) spread = +(0.3 + Math.random() * 0.8).toFixed(3);    // neutral 0.3-1.1%
+    else if (r < 0.88) spread = +(1.1 + Math.random() * 2).toFixed(3);      // decent 1.1-3.1%
+    else               spread = +(3.1 + Math.random() * 4).toFixed(3);       // great 3.1-7.1%
+
+    if (spread > settings.maxSpread) spread = settings.maxSpread - Math.random() * 0.5;
+    spread = +spread.toFixed(3);
+
+    statTotal++;
+
+    const isGreen = spread >= settings.minSpread;
+    const isRed   = spread < 0.15;
+
+    if (isGreen) { statGreen++; }
+
+    if (statTotal === 1 || spread > statMax) {
+        statMax = spread;
+    }
+
+    // Filter by settings
+    if (!isGreen && isRed && !settings.showRed) { updateStats(); return; }
+    if (!isGreen && !isRed && !settings.showGray) { updateStats(); return; }
+
+    // Autosave
+    if (isGreen && settings.autosave) {
+        saveBundle(coin, ex1, ex2, spread, quote, true);
+    }
+
+    appendConsoleLine(coin, ex1, ex2, spread, quote, isGreen, isRed);
+    updateStats();
+}
+
+// ── RENDER LINE ──
+function appendConsoleLine(coin, ex1, ex2, spread, quote, isGreen, isRed) {
+    const body = document.getElementById('consoleBody');
+    const el = document.createElement('div');
+
+    const now = new Date();
+    const ts = now.toTimeString().slice(0,8);
+
+    let lineClass = 'scan-line ';
+    let pairClass, spreadClass, exClass, arrowClass;
+
+    if (isGreen) {
+        lineClass += 'line-green';
+        pairClass = 'pair-green';
+        spreadClass = 'spread-green';
+        exClass = 'ex-green';
+        arrowClass = 'arrow-green';
+    } else if (isRed) {
+        lineClass += 'line-red';
+        pairClass = 'pair-red';
+        spreadClass = 'spread-red';
+        exClass = 'ex-red';
+        arrowClass = 'arrow-red';
+    } else {
+        lineClass += 'line-gray';
+        pairClass = 'pair-gray';
+        spreadClass = 'spread-gray';
+        exClass = 'ex-gray';
+        arrowClass = 'arrow-gray';
+    }
+
+    const spreadStr = (spread >= 0 ? '+' : '') + spread.toFixed(3) + '%';
+
+    // Price simulation
+    const basePrice = { BTC:94000, ETH:3200, SOL:175, BNB:620, XRP:0.62, AVAX:38, DOGE:0.16, MATIC:0.92, LTC:85, TRX:0.13, ADA:0.45, DOT:8, ATOM:10, NEAR:6, APT:9, ARB:1.1, OP:2.1 };
+    const bp = basePrice[coin] || 10;
+    const p1 = +(bp * (1 + (Math.random()-0.5)*0.01)).toFixed(4);
+    const p2 = +(p1 * (1 + spread/100)).toFixed(4);
+
+    const saveId = 'sb-' + Date.now() + '-' + Math.random().toString(36).slice(2,6);
+
+    el.className = lineClass;
+    el.innerHTML = `
+        <span class="timestamp">${ts}</span>
+        <span class="exchange-tag ${exClass}">${ex1}</span>
+        <span class="${arrowClass} arrow-icon"><i class="fas fa-arrow-right"></i></span>
+        <span class="exchange-tag ${exClass}">${ex2}</span>
+        <span style="margin-left:4px;" class="${pairClass}">${coin}/${quote}</span>
+        <span style="margin-left:auto;font-family:monospace;font-size:11px;color:#334155;">${p1} → ${p2}</span>
+        <span style="margin-left:12px;min-width:60px;text-align:right;" class="${spreadClass}">${spreadStr}</span>
+        ${isGreen && !settings.autosave ? `<button class="save-btn" id="${saveId}" onclick="saveBtnClick(this,'${coin}','${ex1}','${ex2}',${spread},'${quote}')">Сохранить</button>` : ''}
+        ${isGreen && settings.autosave ? `<span style="font-size:9px;color:#34d399;margin-left:8px;font-family:monospace;flex-shrink:0;"><i class="fas fa-bookmark"></i></span>` : ''}
+    `;
+
+    body.appendChild(el);
+
+    // Auto-scroll if near bottom
+    const threshold = 120;
+    if (body.scrollHeight - body.scrollTop - body.clientHeight < threshold) {
+        body.scrollTop = body.scrollHeight;
+    }
+
+    // Max lines = 300
+    while (body.children.length > 300) {
+        body.removeChild(body.firstChild);
+    }
+}
+
+function addSysLine(text) {
+    const body = document.getElementById('consoleBody');
+    const el = document.createElement('div');
+    el.className = 'scan-line line-sys';
+    el.style.color = '#3b82f6';
+    el.style.fontFamily = 'monospace';
+    el.style.fontSize = '11px';
+    el.textContent = text;
+    body.appendChild(el);
+    body.scrollTop = body.scrollHeight;
+}
+
+// ══════════════════════════════════
+//  SAVE
+// ══════════════════════════════════
+function saveBtnClick(btn, coin, ex1, ex2, spread, quote) {
+    if (btn.classList.contains('saved')) return;
+    saveBundle(coin, ex1, ex2, spread, quote, false);
+    btn.classList.add('saved');
+    btn.textContent = '✓';
+}
+
+function saveBundle(coin, ex1, ex2, spread, quote, auto) {
+    const now = new Date();
+    savedBundles.unshift({
+        id: Date.now(),
+        coin, ex1, ex2, spread, quote,
+        ts: now.toLocaleString('ru-RU'),
+        auto
+    });
+    statSaved++;
+    updateStats();
+    updateSavedTable();
+
+    // Сохраняем в БД
+    fetch('/api/scanner/save-bundle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coin, ex1, ex2, spread, quote })
+    }).catch(() => {});
+
+    if (!auto) {
+        showNotif('💾 Связка сохранена: ' + coin + '/' + quote + ' ' + (spread >= 0 ? '+' : '') + spread.toFixed(3) + '%');
+    }
+}
+
+function updateSavedTable() {
+    const body = document.getElementById('savedBody');
+    const countEl = document.getElementById('savedCount');
+    countEl.textContent = savedBundles.length + ' записей';
+
+    if (savedBundles.length === 0) {
+        body.innerHTML = '<div style="color:#1e293b;font-size:12px;font-family:monospace;text-align:center;padding:40px 0;">Нет сохранённых связок</div>';
+        return;
+    }
+
+    let html = `<table class="saved-table">
+        <thead>
+            <tr>
+                <th>Время</th>
+                <th>Монета</th>
+                <th>Биржа 1</th>
+                <th>→</th>
+                <th>Биржа 2</th>
+                <th>Спред</th>
+                <th>Тип</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+    savedBundles.forEach(b => {
+        const spreadStr = (b.spread >= 0 ? '+' : '') + (+b.spread).toFixed(3) + '%';
+        html += `<tr>
+            <td style="color:#334155;">${b.ts}</td>
+            <td style="color:#f1f5f9;font-weight:700;">${b.coin}/${b.quote}</td>
+            <td><span class="exchange-tag ex-green">${b.ex1}</span></td>
+            <td style="color:#334155;font-size:10px;">→</td>
+            <td><span class="exchange-tag ex-green">${b.ex2}</span></td>
+            <td style="color:#10b981;font-weight:700;">${spreadStr}</td>
+            <td style="color:#334155;font-size:10px;">${b.auto ? 'AUTO' : 'MANUAL'}</td>
+        </tr>`;
+    });
+
+    html += '</tbody></table>';
+    body.innerHTML = html;
+}
+
+function clearSaved() {
+    savedBundles = [];
+    statSaved = 0;
+    updateStats();
+    updateSavedTable();
+}
+
+// ══════════════════════════════════
+//  STATS
+// ══════════════════════════════════
+function updateStats() {
+    document.getElementById('statTotal').textContent = statTotal;
+    document.getElementById('statGreen').textContent = statGreen;
+    document.getElementById('statSaved').textContent = statSaved;
+    document.getElementById('statMaxSpread').textContent = (statMax > 0 ? '+' : '') + statMax.toFixed(2) + '%';
+    document.getElementById('totalFound').textContent = statGreen;
+}
+
+// ══════════════════════════════════
+//  TABS
+// ══════════════════════════════════
+function switchTab(tab) {
+    document.getElementById('section-console').style.display = tab === 'console' ? 'block' : 'none';
+    document.getElementById('section-saved').style.display   = tab === 'saved'   ? 'block' : 'none';
+
+    const cBtn = document.getElementById('tab-console');
+    const sBtn = document.getElementById('tab-saved');
+
+    if (tab === 'console') {
+        cBtn.style.color = '#10b981'; cBtn.style.borderBottomColor = '#10b981';
+        sBtn.style.color = '#334155'; sBtn.style.borderBottomColor = 'transparent';
+    } else {
+        sBtn.style.color = '#10b981'; sBtn.style.borderBottomColor = '#10b981';
+        cBtn.style.color = '#334155'; cBtn.style.borderBottomColor = 'transparent';
+        loadBundlesFromDB();
+    }
+}
+
+async function loadBundlesFromDB() {
+    try {
+        const res = await fetch('/api/scanner/bundles');
+        if (!res.ok) { updateSavedTable(); return; }
+        const data = await res.json();
+        if (data.bundles && data.bundles.length > 0) {
+            // Мержим с локальными (избегаем дублей по времени)
+            const dbBundles = data.bundles.map(b => ({
+                id: b.id,
+                coin: b.coin,
+                ex1: b.exchange_buy,
+                ex2: b.exchange_sell,
+                spread: b.spread,
+                quote: b.quote,
+                ts: b.saved_at,
+                auto: true
+            }));
+            // Показываем DB-данные если локальный список пуст
+            if (savedBundles.length === 0) {
+                savedBundles = dbBundles;
+                statSaved = savedBundles.length;
+                updateStats();
+            }
+        }
+        updateSavedTable();
+    } catch(e) {
+        updateSavedTable();
+    }
+}
+
+// ══════════════════════════════════
+//  SETTINGS MODAL
+// ══════════════════════════════════
+function openSettings() { document.getElementById('settingsModal').classList.add('show'); }
+function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
+
+function applySettings() {
+    // Coins
+    const coinBtns = document.querySelectorAll('#grp-coins .opt-btn.active-green');
+    settings.coins = Array.from(coinBtns).map(b => b.dataset.val);
+    if (settings.coins.length === 0) settings.coins = ['ALL'];
+
+    // Exchanges
+    const exBtns = document.querySelectorAll('#grp-exchanges .opt-btn.active-green');
+    settings.exchanges = Array.from(exBtns).map(b => b.dataset.val);
+    if (settings.exchanges.length === 0) settings.exchanges = ['ALL'];
+
+    settings.speed    = +getActiveVal('grp-speed')     || 900;
+    settings.minSpread= +getActiveVal('grp-minspread') || 0.5;
+    settings.maxSpread= +getActiveVal('grp-maxspread') || 10;
+    settings.quote    = getActiveVal('grp-quote')      || 'USDT';
+    settings.autosave = getActiveVal('grp-autosave') === 'true';
+    settings.showGray = getActiveVal('grp-showgray') === 'true';
+    settings.showRed  = getActiveVal('grp-showred')  === 'true';
+    settings.sound    = getActiveVal('grp-sound')    === 'true';
+
+    // Restart interval if running
+    if (scannerRunning) {
+        clearInterval(scanInterval);
+        scanInterval = setInterval(generateLine, settings.speed);
+        addSysLine('> Настройки обновлены. Скорость: ' + settings.speed + 'мс  |  Мин. спред: ' + settings.minSpread + '%');
+    }
+
+    closeSettings();
+    showNotif('⚙️ Настройки применены');
+}
+
+function getActiveVal(groupId) {
+    const el = document.querySelector('#' + groupId + ' .opt-btn.active, #' + groupId + ' .opt-btn.active-green');
+    return el ? el.dataset.val : null;
+}
+
+// Single-select
+function pickOne(btn, groupId) {
+    document.querySelectorAll('#' + groupId + ' .opt-btn').forEach(b => {
+        b.classList.remove('active', 'active-green');
+    });
+    btn.classList.add('active');
+}
+
+// Multi-select coins
+function toggleCoin(btn) {
+    if (btn.dataset.val === 'ALL') {
+        document.querySelectorAll('#grp-coins .opt-btn').forEach(b => b.classList.remove('active-green'));
+        btn.classList.add('active-green');
+    } else {
+        document.querySelector('#grp-coins [data-val="ALL"]').classList.remove('active-green');
+        btn.classList.toggle('active-green');
+        const anyActive = document.querySelectorAll('#grp-coins .opt-btn.active-green').length > 0;
+        if (!anyActive) document.querySelector('#grp-coins [data-val="ALL"]').classList.add('active-green');
+    }
+}
+
+// Multi-select exchanges
+function toggleExchange(btn) {
+    if (btn.dataset.val === 'ALL') {
+        document.querySelectorAll('#grp-exchanges .opt-btn').forEach(b => b.classList.remove('active-green'));
+        btn.classList.add('active-green');
+    } else {
+        document.querySelector('#grp-exchanges [data-val="ALL"]').classList.remove('active-green');
+        btn.classList.toggle('active-green');
+        const anyActive = document.querySelectorAll('#grp-exchanges .opt-btn.active-green').length > 0;
+        if (!anyActive) document.querySelector('#grp-exchanges [data-val="ALL"]').classList.add('active-green');
+    }
+}
+
+// Close modal on backdrop click
+document.getElementById('settingsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSettings();
+});
+
+// Фиксируем стоп при закрытии вкладки
+window.addEventListener('beforeunload', () => {
+    if (scannerRunning && sessionStartTime) {
+        const minutes = Math.max(1, Math.round((Date.now() - sessionStartTime) / 60000));
+        navigator.sendBeacon('/api/scanner/stop', JSON.stringify({ minutes, found: statGreen, saved: statSaved }));
+    }
+});
+
+// ══════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════
+function showNotif(msg) {
+    const el = document.createElement('div');
+    el.className = 'notif';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => {
+        el.style.transition = 'opacity 0.4s';
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 400);
+    }, 2500);
+}
+</script>
+</body>
+</html>
