@@ -754,6 +754,11 @@ function stopScanner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ minutes, found: statGreen, saved: statSaved })
     }).catch(() => {});
+
+    // Накапливаем минуты в localStorage — карточка на главном экране их покажет
+    const prev = parseInt(localStorage.getItem('scannerTotalMinutes') || '0');
+    localStorage.setItem('scannerTotalMinutes', prev + minutes);
+
     sessionStartTime = null;
 
     addSysLine('> Сканер остановлен. Итого проверено: ' + statTotal + ' пар. Прибыльных: ' + statGreen);
