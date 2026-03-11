@@ -1,17 +1,24 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import sqlite3
+import psycopg2
+from psycopg2.extras import DictCursor
 import datetime
 import os
 import hashlib
 from functools import wraps
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 
 # ─── CONFIG ───────────────────────────────────────────────────
-DEBUG = True
-PORT = 5000
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+PORT = int(os.environ.get('PORT', 5000))
+
+# Получаем URL базы из настроек Render. Если его нет — используем sqlite
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///data/crypto.db')
 DB_PATH = 'data/crypto.db'
-app.secret_key = 'neon-secret-key-change-in-production-2024'
+
+app.secret_key = os.environ.get('SECRET_KEY', 'neon-secret-key-2024')
 
 USDT_WALLET_ADDRESS = 'TQCz49r91qcFJ8wvcKxJqRNWJNSH24YqcK'
 
@@ -22,72 +29,114 @@ os.makedirs('data', exist_ok=True)
 os.makedirs('logs', exist_ok=True)
 
 
+# ─── DATABASE HELPERS ──────────────────────────────────────────
+def get_db():
+    """Универсальное подключение к DB (SQLite или PostgreSQL)"""
+    if DATABASE_URL.startswith('sqlite'):
+        db_file = DATABASE_URL.replace('sqlite:///', '')
+        conn = sqlite3.connect(db_file)
+        conn.row_factory = sqlite3.Row
+        conn.is_sqlite = True
+    else:
+        # Для PostgreSQL на Render (исправляем префикс если нужно)
+        url = DATABASE_URL.replace("postgres://", "postgresql://")
+        conn = psycopg2.connect(url, sslmode='require', cursor_factory=DictCursor)
+        conn.is_sqlite = False
+    return conn
+
+class SmartCursor:
+    """Обертка для курсора, которая автоматически меняет синтаксис ? на %s для Postgres"""
+    def __init__(self, cursor, is_sqlite):
+        self._cursor = cursor
+        self.is_sqlite = is_sqlite
+
+    def execute(self, query, params=()):
+        if not self.is_sqlite:
+            query = query.replace('?', '%s')
+        return self._cursor.execute(query, params)
+
+    def fetchone(self):
+        return self._cursor.fetchone()
+
+    def fetchall(self):
+        return self._cursor.fetchall()
+
+    def close(self):
+        self._cursor.close()
+
+def get_cursor(conn):
+    return SmartCursor(conn.cursor(), getattr(conn, 'is_sqlite', True))
+
+
 # ─── DATABASE INIT ────────────────────────────────────────────
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
+    conn = get_db()
+    c = get_cursor(conn)
 
-    c.execute('''CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+    # В PostgreSQL вместо AUTOINCREMENT используется SERIAL
+    id_col = "INTEGER PRIMARY KEY AUTOINCREMENT" if getattr(conn, 'is_sqlite', True) else "SERIAL PRIMARY KEY"
+
+    c.execute(f'''CREATE TABLE IF NOT EXISTS users (
+        id {id_col},
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
         balance REAL DEFAULT 0.0,
         total_earned REAL DEFAULT 0.0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        last_login DATETIME,
-        is_active BOOLEAN DEFAULT 1
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_login TIMESTAMP,
+        is_active BOOLEAN DEFAULT TRUE
     )''')
 
-    c.execute('''CREATE TABLE IF NOT EXISTS active_plans (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+    c.execute(f'''CREATE TABLE IF NOT EXISTS active_plans (
+        id {id_col},
         user_id INTEGER NOT NULL,
         plan_name TEXT NOT NULL,
         plan_price REAL NOT NULL,
-        activated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        is_active BOOLEAN DEFAULT 1,
+        activated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_active BOOLEAN DEFAULT TRUE,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )''')
 
-    c.execute('''CREATE TABLE IF NOT EXISTS transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+    c.execute(f'''CREATE TABLE IF NOT EXISTS transactions (
+        id {id_col},
         user_id INTEGER NOT NULL,
         type TEXT NOT NULL,
         amount REAL NOT NULL,
         status TEXT DEFAULT 'pending',
         description TEXT,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )''')
 
-    c.execute('''CREATE TABLE IF NOT EXISTS activity_log (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+    c.execute(f'''CREATE TABLE IF NOT EXISTS activity_log (
+        id {id_col},
         user_id INTEGER,
         module TEXT,
         action TEXT,
         status TEXT,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )''')
 
-    c.execute('''CREATE TABLE IF NOT EXISTS mining_stats (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+    c.execute(f'''CREATE TABLE IF NOT EXISTS mining_stats (
+        id {id_col},
         user_id INTEGER,
         session_id TEXT UNIQUE,
         total_hash_rate REAL,
         total_earnings REAL,
         duration_seconds INTEGER,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )''')
 
-    c.execute('''CREATE TABLE IF NOT EXISTS notifications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+    c.execute(f'''CREATE TABLE IF NOT EXISTS notifications (
+        id {id_col},
         user_id INTEGER NOT NULL,
         title TEXT NOT NULL,
         message TEXT NOT NULL,
-        is_read BOOLEAN DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )''')
 
@@ -108,16 +157,11 @@ def verify_password(password, password_hash):
 def now():
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
-
 def get_user_by_id(user_id):
     try:
         conn = get_db()
-        c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE id = ? AND is_active = 1", (user_id,))
+        c = get_cursor(conn)
+        c.execute("SELECT * FROM users WHERE id = ? AND is_active = TRUE", (user_id,))
         row = c.fetchone()
         conn.close()
         return dict(row) if row else None
@@ -172,7 +216,7 @@ def register():
 
         try:
             conn = get_db()
-            c = conn.cursor()
+            c = get_cursor(conn)
             c.execute("SELECT id FROM users WHERE username = ? OR email = ?", (username, email))
             if c.fetchone():
                 conn.close()
@@ -203,7 +247,7 @@ def login():
 
         try:
             conn = get_db()
-            c = conn.cursor()
+            c = get_cursor(conn)
             c.execute("SELECT id, username, password_hash, is_active FROM users WHERE username = ?", (username,))
             user = c.fetchone()
             conn.close()
@@ -217,7 +261,7 @@ def login():
             session['username'] = user['username']
 
             conn = get_db()
-            c = conn.cursor()
+            c = get_cursor(conn)
             c.execute("UPDATE users SET last_login = ? WHERE id = ?", (now(), user['id']))
             conn.commit()
             conn.close()
@@ -264,10 +308,9 @@ def scanner():
 @app.route('/api/scanner/start', methods=['POST'])
 @login_required
 def scanner_start():
-    """Фиксируем старт сессии сканера в activity_log."""
     try:
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute(
             "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
             (session['user_id'], 'NETWORK_SCANNER', 'SESSION_START', 'OK', now())
@@ -282,7 +325,6 @@ def scanner_start():
 @app.route('/api/scanner/stop', methods=['POST'])
 @login_required
 def scanner_stop():
-    """Фиксируем стоп сессии + записываем длительность в минутах."""
     try:
         data     = request.json or {}
         minutes  = int(data.get('minutes', 0))
@@ -290,16 +332,14 @@ def scanner_stop():
         saved    = int(data.get('saved', 0))
 
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
 
-        # Одна строка на каждую минуту — так admin_activity считает минуты через COUNT(*)
         for _ in range(max(minutes, 1)):
             c.execute(
                 "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
                 (session['user_id'], 'NETWORK_SCANNER', 'SESSION_TICK', 'OK', now())
             )
 
-        # Финальная строка с итогами сессии
         c.execute(
             "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
             (session['user_id'], 'NETWORK_SCANNER',
@@ -315,7 +355,6 @@ def scanner_stop():
 @app.route('/api/scanner/save-bundle', methods=['POST'])
 @login_required
 def scanner_save_bundle():
-    """Сохраняем зелёную связку в scanner_bundles."""
     try:
         data   = request.json or {}
         coin   = data.get('coin', '')
@@ -328,7 +367,7 @@ def scanner_save_bundle():
             return jsonify({"status": "error", "message": "Неверные параметры"}), 400
 
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute(
             "INSERT INTO scanner_bundles (user_id, coin, quote, exchange_buy, exchange_sell, spread, saved_at) "
             "VALUES (?,?,?,?,?,?,?)",
@@ -344,10 +383,9 @@ def scanner_save_bundle():
 @app.route('/api/scanner/bundles')
 @login_required
 def scanner_get_bundles():
-    """Загружаем сохранённые связки текущего пользователя."""
     try:
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute(
             "SELECT id, coin, quote, exchange_buy, exchange_sell, spread, saved_at "
             "FROM scanner_bundles WHERE user_id = ? ORDER BY saved_at DESC LIMIT 200",
@@ -397,7 +435,7 @@ def deposit():
             return jsonify({"status": "error", "message": "Сумма должна быть больше нуля"}), 400
 
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute("UPDATE users SET balance = balance + ? WHERE id = ?", (amount, session['user_id']))
         c.execute(
             "INSERT INTO transactions (user_id, type, amount, status, description) VALUES (?,?,?,?,?)",
@@ -428,7 +466,7 @@ def withdraw():
             return jsonify({"status": "error", "message": "Недостаточно средств"}), 400
 
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute("UPDATE users SET balance = balance - ? WHERE id = ?", (amount, session['user_id']))
         c.execute(
             "INSERT INTO transactions (user_id, type, amount, status, description) VALUES (?,?,?,?,?)",
@@ -446,7 +484,7 @@ def withdraw():
 def get_transactions():
     try:
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute(
             "SELECT id, type, amount, status, description, timestamp FROM transactions "
             "WHERE user_id = ? ORDER BY timestamp DESC LIMIT 50",
@@ -464,15 +502,15 @@ def get_transactions():
 def get_notifications():
     try:
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute(
             "SELECT id, title, message, is_read, created_at FROM notifications "
-            "WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC LIMIT 20",
+            "WHERE user_id = ? AND is_read = FALSE ORDER BY created_at DESC LIMIT 20",
             (session['user_id'],)
         )
         notifs = [dict(r) for r in c.fetchall()]
         if notifs:
-            c.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0",
+            c.execute("UPDATE notifications SET is_read = TRUE WHERE user_id = ? AND is_read = FALSE",
                       (session['user_id'],))
             conn.commit()
         conn.close()
@@ -490,10 +528,10 @@ def get_notifications():
 def get_active_plan():
     try:
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute(
             "SELECT plan_name, plan_price, activated_at FROM active_plans "
-            "WHERE user_id = ? AND is_active = 1 ORDER BY activated_at DESC LIMIT 1",
+            "WHERE user_id = ? AND is_active = TRUE ORDER BY activated_at DESC LIMIT 1",
             (session['user_id'],)
         )
         row = c.fetchone()
@@ -527,27 +565,22 @@ def purchase_plan():
             return jsonify({"status": "error", "message": "Недостаточно средств"}), 400
 
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
 
-        # Деактивируем старый план
-        c.execute("UPDATE active_plans SET is_active = 0 WHERE user_id = ? AND is_active = 1",
+        c.execute("UPDATE active_plans SET is_active = FALSE WHERE user_id = ? AND is_active = TRUE",
                   (session['user_id'],))
 
-        # Списываем деньги
         c.execute("UPDATE users SET balance = balance - ? WHERE id = ?",
                   (plan_price, session['user_id']))
 
-        # Новый план
         c.execute("INSERT INTO active_plans (user_id, plan_name, plan_price) VALUES (?,?,?)",
                   (session['user_id'], plan_name, plan_price))
 
-        # Транзакция
         c.execute(
             "INSERT INTO transactions (user_id, type, amount, status, description) VALUES (?,?,?,?,?)",
             (session['user_id'], 'plan_purchase', plan_price, 'completed', f'Покупка плана {plan_name}')
         )
 
-        # Лог
         c.execute(
             "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
             (session['user_id'], 'MINER_NODE', f'PURCHASE_PLAN_{plan_name.upper()}', 'OK', now())
@@ -582,9 +615,9 @@ def change_plan():
             return jsonify({"status": "error", "message": "Недостаточно средств"}), 400
 
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
 
-        c.execute("UPDATE active_plans SET is_active = 0 WHERE user_id = ? AND is_active = 1",
+        c.execute("UPDATE active_plans SET is_active = FALSE WHERE user_id = ? AND is_active = TRUE",
                   (session['user_id'],))
         c.execute("UPDATE users SET balance = balance - ? WHERE id = ?",
                   (plan_price, session['user_id']))
@@ -622,7 +655,7 @@ def save_action():
     try:
         data = request.json or {}
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute(
             "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
             (session['user_id'], data.get('module', ''), data.get('action', ''), 'OK', now())
@@ -637,7 +670,6 @@ def save_action():
 @app.route('/api/mining/save-earnings', methods=['POST'])
 @login_required
 def save_mining_earnings():
-    """Сохраняет заработок за сессию майнинга в total_earned"""
     try:
         data     = request.json or {}
         earned   = float(data.get('earned', 0))
@@ -647,7 +679,7 @@ def save_mining_earnings():
             return jsonify({"status": "ok"})
 
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute(
             "UPDATE users SET total_earned = total_earned + ? WHERE id = ?",
             (earned, session['user_id'])
@@ -668,7 +700,7 @@ def save_mining_earnings():
 def get_history():
     try:
         conn = get_db()
-        c = conn.cursor()
+        c = get_cursor(conn)
         c.execute(
             "SELECT * FROM activity_log WHERE user_id = ? ORDER BY id DESC LIMIT 20",
             (session['user_id'],)
@@ -735,10 +767,10 @@ def admin_logout():
 def admin_stats():
     try:
         conn  = get_db()
-        c     = conn.cursor()
+        c     = get_cursor(conn)
         today = datetime.datetime.now().strftime('%Y-%m-%d')
 
-        c.execute("SELECT COUNT(*) as n FROM users WHERE is_active = 1")
+        c.execute("SELECT COUNT(*) as n FROM users WHERE is_active = TRUE")
         total_users = c.fetchone()['n']
 
         c.execute("SELECT COALESCE(SUM(balance),0) as s FROM users")
@@ -782,7 +814,7 @@ def admin_stats():
 def admin_users():
     try:
         conn = get_db()
-        c    = conn.cursor()
+        c    = get_cursor(conn)
         c.execute("SELECT id, username, email, balance, total_earned, created_at, last_login, is_active "
                   "FROM users ORDER BY created_at DESC")
         users = [dict(r) for r in c.fetchall()]
@@ -805,8 +837,8 @@ def admin_fund_user():
             return jsonify({"status": "error", "message": "Сумма должна быть больше нуля"}), 400
 
         conn = get_db()
-        c    = conn.cursor()
-        c.execute("SELECT id, username FROM users WHERE id = ? AND is_active = 1", (user_id,))
+        c    = get_cursor(conn)
+        c.execute("SELECT id, username FROM users WHERE id = ? AND is_active = TRUE", (user_id,))
         user = c.fetchone()
         if not user:
             conn.close()
@@ -840,8 +872,8 @@ def admin_confirm_payment():
             return jsonify({"status": "error", "message": "Сумма должна быть больше нуля"}), 400
 
         conn = get_db()
-        c    = conn.cursor()
-        c.execute("SELECT id, username FROM users WHERE id = ? AND is_active = 1", (user_id,))
+        c    = get_cursor(conn)
+        c.execute("SELECT id, username FROM users WHERE id = ? AND is_active = TRUE", (user_id,))
         user = c.fetchone()
         if not user:
             conn.close()
@@ -871,8 +903,8 @@ def admin_toggle_user():
         user_id = int(data.get('user_id'))
         active  = bool(data.get('active', True))
         conn = get_db()
-        c    = conn.cursor()
-        c.execute("UPDATE users SET is_active = ? WHERE id = ?", (1 if active else 0, user_id))
+        c    = get_cursor(conn)
+        c.execute("UPDATE users SET is_active = ? WHERE id = ?", (True if active else False, user_id))
         conn.commit()
         conn.close()
         return jsonify({"status": "success"})
@@ -885,7 +917,7 @@ def admin_toggle_user():
 def admin_activity():
     try:
         conn  = get_db()
-        c     = conn.cursor()
+        c     = get_cursor(conn)
         today = datetime.datetime.now().strftime('%Y-%m-%d')
 
         c.execute("SELECT al.id, al.module, al.action, al.status, al.timestamp, u.username "
@@ -918,7 +950,7 @@ def admin_activity():
 def admin_transactions():
     try:
         conn = get_db()
-        c    = conn.cursor()
+        c    = get_cursor(conn)
         c.execute("SELECT t.id, t.type, t.amount, t.status, t.description, t.timestamp, u.username "
                   "FROM transactions t LEFT JOIN users u ON t.user_id = u.id "
                   "ORDER BY t.timestamp DESC LIMIT 100")
