@@ -30,18 +30,18 @@ os.makedirs('logs', exist_ok=True)
 
 
 # ─── DATABASE HELPERS ──────────────────────────────────────────
+IS_SQLITE = DATABASE_URL.startswith('sqlite')
+
 def get_db():
     """Универсальное подключение к DB (SQLite или PostgreSQL)"""
-    if DATABASE_URL.startswith('sqlite'):
+    if IS_SQLITE:
         db_file = DATABASE_URL.replace('sqlite:///', '')
         conn = sqlite3.connect(db_file)
         conn.row_factory = sqlite3.Row
-        conn.is_sqlite = True
     else:
         # Для PostgreSQL на Render (исправляем префикс если нужно)
         url = DATABASE_URL.replace("postgres://", "postgresql://")
         conn = psycopg2.connect(url, sslmode='require', cursor_factory=DictCursor)
-        conn.is_sqlite = False
     return conn
 
 class SmartCursor:
@@ -65,7 +65,7 @@ class SmartCursor:
         self._cursor.close()
 
 def get_cursor(conn):
-    return SmartCursor(conn.cursor(), getattr(conn, 'is_sqlite', True))
+    return SmartCursor(conn.cursor(), IS_SQLITE)
 
 
 # ─── DATABASE INIT ────────────────────────────────────────────
@@ -74,7 +74,7 @@ def init_db():
     c = get_cursor(conn)
 
     # В PostgreSQL вместо AUTOINCREMENT используется SERIAL
-    id_col = "INTEGER PRIMARY KEY AUTOINCREMENT" if getattr(conn, 'is_sqlite', True) else "SERIAL PRIMARY KEY"
+    id_col = "INTEGER PRIMARY KEY AUTOINCREMENT" if IS_SQLITE else "SERIAL PRIMARY KEY"
 
     c.execute(f'''CREATE TABLE IF NOT EXISTS users (
         id {id_col},
