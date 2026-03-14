@@ -588,10 +588,7 @@
         <div class="setting-row">
             <div class="setting-label">3. Скорость сканирования (задержка)</div>
             <div class="btn-group" id="grp-speed">
-                <button class="opt-btn" data-val="400" onclick="pickOne(this,'grp-speed')">Очень быстро</button>
-                <button class="opt-btn active" data-val="900" onclick="pickOne(this,'grp-speed')">Быстро</button>
-                <button class="opt-btn" data-val="1800" onclick="pickOne(this,'grp-speed')">Средне</button>
-                <button class="opt-btn" data-val="3500" onclick="pickOne(this,'grp-speed')">Медленно</button>
+                <button class="opt-btn active" data-val="5000" onclick="pickOne(this,'grp-speed')">Медленно (Реалистично)</button>
             </div>
         </div>
 
@@ -691,7 +688,7 @@ let sessionStartTime = null;   // для подсчёта минут
 let settings = {
     coins: ['ALL'],
     exchanges: ['ALL'],
-    speed: 900,
+    speed: 5000, // Изменили дефолтную скорость на 5 секунд
     minSpread: 0.5,
     maxSpread: 10,
     quote: 'USDT',
@@ -700,6 +697,9 @@ let settings = {
     showRed: false,
     sound: true,
 };
+
+// Генерируем первое время появления зелёной связки (от 3 до 20 минут)
+let nextGreenTime = Date.now() + (Math.floor(Math.random() * (20 - 3 + 1)) + 3) * 60000;
 
 // ── DATA POOLS ──
 const ALL_COINS = ['BTC','ETH','SOL','BNB','XRP','AVAX','DOGE','MATIC','LTC','TRX','ADA','DOT','ATOM','NEAR','APT','ARB','OP'];
@@ -781,14 +781,28 @@ function generateLine() {
     if (ex2 === ex1) ex2 = exchanges[(exchanges.indexOf(ex1) + 1) % exchanges.length];
 
     const quote = settings.quote;
-
-    // Weighted spread distribution: mostly small, some good
     let spread;
-    const r = Math.random();
-    if (r < 0.45)      spread = +(Math.random() * 0.3).toFixed(3);          // tiny 0-0.3%
-    else if (r < 0.72) spread = +(0.3 + Math.random() * 0.8).toFixed(3);    // neutral 0.3-1.1%
-    else if (r < 0.88) spread = +(1.1 + Math.random() * 2).toFixed(3);      // decent 1.1-3.1%
-    else               spread = +(3.1 + Math.random() * 4).toFixed(3);       // great 3.1-7.1%
+    const now = Date.now();
+
+    // Проверяем, наступило ли время выдать ЗЕЛЕНУЮ связку
+    if (now >= nextGreenTime) {
+        // Генерируем красивый прибыльный спред (чуть больше минимального)
+        spread = +(settings.minSpread + Math.random() * 2.5).toFixed(3);
+        
+        // Назначаем время для следующей зелёной связки (от 3 до 20 минут)
+        const minMs = 3 * 60 * 1000;  // 3 минуты
+        const maxMs = 20 * 60 * 1000; // 20 минут
+        nextGreenTime = now + Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+    } else {
+        // Генерируем СЕРЫЙ или КРАСНЫЙ спред (строго ниже minSpread)
+        const maxGraySpread = settings.minSpread - 0.01;
+        spread = +(Math.random() * maxGraySpread).toFixed(3);
+        
+        // С вероятностью 30% делаем спред отрицательным (убыточным) для реализма
+        if (Math.random() > 0.7) {
+            spread = -(Math.random() * 0.8).toFixed(3);
+        }
+    }
 
     if (spread > settings.maxSpread) spread = settings.maxSpread - Math.random() * 0.5;
     spread = +spread.toFixed(3);
