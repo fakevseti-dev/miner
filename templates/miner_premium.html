@@ -1316,9 +1316,14 @@
         //  PLAN CONFIG
         // ──────────────────────────────────────────────────────
         const PLANS = {
-            starter: { earn: 10,  hours: 6,  hashMin: 115, hashMax: 130, label:'STARTER' },
-            pro:     { earn: 13,  hours: 6,  hashMin: 460, hashMax: 510, label:'PRO' },
-            elite:   { earn: 21,  hours: 6,  hashMin: 1150, hashMax: 1280, label:'ELITE' },
+            // 4$ в час * 6 часов = 24$
+            starter: { earn: 24,  hours: 6,  hashMin: 115, hashMax: 130, label:'STARTER' },
+            
+            // 8$ в час * 6 часов = 48$
+            pro:     { earn: 48,  hours: 6,  hashMin: 460, hashMax: 510, label:'PRO' },
+            
+            // 10$ в час * 6 часов = 60$
+            elite:   { earn: 60,  hours: 6,  hashMin: 1150, hashMax: 1280, label:'ELITE' },
         };
         // fallback
         const DEFAULT_PLAN = 'starter';
