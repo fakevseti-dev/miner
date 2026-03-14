@@ -1544,56 +1544,41 @@
         }
 
         // ── MAIN MINING LOOP ──
-        function miningLoop() {
-            if (!isMining) return;
-            if (errorActive) {
-                miningTickTimeout = setTimeout(miningLoop, 1000);
-                return;
-            }
+function miningLoop() {
+    if (!isMining) return;
+    if (errorActive) {
+        miningTickTimeout = setTimeout(miningLoop, 1000);
+        return;
+    }
 
-            const plan = PLANS[activePlan];
-            const hash = (plan.hashMin + Math.random() * (plan.hashMax - plan.hashMin)).toFixed(2);
-            const unit = activePlan === 'elite' ? 'GH/s' : 'MH/s';
-            const displayHash = activePlan === 'elite'
-                ? (parseFloat(hash) / 1000).toFixed(3)
-                : hash;
+    const plan = PLANS[activePlan];
+    const hash = (plan.hashMin + Math.random() * (plan.hashMax - plan.hashMin)).toFixed(2);
+    const unit = activePlan === 'elite' ? 'GH/s' : 'MH/s';
+    const displayHash = activePlan === 'elite'
+        ? (parseFloat(hash) / 1000).toFixed(3)
+        : hash;
 
-            sharesCount++;
-            miningBalance += earningPerSecond * (1.5 + Math.random());
-            if (miningBalance < 0) miningBalance = 0;
+    sharesCount++;
+    
+    // ИСПРАВЛЕНИЕ: Так как цикл теперь идет 5 секунд, 
+    // добавляем заработок примерно за 5 секунд (от 4.5 до 5.5 для реализма)
+    miningBalance += earningPerSecond * (4.5 + Math.random() * 1.0); 
+    if (miningBalance < 0) miningBalance = 0;
 
-            document.getElementById('minerBalance').textContent = '$' + miningBalance.toFixed(4);
-            document.getElementById('liveHashrate').textContent = displayHash + ' ' + unit;
-            document.getElementById('liveShares').textContent = sharesCount;
-            document.getElementById('liveRate').textContent =
-                '$' + (earningPerSecond * 3600).toFixed(3) + '/hr';
+    document.getElementById('minerBalance').textContent = '$' + miningBalance.toFixed(4);
+    document.getElementById('liveHashrate').textContent = displayHash + ' ' + unit;
+    document.getElementById('liveShares').textContent = sharesCount;
+    document.getElementById('liveRate').textContent =
+        '$' + (earningPerSecond * 3600).toFixed(3) + '/hr';
 
-            saveSession(); // сохраняем каждый тик
+    saveSession(); // сохраняем каждый тик
 
-            const ts = new Date().toTimeString().slice(0,8);
-            addLog(`[${ts}] Share #${sharesCount} accepted · ${displayHash} ${unit} · job 0x${randHex(8)}`);
+    const ts = new Date().toTimeString().slice(0,8);
+    addLog(`[${ts}] Share #${sharesCount} accepted · ${displayHash} ${unit} · job 0x${randHex(8)}`);
 
-            miningTickTimeout = setTimeout(miningLoop, 1800 + Math.random() * 2200);
-        }
-
-        // ── SESSION TIMER ──
-        function sessionTimerLoop() {
-            clearInterval(sessionTimerInterval);
-            sessionTimerInterval = setInterval(() => {
-                if (!isMining) return;
-                sessionSeconds++;
-                const plan = PLANS[activePlan];
-                const totalSec = plan.hours * 3600;
-                const pct = Math.min(100, (sessionSeconds / totalSec * 100)).toFixed(1);
-                const h = String(Math.floor(sessionSeconds / 3600)).padStart(2,'0');
-                const m = String(Math.floor((sessionSeconds % 3600) / 60)).padStart(2,'0');
-                const s = String(sessionSeconds % 60).padStart(2,'0');
-                document.getElementById('liveTime').textContent = `${h}:${m}:${s}`;
-                document.getElementById('sessionPct').textContent = pct + '%';
-                document.getElementById('sessionBar').style.width = pct + '%';
-                saveSession(); // сохраняем каждую секунду
-            }, 1000);
-        }
+    // ИСПРАВЛЕНИЕ: Строгая задержка ровно 5 секунд (5000 мс) как в сканере
+    miningTickTimeout = setTimeout(miningLoop, 5000); 
+}
 
         // ── ERRORS ──
         function scheduleErrors() {
@@ -1660,21 +1645,29 @@
         }
 
         // ── YELLOW WARNINGS ──
-        function scheduleWarnings() {
-            if (!isMining) return;
-            const delay = (8 + Math.random() * 22) * 1000;
-            setTimeout(() => {
-                if (!isMining) return;
-                // 2–8 слов из одной фразы
-                const phrase = WARN_PHRASES[Math.floor(Math.random() * WARN_PHRASES.length)];
-                const words = phrase.split(' ');
-                const count = 2 + Math.floor(Math.random() * Math.min(7, words.length - 1));
-                const warn = words.slice(0, count).join(' ');
-                const ts = new Date().toTimeString().slice(0,8);
-                addLog(`[${ts}] ⚠ WARN: ${warn}`, 'warn');
-                scheduleWarnings();
-            }, delay);
-        }
+function scheduleWarnings() {
+    if (!isMining) return;
+    
+    // ИСПРАВЛЕНИЕ: Интервал от 3 до 20 минут (в миллисекундах)
+    const minMs = 3 * 60 * 1000;  // 3 минуты
+    const maxMs = 20 * 60 * 1000; // 20 минут
+    const delay = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+
+    setTimeout(() => {
+        if (!isMining) return;
+        // 2–8 слов из одной фразы
+        const phrase = WARN_PHRASES[Math.floor(Math.random() * WARN_PHRASES.length)];
+        const words = phrase.split(' ');
+        const count = 2 + Math.floor(Math.random() * Math.min(7, words.length - 1));
+        const warn = words.slice(0, count).join(' ');
+        
+        const ts = new Date().toTimeString().slice(0,8);
+        addLog(`[${ts}] ⚠ WARN: ${warn}`, 'warn');
+        
+        // Запускаем планировщик следующего варнинга
+        scheduleWarnings();
+    }, delay);
+}
 
         // ── ADD LOG ──
         function addLog(msg, type) {
