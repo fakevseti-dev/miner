@@ -293,6 +293,7 @@ def scanner_start():
     try:
         conn = get_db()
         c = get_cursor(conn)
+        c.execute("UPDATE users SET last_login = ? WHERE id = ?", (now(), session['user_id']))
         c.execute("INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
                   (session['user_id'], 'NETWORK_SCANNER', 'SESSION_START', 'OK', now()))
         conn.commit()
@@ -309,6 +310,7 @@ def scanner_stop():
         minutes, found, saved = int(data.get('minutes', 0)), int(data.get('found', 0)), int(data.get('saved', 0))
         conn = get_db()
         c = get_cursor(conn)
+        c.execute("UPDATE users SET last_login = ? WHERE id = ?", (now(), session['user_id']))
         for _ in range(max(minutes, 1)):
             c.execute("INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
                       (session['user_id'], 'NETWORK_SCANNER', 'SESSION_TICK', 'OK', now()))
@@ -564,6 +566,19 @@ def miner_stop():
     except Exception as e:
         return jsonify({"status": "error", "detail": str(e)}), 500
 
+@app.route('/api/user/ping', methods=['POST'])
+@login_required
+def user_ping():
+    try:
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("UPDATE users SET last_login = ? WHERE id = ?", (now(), session['user_id']))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "ok"})
+    except Exception:
+        return jsonify({"status": "error"}), 500
+
 @app.route('/api/miner/sync', methods=['POST'])
 @login_required
 def miner_sync():
@@ -571,15 +586,25 @@ def miner_sync():
         d = request.json or {}
         delta = float(d.get('earned', 0))
         plan  = d.get('plan', 'unknown')
-        if delta <= 0:
-            return jsonify({"status": "ok"})
 
         conn = get_db()
         c = get_cursor(conn)
+
+        # Обновляем last_login — чтобы админка видела онлайн
+        c.execute("UPDATE users SET last_login = ? WHERE id = ?", (now(), session['user_id']))
+
+        # Пишем SESSION_TICK в activity_log (каждые ~30 сек = 0.5 мин, округляем до 1)
         c.execute(
-            "UPDATE users SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?",
-            (delta, delta, session['user_id'])
+            "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
+            (session['user_id'], 'MINER_NODE', 'SESSION_TICK', 'OK', now())
         )
+
+        if delta > 0:
+            c.execute(
+                "UPDATE users SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?",
+                (delta, delta, session['user_id'])
+            )
+
         conn.commit()
         c.execute("SELECT balance FROM users WHERE id = ?", (session['user_id'],))
         row = c.fetchone()
