@@ -658,10 +658,7 @@
                             <i class="fas fa-pause mr-2"></i> PAUSE
                         </button>
                         <button onclick="resumeMining()" id="resumeBtn" class="hidden flex-1 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-xl font-bold text-white transition">
-                            <i class="fas fa-play mr-2"></i> ПРОДОЛЖИТЬ
-                        </button>
-                        <button onclick="stopMining()" id="stopBtn" class="hidden flex-1 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-xl font-bold text-white transition">
-                            <i class="fas fa-stop mr-2"></i> STOP
+                            <i class="fas fa-play mr-2"></i> RESUME
                         </button>
                     </div>
                 </div>
@@ -1429,7 +1426,6 @@
             document.getElementById('startBtn').classList.add('hidden');
             document.getElementById('resumeBtn').classList.add('hidden');
             document.getElementById('pauseBtn').classList.remove('hidden');
-            document.getElementById('stopBtn').classList.remove('hidden');
             safeSet('activePlanBadge', plan.label);
 
             addLog(`[SYSTEM] Session restored. Progress: ${pct}% · Earned: $${miningBalance.toFixed(4)}`);
@@ -1572,7 +1568,6 @@
 
             document.getElementById('startBtn').classList.add('hidden');
             document.getElementById('pauseBtn').classList.remove('hidden');
-            document.getElementById('stopBtn').classList.remove('hidden');
             document.getElementById('resumeBtn').classList.add('hidden');
             document.getElementById('planEstLabel').textContent =
                 `Est. Output: $${plan.earn.toFixed(2)} / ${plan.hours}h · ${plan.label}`;
@@ -1601,7 +1596,6 @@
             document.getElementById('startBtn').classList.remove('hidden');
             document.getElementById('pauseBtn').classList.add('hidden');
             document.getElementById('resumeBtn').classList.add('hidden');
-            document.getElementById('stopBtn').classList.add('hidden');
             addLog(`[MINING] Session stopped. Earned: $${miningBalance.toFixed(4)}`);
             hideError();
             saveSession();
