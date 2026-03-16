@@ -1762,6 +1762,9 @@
         }
 
         // ── MAIN MINING LOOP ──
+        let syncTickCount = 0;
+        let lastSyncedMiningBalance = 0;
+
 function miningLoop() {
     if (!isMining || isPaused) return;
     if (errorActive) {
@@ -1777,10 +1780,9 @@ function miningLoop() {
         : hash;
 
     sharesCount++;
-    
-    // ИСПРАВЛЕНИЕ: Так как цикл теперь идет 5 секунд, 
-    // добавляем заработок примерно за 5 секунд (от 4.5 до 5.5 для реализма)
-    miningBalance += earningPerSecond * (4.5 + Math.random() * 1.0); 
+
+    const earned = earningPerSecond * (4.5 + Math.random() * 1.0);
+    miningBalance += earned;
     if (miningBalance < 0) miningBalance = 0;
 
     document.getElementById('minerBalance').textContent = '$' + miningBalance.toFixed(4);
@@ -1789,21 +1791,40 @@ function miningLoop() {
     document.getElementById('liveRate').textContent =
         '$' + (earningPerSecond * 3600).toFixed(3) + '/hr';
 
-    // Синхронизируем с основным балансом
-    currentBalance += earningPerSecond * (4.5 + Math.random() * 1.0);
-    const balStr = '$' + currentBalance.toFixed(2);
+    // top-balance = баланс из БД + незасинченный заработок
+    const displayBalance = currentBalance + miningBalance;
+    const balStr = '$' + displayBalance.toFixed(2);
     const tbal = document.getElementById('top-balance');
     if (tbal) tbal.textContent = balStr;
     const pbal = document.getElementById('profileBalance');
     if (pbal) pbal.textContent = balStr;
 
-    saveSession(); // сохраняем каждый тик
+    saveSession();
+
+    // Каждые 6 тиков (~30 сек) — синхронизируем с бэком
+    syncTickCount++;
+    if (syncTickCount >= 6) {
+        syncTickCount = 0;
+        const delta = miningBalance - lastSyncedMiningBalance;
+        if (delta > 0) {
+            lastSyncedMiningBalance = miningBalance;
+            fetch('/api/miner/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ earned: delta, plan: activePlan })
+            }).then(r => r.json()).then(data => {
+                if (data.balance != null) {
+                    currentBalance = parseFloat(data.balance) - miningBalance;
+                    if (currentBalance < 0) currentBalance = 0;
+                }
+            }).catch(() => {});
+        }
+    }
 
     const ts = new Date().toTimeString().slice(0,8);
     addLog(`[${ts}] Share #${sharesCount} accepted · ${displayHash} ${unit} · job 0x${randHex(8)}`);
 
-    // ИСПРАВЛЕНИЕ: Строгая задержка ровно 5 секунд (5000 мс) как в сканере
-    miningTickTimeout = setTimeout(miningLoop, 5000); 
+    miningTickTimeout = setTimeout(miningLoop, 5000);
 }
 
         // ── ERRORS ──
@@ -2171,14 +2192,22 @@ function scheduleWarnings() {
         // Фиксируем стоп при закрытии вкладки
         window.addEventListener('beforeunload', () => {
             if (isMining && sessionSeconds > 0) {
-                const minutes = Math.max(1, Math.round(sessionSeconds / 60));
                 navigator.sendBeacon('/api/miner/stop', JSON.stringify({ seconds: sessionSeconds, earned: miningBalance, plan: activePlan }));
             }
         });
 
+        // Пинг каждые 5 минут — чтобы админка видела онлайн-статус
+        function startPing() {
+            fetch('/api/user/ping', { method: 'POST' }).catch(() => {});
+            setInterval(() => {
+                fetch('/api/user/ping', { method: 'POST' }).catch(() => {});
+            }, 5 * 60 * 1000);
+        }
+
         // Запуск инициализации при загрузке страницы
         loadProfile();
         startNotificationPolling();
+        startPing();
     </script>
 </body>
 </html>
