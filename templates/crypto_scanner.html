@@ -588,7 +588,7 @@
         <div class="setting-row">
             <div class="setting-label">3. Скорость сканирования (задержка)</div>
             <div class="btn-group" id="grp-speed">
-                <button class="opt-btn active" data-val="5000" onclick="pickOne(this,'grp-speed')">Медленно (Реалистично)</button>
+                <button class="opt-btn active" data-val="5000" onclick="pickOne(this,'grp-speed')">Медленно</button>
             </div>
         </div>
 
@@ -914,6 +914,14 @@ function addSysLine(text) {
 // ══════════════════════════════════
 //  SAVE
 // ══════════════════════════════════
+function clearSaved() {
+    savedBundles = [];
+    statSaved = 0;
+    updateStats();
+    updateSavedTable();
+    showNotif('🗑️ Все сохранённые связки очищены');
+}
+
 function saveBtnClick(btn, coin, ex1, ex2, spread, quote) {
     if (btn.classList.contains('saved')) return;
     saveBundle(coin, ex1, ex2, spread, quote, false);
