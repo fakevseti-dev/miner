@@ -465,9 +465,89 @@ def purchase_plan():
 def change_plan():
     return purchase_plan()
 
+@app.route('/api/scanner/bundles/clear', methods=['POST'])
+@login_required
+def scanner_clear_bundles():
+    try:
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("DELETE FROM scanner_bundles WHERE user_id = ?", (session['user_id'],))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success"})
+    except Exception:
+        return jsonify({"status": "error"}), 500
+
 # ═══════════════════════════════════════════════════════════════
-#  MINING / ACTIVITY API
+#  MINER API  (старт / стоп сессии — для трекинга в админке)
 # ═══════════════════════════════════════════════════════════════
+@app.route('/api/miner/start', methods=['POST'])
+@login_required
+def miner_start():
+    try:
+        d = request.json or {}
+        plan = d.get('plan', 'unknown')
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute(
+            "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
+            (session['user_id'], 'MINER_NODE', 'SESSION_START', 'OK', now())
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success"})
+    except Exception:
+        return jsonify({"status": "error"}), 500
+
+@app.route('/api/miner/stop', methods=['POST'])
+@login_required
+def miner_stop():
+    try:
+        d = request.json or {}
+        minutes   = max(1, int(float(d.get('minutes', 1))))
+        earned    = float(d.get('earned', 0))
+        plan      = d.get('plan', 'unknown')
+        completed = bool(d.get('completed', False))
+
+        conn = get_db()
+        c = get_cursor(conn)
+
+        # Пишем SESSION_TICK за каждую минуту — именно так считает админка
+        for _ in range(minutes):
+            c.execute(
+                "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
+                (session['user_id'], 'MINER_NODE', 'SESSION_TICK', 'OK', now())
+            )
+
+        # SESSION_END с деталями
+        action_label = f"SESSION_END earned=${earned:.4f} plan={plan}" + (" [COMPLETED]" if completed else "")
+        c.execute(
+            "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
+            (session['user_id'], 'MINER_NODE', action_label, 'OK', now())
+        )
+
+        # Если есть заработок — обновляем баланс и total_earned
+        if earned > 0:
+            c.execute(
+                "UPDATE users SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?",
+                (earned, earned, session['user_id'])
+            )
+            c.execute(
+                "INSERT INTO mining_stats (user_id, total_earnings, duration_seconds, timestamp) VALUES (?,?,?,?)",
+                (session['user_id'], earned, minutes * 60, now())
+            )
+            c.execute(
+                "INSERT INTO transactions (user_id, type, amount, status, description) VALUES (?,?,?,?,?)",
+                (session['user_id'], 'mining_reward', earned, 'completed', f'Майнинг план {plan}')
+            )
+
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
 @app.route('/api/save', methods=['POST'])
 @login_required
 def save_action():
