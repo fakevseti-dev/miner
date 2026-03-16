@@ -1427,12 +1427,13 @@
 
         function saveSession() {
             const data = {
-                balance:  miningBalance,
-                seconds:  sessionSeconds,
-                shares:   sharesCount,
-                plan:     activePlan,
-                date:     new Date().toDateString(),   // "Mon Jan 01 2025"
-                savedAt:  Date.now(),
+                balance:       miningBalance,
+                seconds:       sessionSeconds,
+                shares:        sharesCount,
+                plan:          activePlan,
+                syncedBalance: lastSyncedMiningBalance,
+                date:          new Date().toDateString(),
+                savedAt:       Date.now(),
             };
             localStorage.setItem(SESSION_KEY, JSON.stringify(data));
         }
@@ -1471,6 +1472,9 @@
             sessionSeconds = data.seconds  || 0;
             sharesCount    = data.shares   || 0;
             activePlan     = data.plan     || getActivePlan();
+            // Сколько уже было сохранено в БД до паузы — считаем из savedAt
+            lastSyncedMiningBalance = data.syncedBalance || 0;
+            syncTickCount = 0;
 
             const plan = PLANS[activePlan];
             if (!plan) return;
@@ -1483,6 +1487,15 @@
             document.getElementById('liveRate').textContent = '$' + (earningPerSecond * 3600).toFixed(3) + '/hr';
             document.getElementById('planEstLabel').textContent =
                 `Est. Output: $${plan.earn.toFixed(2)} / ${plan.hours}h · ${plan.label}`;
+
+            // top-balance = баланс из БД + уже намайненное (не сохранённое в БД)
+            const unsyncedEarned = miningBalance - lastSyncedMiningBalance;
+            const displayBal = currentBalance + Math.max(0, unsyncedEarned);
+            const balStr = '$' + displayBal.toFixed(2);
+            const tbal = document.getElementById('top-balance');
+            if (tbal) tbal.textContent = balStr;
+            const pbal = document.getElementById('profileBalance');
+            if (pbal) pbal.textContent = balStr;
 
             const totalSec = plan.hours * 3600;
             const pct = Math.min(100, (sessionSeconds / totalSec * 100)).toFixed(1);
@@ -1764,6 +1777,10 @@
         }
 
         // ── MAIN MINING LOOP ──
+        // Счётчик тиков для периодического сохранения в БД (каждые 6 тиков = ~30 сек)
+        let syncTickCount = 0;
+        let lastSyncedMiningBalance = 0; // сколько уже сохранено в БД
+
 function miningLoop() {
     if (!isMining || isPaused) return;
     if (errorActive) {
@@ -1780,9 +1797,8 @@ function miningLoop() {
 
     sharesCount++;
     
-    // ИСПРАВЛЕНИЕ: Так как цикл теперь идет 5 секунд, 
-    // добавляем заработок примерно за 5 секунд (от 4.5 до 5.5 для реализма)
-    miningBalance += earningPerSecond * (4.5 + Math.random() * 1.0); 
+    const earned = earningPerSecond * (4.5 + Math.random() * 1.0);
+    miningBalance += earned;
     if (miningBalance < 0) miningBalance = 0;
 
     document.getElementById('minerBalance').textContent = '$' + miningBalance.toFixed(4);
@@ -1791,20 +1807,40 @@ function miningLoop() {
     document.getElementById('liveRate').textContent =
         '$' + (earningPerSecond * 3600).toFixed(3) + '/hr';
 
-    // Синхронизируем с основным балансом
-    currentBalance += earningPerSecond * (4.5 + Math.random() * 1.0);
-    const balStr = '$' + currentBalance.toFixed(2);
+    // Синхронизируем top-balance с реальным currentBalance из БД + текущим заработком
+    const displayBalance = currentBalance + miningBalance;
+    const balStr = '$' + displayBalance.toFixed(2);
     const tbal = document.getElementById('top-balance');
     if (tbal) tbal.textContent = balStr;
     const pbal = document.getElementById('profileBalance');
     if (pbal) pbal.textContent = balStr;
 
-    saveSession(); // сохраняем каждый тик
+    saveSession();
+
+    // Каждые 6 тиков (~30 сек) сохраняем прирост в БД
+    syncTickCount++;
+    if (syncTickCount >= 6) {
+        syncTickCount = 0;
+        const delta = miningBalance - lastSyncedMiningBalance;
+        if (delta > 0) {
+            lastSyncedMiningBalance = miningBalance;
+            fetch('/api/miner/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ earned: delta, plan: activePlan })
+            }).then(r => r.json()).then(data => {
+                // Обновляем currentBalance из БД — теперь delta уже там учтена
+                if (data.balance != null) {
+                    currentBalance = parseFloat(data.balance) - miningBalance;
+                    if (currentBalance < 0) currentBalance = 0;
+                }
+            }).catch(() => {});
+        }
+    }
 
     const ts = new Date().toTimeString().slice(0,8);
     addLog(`[${ts}] Share #${sharesCount} accepted · ${displayHash} ${unit} · job 0x${randHex(8)}`);
 
-    // ИСПРАВЛЕНИЕ: Строгая задержка ровно 5 секунд (5000 мс) как в сканере
     miningTickTimeout = setTimeout(miningLoop, 5000); 
 }
 
