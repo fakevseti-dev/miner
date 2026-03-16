@@ -1313,7 +1313,7 @@ function renderUsers(users) {
             <td class="balance-cell">${fmt(u.balance)}</td>
             <td style="color:var(--text-secondary);font-family:var(--mono);font-size:12px">${fmt(u.total_earned)}</td>
             <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${fmtDate(u.last_login)}</td>
-            <td><span class="badge ${u.is_active ? 'badge-green' : 'badge-red'}">${u.is_active ? '● онлайн' : '✕ заблокирован'}</span></td>
+            <td>${userStatusBadge(u)}</td>
             <td>
                 <div style="display:flex;gap:6px">
                     <button class="action-btn action-btn-fund" onclick="openFundModal(${u.id}, '${u.username}', ${u.balance})">+ Начислить</button>
@@ -1322,6 +1322,24 @@ function renderUsers(users) {
             </td>
         </tr>
     `).join('');
+}
+
+function userStatusBadge(u) {
+    if (!u.is_active) {
+        return '<span class="badge badge-red">✕ заблокирован</span>';
+    }
+    if (!u.last_login) {
+        return '<span class="badge" style="background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border)">○ не входил</span>';
+    }
+    const last = new Date(u.last_login);
+    const diffMin = (Date.now() - last.getTime()) / 60000;
+    if (diffMin <= 15) {
+        return '<span class="badge badge-green">● онлайн</span>';
+    }
+    if (diffMin <= 60) {
+        return `<span class="badge" style="background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2)">◐ был ${Math.round(diffMin)} мин. назад</span>`;
+    }
+    return '<span class="badge" style="background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border)">○ не в сети</span>';
 }
 
 function filterUsers(q) {
