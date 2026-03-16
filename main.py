@@ -481,9 +481,36 @@ def scanner_clear_bundles():
 # ═══════════════════════════════════════════════════════════════
 #  MINER API  (старт / стоп сессии — для трекинга в админке)
 # ═══════════════════════════════════════════════════════════════
-@app.route('/api/miner/start', methods=['POST'])
+@app.route('/api/miner/sync', methods=['POST'])
 @login_required
-def miner_start():
+def miner_sync():
+    """Периодическое сохранение прироста баланса во время майнинга (каждые ~30 сек)"""
+    try:
+        d = request.json or {}
+        delta = float(d.get('earned', 0))
+        plan  = d.get('plan', 'unknown')
+        if delta <= 0:
+            return jsonify({"status": "ok"})
+
+        conn = get_db()
+        c = get_cursor(conn)
+        # Обновляем баланс и total_earned в реальном времени
+        c.execute(
+            "UPDATE users SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?",
+            (delta, delta, session['user_id'])
+        )
+        conn.commit()
+
+        # Возвращаем актуальный баланс из БД — фронт использует его при восстановлении
+        c.execute("SELECT balance FROM users WHERE id = ?", (session['user_id'],))
+        row = c.fetchone()
+        conn.close()
+
+        return jsonify({"status": "ok", "balance": row['balance'] if row else None})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
     try:
         d = request.json or {}
         plan = d.get('plan', 'unknown')
