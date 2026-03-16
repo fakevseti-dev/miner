@@ -360,7 +360,11 @@
             </div>
 
             <div class="flex items-center gap-8">
-                <div class="text-lg font-mono text-emerald-400 font-bold" id="top-balance">$0.00</div>
+                <div class="flex items-center gap-2 px-4 py-2 rounded-xl border border-emerald-500/30" style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(6,182,212,0.08))">
+                    <div class="w-2 h-2 rounded-full bg-emerald-400" style="animation:pulse 1.5s infinite;box-shadow:0 0 6px rgba(16,185,129,0.7)"></div>
+                    <span class="text-xs text-slate-400 font-semibold uppercase tracking-widest">Balance</span>
+                    <span class="text-base font-bold font-mono" id="top-balance" style="background:linear-gradient(135deg,#34d399,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">$0.00</span>
+                </div>
                 
                 <div class="relative">
                     <button onclick="toggleProfile(event)" style="position:relative;z-index:1001;cursor:pointer;" class="glass px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-slate-700/50 transition">
@@ -650,8 +654,14 @@
                         <button onclick="startMining()" id="startBtn" class="flex-1 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-xl font-bold text-white transition">
                             <i class="fas fa-play mr-2"></i> START MINING
                         </button>
+                        <button onclick="pauseMining()" id="pauseBtn" class="hidden flex-1 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 rounded-xl font-bold text-white transition">
+                            <i class="fas fa-pause mr-2"></i> PAUSE
+                        </button>
+                        <button onclick="resumeMining()" id="resumeBtn" class="hidden flex-1 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-xl font-bold text-white transition">
+                            <i class="fas fa-play mr-2"></i> ПРОДОЛЖИТЬ
+                        </button>
                         <button onclick="stopMining()" id="stopBtn" class="hidden flex-1 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-xl font-bold text-white transition">
-                            <i class="fas fa-stop mr-2"></i> STOP MINING
+                            <i class="fas fa-stop mr-2"></i> STOP
                         </button>
                     </div>
                 </div>
@@ -1207,6 +1217,15 @@
 
         // Навигация между секциями
         function showSection(sectionId) {
+            // Если уходим из майнера — ставим на паузу
+            const currentActive = document.querySelector('.section.active');
+            if (currentActive && currentActive.id === 'minerSection' && sectionId !== 'minerSection') {
+                if (isMining && !isPaused) {
+                    pauseMining();
+                    addLog('[SYSTEM] Auto-paused: left miner screen.', 'warn');
+                }
+            }
+
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             
@@ -1333,6 +1352,7 @@
         //  MINING STATE
         // ──────────────────────────────────────────────────────
         let isMining = false;
+        let isPaused = false;
         let miningBalance = 0;
         let sessionSeconds = 0;
         let sessionTimerInterval = null;
@@ -1404,8 +1424,11 @@
 
             // ── Автоматически возобновляем майнинг ──
             isMining = true;
+            isPaused = false;
             errorActive = false;
             document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('resumeBtn').classList.add('hidden');
+            document.getElementById('pauseBtn').classList.remove('hidden');
             document.getElementById('stopBtn').classList.remove('hidden');
             safeSet('activePlanBadge', plan.label);
 
@@ -1507,7 +1530,7 @@
         function sessionTimerLoop() {
             clearInterval(sessionTimerInterval);
             sessionTimerInterval = setInterval(() => {
-                if (!isMining) { clearInterval(sessionTimerInterval); return; }
+                if (!isMining || isPaused) { clearInterval(sessionTimerInterval); return; }
 
                 sessionSeconds++;
                 saveSession();
@@ -1541,13 +1564,16 @@
             earningPerSecond = plan.earn / (plan.hours * 3600);
 
             isMining = true;
+            isPaused = false;
             errorActive = false;
             sessionSeconds = 0;
             miningBalance = 0;
             sharesCount = 0;
 
             document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('pauseBtn').classList.remove('hidden');
             document.getElementById('stopBtn').classList.remove('hidden');
+            document.getElementById('resumeBtn').classList.add('hidden');
             document.getElementById('planEstLabel').textContent =
                 `Est. Output: $${plan.earn.toFixed(2)} / ${plan.hours}h · ${plan.label}`;
 
@@ -1567,15 +1593,42 @@
 
         function stopMining() {
             isMining = false;
+            isPaused = false;
             clearTimeout(miningTickTimeout);
             clearTimeout(errorTimeout);
             clearInterval(sessionTimerInterval);
             sessionTimerInterval = null;
             document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('pauseBtn').classList.add('hidden');
+            document.getElementById('resumeBtn').classList.add('hidden');
             document.getElementById('stopBtn').classList.add('hidden');
             addLog(`[MINING] Session stopped. Earned: $${miningBalance.toFixed(4)}`);
             hideError();
             saveSession();
+        }
+
+        function pauseMining() {
+            if (!isMining || isPaused) return;
+            isPaused = true;
+            clearTimeout(miningTickTimeout);
+            clearInterval(sessionTimerInterval);
+            sessionTimerInterval = null;
+            document.getElementById('pauseBtn').classList.add('hidden');
+            document.getElementById('resumeBtn').classList.remove('hidden');
+            const ts = new Date().toTimeString().slice(0,8);
+            addLog(`[${ts}] ⏸ Mining paused. Earned so far: $${miningBalance.toFixed(4)}`, 'warn');
+            saveSession();
+        }
+
+        function resumeMining() {
+            if (!isMining || !isPaused) return;
+            isPaused = false;
+            document.getElementById('resumeBtn').classList.add('hidden');
+            document.getElementById('pauseBtn').classList.remove('hidden');
+            const ts = new Date().toTimeString().slice(0,8);
+            addLog(`[${ts}] ▶ Mining resumed.`, 'fix');
+            miningLoop();
+            sessionTimerLoop();
         }
 
         function clearTerminal() {
@@ -1585,7 +1638,7 @@
 
         // ── MAIN MINING LOOP ──
 function miningLoop() {
-    if (!isMining) return;
+    if (!isMining || isPaused) return;
     if (errorActive) {
         miningTickTimeout = setTimeout(miningLoop, 1000);
         return;
@@ -1611,6 +1664,14 @@ function miningLoop() {
     document.getElementById('liveRate').textContent =
         '$' + (earningPerSecond * 3600).toFixed(3) + '/hr';
 
+    // Синхронизируем с основным балансом
+    currentBalance += earningPerSecond * (4.5 + Math.random() * 1.0);
+    const balStr = '$' + currentBalance.toFixed(2);
+    const tbal = document.getElementById('top-balance');
+    if (tbal) tbal.textContent = balStr;
+    const pbal = document.getElementById('profileBalance');
+    if (pbal) pbal.textContent = balStr;
+
     saveSession(); // сохраняем каждый тик
 
     const ts = new Date().toTimeString().slice(0,8);
@@ -1623,15 +1684,9 @@ function miningLoop() {
         // ── ERRORS ──
         function scheduleErrors() {
             if (!isMining) return;
-            // 1–6 ошибок в течение часа, интервал 4–18 мин
-            const count = 1 + Math.floor(Math.random() * 6);
-            let delay = 0;
-            for (let i = 0; i < count; i++) {
-                delay += (4 + Math.random() * 14) * 60 * 1000;  // 4–18 min
-                // для демо ускорим до 20–90 сек
-                const demoDelay = (20 + Math.random() * 70) * 1000;
-                scheduleOneError(demoDelay + i * (15000 + Math.random() * 20000));
-            }
+            // Одна ошибка раз в час: задержка 50–70 минут
+            const delay = (50 + Math.random() * 20) * 60 * 1000;
+            scheduleOneError(delay);
         }
 
         function scheduleOneError(delay) {
@@ -1674,7 +1729,10 @@ function miningLoop() {
                 addLog(`[${ts}] ✅ ${err.fixLog}`, 'fix');
                 addLog(`[MINING] RESUMED`, 'fix');
                 document.getElementById('errorFixBtn').disabled = false;
-                if (isMining) miningLoop();
+                if (isMining) {
+                    miningLoop();
+                    scheduleErrors(); // следующая ошибка через ~час
+                }
             }, err.fixDelay);
         }
 
