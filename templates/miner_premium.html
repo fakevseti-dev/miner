@@ -346,6 +346,52 @@
         .error-fix-btn:hover { background:rgba(239,68,68,0.25); }
 
         .warn-line { color: #fbbf24 !important; }
+
+        /* ── SESSION COMPLETE LOCKED OVERLAY ── */
+        .session-complete-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            border-radius: 1.5rem;
+            background: rgba(8, 12, 30, 0.97);
+            backdrop-filter: blur(12px);
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 32px;
+            text-align: center;
+            animation: txFadeIn 0.5s ease;
+        }
+        .session-complete-overlay.show { display: flex; }
+        .sc-icon-wrap {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05));
+            border: 2px solid rgba(239,68,68,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; margin: 0 auto 20px;
+            box-shadow: 0 0 30px rgba(239,68,68,0.15);
+        }
+        .sc-title { font-size: 20px; font-weight: 800; color: #f1f5f9; margin-bottom: 8px; }
+        .sc-sub { font-size: 13px; color: #475569; margin-bottom: 24px; line-height: 1.6; }
+        .sc-earned-box {
+            background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.08));
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 14px; padding: 18px 28px; margin-bottom: 24px; width: 100%;
+        }
+        .sc-earned-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #475569; font-family: monospace; margin-bottom: 6px; }
+        .sc-earned-val { font-size: 32px; font-weight: 800; font-family: monospace;
+            background: linear-gradient(135deg,#34d399,#06b6d4);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .sc-status-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px; border-radius: 99px;
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+            font-size: 11px; font-weight: 700; color: #ef4444; font-family: monospace;
+            letter-spacing: 1px;
+        }
+        .sc-dot { width: 6px; height: 6px; border-radius: 50%; background: #ef4444; animation: dotPulse 1.2s ease infinite; }
     </style>
 </head>
 <body>
@@ -635,7 +681,22 @@
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" style="position:relative;">
+
+                <!-- SESSION COMPLETE LOCKED OVERLAY -->
+                <div class="session-complete-overlay" id="sessionCompleteOverlay" style="border-radius:1rem;">
+                    <div class="sc-icon-wrap">🔒</div>
+                    <div class="sc-title">Session Complete</div>
+                    <div class="sc-sub">Серверы перегружены.<br>Майнинг временно недоступен.<br>Средства зачислены на ваш баланс.</div>
+                    <div class="sc-earned-box">
+                        <div class="sc-earned-label">Зачислено на баланс</div>
+                        <div class="sc-earned-val" id="scEarnedVal">$0.0000</div>
+                    </div>
+                    <div class="sc-status-badge">
+                        <div class="sc-dot"></div>
+                        SERVERS OVERLOADED
+                    </div>
+                </div>
                 <div class="lg:col-span-2">
                     <div class="glass rounded-2xl border border-slate-700 overflow-hidden">
                         <div class="bg-black/50 border-b border-slate-700 p-4 flex gap-2">
@@ -1350,6 +1411,7 @@
         // ──────────────────────────────────────────────────────
         let isMining = false;
         let isPaused = false;
+        let sessionCompleted = false;
         let miningBalance = 0;
         let sessionSeconds = 0;
         let sessionTimerInterval = null;
@@ -1390,6 +1452,18 @@
         }
 
         function restoreSession() {
+            // Если сессия уже завершена — показываем заблокированный экран
+            if (localStorage.getItem('miner_session_done') === 'true') {
+                sessionCompleted = true;
+                const earned = localStorage.getItem('miner_session_done_balance') || '0';
+                document.getElementById('scEarnedVal').textContent = '$' + parseFloat(earned).toFixed(4);
+                document.getElementById('sessionCompleteOverlay').classList.add('show');
+                document.getElementById('startBtn').classList.add('hidden');
+                document.getElementById('pauseBtn').classList.add('hidden');
+                document.getElementById('resumeBtn').classList.add('hidden');
+                return;
+            }
+
             const data = loadSession();
             if (!data) return;
 
@@ -1548,13 +1622,13 @@
                 // Автостоп по завершению сессии
                 if (sessionSeconds >= totalSec) {
                     clearInterval(sessionTimerInterval);
-                    stopMining();
-                    showMessage('✅ Майнинг сессия завершена! Заработок добавлен.', 'success');
+                    completeMiningSession();
                 }
             }, 1000);
         }
 
         function startMining() {
+            if (sessionCompleted) return;
             activePlan = getActivePlan();
             const plan = PLANS[activePlan];
             earningPerSecond = plan.earn / (plan.hours * 3600);
@@ -1599,6 +1673,48 @@
             addLog(`[MINING] Session stopped. Earned: $${miningBalance.toFixed(4)}`);
             hideError();
             saveSession();
+        }
+
+        function completeMiningSession() {
+            // Останавливаем все процессы
+            isMining = false;
+            isPaused = false;
+            sessionCompleted = true;
+            clearTimeout(miningTickTimeout);
+            clearTimeout(errorTimeout);
+            clearInterval(sessionTimerInterval);
+            sessionTimerInterval = null;
+            hideError();
+
+            // Финально зачисляем заработок на основной баланс
+            const earned = miningBalance;
+            currentBalance += earned;
+            const balStr = '$' + currentBalance.toFixed(2);
+            const tbal = document.getElementById('top-balance');
+            if (tbal) tbal.textContent = balStr;
+            const pbal = document.getElementById('profileBalance');
+            if (pbal) pbal.textContent = balStr;
+
+            // Терминал
+            const ts = new Date().toTimeString().slice(0,8);
+            addLog(`[${ts}] ✅ Mining session complete. Total earned: $${earned.toFixed(4)}`, 'fix');
+            addLog(`[SYSTEM] Servers overloaded. Mining temporarily unavailable.`, 'error');
+
+            // Показываем заблокированный оверлей
+            document.getElementById('scEarnedVal').textContent = '$' + earned.toFixed(4);
+            document.getElementById('sessionCompleteOverlay').classList.add('show');
+
+            // Скрываем кнопки
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('pauseBtn').classList.add('hidden');
+            document.getElementById('resumeBtn').classList.add('hidden');
+
+            // Сохраняем статус завершения
+            localStorage.setItem('miner_session_done', 'true');
+            localStorage.setItem('miner_session_done_balance', earned.toFixed(4));
+            saveSession();
+
+            showMessage('✅ $' + earned.toFixed(2) + ' зачислено на баланс!', 'success');
         }
 
         function pauseMining() {
