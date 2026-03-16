@@ -681,6 +681,7 @@
 let scannerRunning = false;
 let scanInterval = null;
 let savedBundles = [];
+let bundlesCleared = false; // флаг — пользователь очистил, не перезагружать из БД
 
 let statTotal = 0, statGreen = 0, statSaved = 0, statMax = 0;
 let sessionStartTime = null;   // для подсчёта минут
@@ -916,9 +917,12 @@ function addSysLine(text) {
 // ══════════════════════════════════
 function clearSaved() {
     savedBundles = [];
+    bundlesCleared = true;
     statSaved = 0;
     updateStats();
     updateSavedTable();
+    // Очищаем на бэкенде
+    fetch('/api/scanner/bundles/clear', { method: 'POST', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
     showNotif('🗑️ Все сохранённые связки очищены');
 }
 
@@ -1075,12 +1079,13 @@ function switchTab(tab) {
 }
 
 async function loadBundlesFromDB() {
+    // Если пользователь только что очистил — не перезагружаем из БД
+    if (bundlesCleared) { updateSavedTable(); return; }
     try {
         const res = await fetch('/api/scanner/bundles');
         if (!res.ok) { updateSavedTable(); return; }
         const data = await res.json();
         if (data.bundles && data.bundles.length > 0) {
-            // Мержим с локальными (избегаем дублей по времени)
             const dbBundles = data.bundles.map(b => ({
                 id: b.id,
                 coin: b.coin,
@@ -1091,7 +1096,6 @@ async function loadBundlesFromDB() {
                 ts: b.saved_at,
                 auto: true
             }));
-            // Показываем DB-данные если локальный список пуст
             if (savedBundles.length === 0) {
                 savedBundles = dbBundles;
                 statSaved = savedBundles.length;
