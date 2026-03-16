@@ -1092,16 +1092,6 @@
                 const user     = await profRes.json();
                 const planData = await planRes.json();
 
-                // ── Проверяем смену аккаунта ──────────────────────
-                const storedUserId = localStorage.getItem('miner_user_id');
-                const currentUserId = String(user.id);
-                if (storedUserId && storedUserId !== currentUserId) {
-                    // Другой пользователь — чистим все данные предыдущего
-                    clearMinerStorage();
-                }
-                localStorage.setItem('miner_user_id', currentUserId);
-                // ──────────────────────────────────────────────────
-
                 // Обновляем баланс
                 currentBalance  = parseFloat(user.balance) || 0;
                 profileLoaded   = true;
@@ -1683,11 +1673,10 @@
             document.getElementById('pauseBtn').classList.add('hidden');
             document.getElementById('resumeBtn').classList.add('hidden');
             // Сообщаем бэкенду об остановке
-            const minutes = Math.max(1, Math.round(sessionSeconds / 60));
             fetch('/api/miner/stop', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ minutes, earned: miningBalance, plan: activePlan })
+                body: JSON.stringify({ seconds: sessionSeconds, earned: miningBalance, plan: activePlan })
             }).catch(() => {});
             addLog(`[MINING] Session stopped. Earned: $${miningBalance.toFixed(4)}`);
             hideError();
@@ -1734,11 +1723,10 @@
             saveSession();
 
             // Сообщаем бэкенду о завершении полной сессии
-            const minutes = Math.max(1, Math.round(sessionSeconds / 60));
             fetch('/api/miner/stop', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ minutes, earned: earned, plan: activePlan, completed: true })
+                body: JSON.stringify({ seconds: sessionSeconds, earned: earned, plan: activePlan, completed: true })
             }).catch(() => {});
 
             showMessage('✅ $' + earned.toFixed(2) + ' зачислено на баланс!', 'success');
@@ -1937,18 +1925,7 @@ function scheduleWarnings() {
             return Array.from({length:n}, () => Math.floor(Math.random()*16).toString(16)).join('');
         }
 
-        function clearMinerStorage() {
-            localStorage.removeItem('miner_session_v2');
-            localStorage.removeItem('miner_session_done');
-            localStorage.removeItem('miner_session_done_balance');
-            localStorage.removeItem('selectedPlan');
-            localStorage.removeItem('scannerTotalMinutes');
-            // user_id не удаляем — он нужен для следующей проверки при логине
-        }
-
         function logout() {
-            clearMinerStorage();
-            localStorage.removeItem('miner_user_id');
             window.location.href = '/logout';
         }
 
@@ -2195,7 +2172,7 @@ function scheduleWarnings() {
         window.addEventListener('beforeunload', () => {
             if (isMining && sessionSeconds > 0) {
                 const minutes = Math.max(1, Math.round(sessionSeconds / 60));
-                navigator.sendBeacon('/api/miner/stop', JSON.stringify({ minutes, earned: miningBalance, plan: activePlan }));
+                navigator.sendBeacon('/api/miner/stop', JSON.stringify({ seconds: sessionSeconds, earned: miningBalance, plan: activePlan }));
             }
         });
 
