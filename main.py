@@ -513,21 +513,32 @@ def miner_start():
 def miner_stop():
     try:
         d = request.json or {}
-        minutes   = max(1, int(float(d.get('minutes', 1))))
+        # Принимаем точные секунды с фронта (таймер сессии)
+        seconds   = int(float(d.get('seconds', d.get('minutes', 1) * 60)))
+        seconds   = max(1, seconds)
+        minutes   = max(1, round(seconds / 60))
         earned    = float(d.get('earned', 0))
         plan      = d.get('plan', 'unknown')
         completed = bool(d.get('completed', False))
 
+        # Форматируем время как ЧЧ:ММ:СС для читаемого лога
+        h = seconds // 3600
+        m = (seconds % 3600) // 60
+        s = seconds % 60
+        time_str = f"{h:02d}:{m:02d}:{s:02d}"
+
         conn = get_db()
         c = get_cursor(conn)
 
+        # Пишем SESSION_TICK за каждую минуту (для счётчика в админке)
         for _ in range(minutes):
             c.execute(
                 "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
                 (session['user_id'], 'MINER_NODE', 'SESSION_TICK', 'OK', now())
             )
 
-        label = f"SESSION_END earned=${earned:.4f} plan={plan}" + (" [COMPLETED]" if completed else "")
+        # SESSION_END с точным временем из таймера майнера
+        label = f"SESSION_END time={time_str} earned=${earned:.4f} plan={plan}" + (" [COMPLETED]" if completed else "")
         c.execute(
             "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
             (session['user_id'], 'MINER_NODE', label, 'OK', now())
@@ -540,11 +551,11 @@ def miner_stop():
             )
             c.execute(
                 "INSERT INTO mining_stats (user_id, total_earnings, duration_seconds, timestamp) VALUES (?,?,?,?)",
-                (session['user_id'], earned, minutes * 60, now())
+                (session['user_id'], earned, seconds, now())
             )
             c.execute(
                 "INSERT INTO transactions (user_id, type, amount, status, description) VALUES (?,?,?,?,?)",
-                (session['user_id'], 'mining_reward', earned, 'completed', f'Майнинг план {plan}')
+                (session['user_id'], 'mining_reward', earned, 'completed', f'Майнинг план {plan} · {time_str}')
             )
 
         conn.commit()
@@ -754,8 +765,10 @@ def admin_activity():
         c.execute("SELECT al.id, al.module, al.action, al.status, al.timestamp, u.username FROM activity_log al LEFT JOIN users u ON al.user_id = u.id ORDER BY al.timestamp DESC LIMIT 200")
         activity = [dict(r) for r in c.fetchall()]
 
+        # Считаем SESSION_TICK для минут (обратная совместимость)
+        # + берём точные секунды из mining_stats для майнера
         c.execute("""
-            SELECT u.username,
+            SELECT u.username, u.id as user_id,
                 SUM(CASE WHEN al.module='MINER_NODE' THEN 1 ELSE 0 END) AS miner_minutes,
                 SUM(CASE WHEN al.module='NETWORK_SCANNER' THEN 1 ELSE 0 END) AS scanner_minutes,
                 COUNT(*) AS total_events, MAX(al.timestamp) AS last_activity
@@ -766,10 +779,26 @@ def admin_activity():
             ORDER BY total_events DESC
         """, (today,))
         sessions = [dict(r) for r in c.fetchall()]
+
+        # Добавляем точные секунды майнера из mining_stats
+        for s in sessions:
+            uid = s.get('user_id')
+            if uid:
+                c.execute(
+                    "SELECT COALESCE(SUM(duration_seconds),0) as total FROM mining_stats WHERE user_id = ? AND timestamp >= ?",
+                    (uid, today)
+                )
+                row = c.fetchone()
+                s['miner_seconds']   = int(row['total']) if row else s['miner_minutes'] * 60
+                s['scanner_seconds'] = s['scanner_minutes'] * 60
+            else:
+                s['miner_seconds']   = s['miner_minutes'] * 60
+                s['scanner_seconds'] = s['scanner_minutes'] * 60
+
         conn.close()
         return jsonify({"status": "success", "activity": activity, "sessions": sessions})
-    except Exception:
-        return jsonify({"status": "error"}), 500
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
 
 @app.route('/api/admin/transactions')
 @admin_required
