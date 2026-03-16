@@ -1648,6 +1648,8 @@
 
             clearTerminal();
             addLog(`[SYSTEM] Initializing ${plan.label} mining node...`);
+            // Сообщаем бэкенду о старте майнинга
+            fetch('/api/miner/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: activePlan }) }).catch(() => {});
             setTimeout(() => addLog(`[SYSTEM] CUDA devices detected: 1x A100 GPU`), 600);
             setTimeout(() => addLog(`[SYSTEM] Connecting to stratum+tcp://eu.pool.tron.com:4444`), 1200);
             setTimeout(() => addLog(`[POOL] Authorized. Difficulty: ${plan.hashMin} MH/s target`), 2000);
@@ -1670,6 +1672,13 @@
             document.getElementById('startBtn').classList.remove('hidden');
             document.getElementById('pauseBtn').classList.add('hidden');
             document.getElementById('resumeBtn').classList.add('hidden');
+            // Сообщаем бэкенду об остановке
+            const minutes = Math.max(1, Math.round(sessionSeconds / 60));
+            fetch('/api/miner/stop', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ minutes, earned: miningBalance, plan: activePlan })
+            }).catch(() => {});
             addLog(`[MINING] Session stopped. Earned: $${miningBalance.toFixed(4)}`);
             hideError();
             saveSession();
@@ -1713,6 +1722,14 @@
             localStorage.setItem('miner_session_done', 'true');
             localStorage.setItem('miner_session_done_balance', earned.toFixed(4));
             saveSession();
+
+            // Сообщаем бэкенду о завершении полной сессии
+            const minutes = Math.max(1, Math.round(sessionSeconds / 60));
+            fetch('/api/miner/stop', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ minutes, earned: earned, plan: activePlan, completed: true })
+            }).catch(() => {});
 
             showMessage('✅ $' + earned.toFixed(2) + ' зачислено на баланс!', 'success');
         }
@@ -2152,6 +2169,14 @@ function scheduleWarnings() {
                 btn.textContent = 'Сменить план';
             }
         }
+
+        // Фиксируем стоп при закрытии вкладки
+        window.addEventListener('beforeunload', () => {
+            if (isMining && sessionSeconds > 0) {
+                const minutes = Math.max(1, Math.round(sessionSeconds / 60));
+                navigator.sendBeacon('/api/miner/stop', JSON.stringify({ minutes, earned: miningBalance, plan: activePlan }));
+            }
+        });
 
         // Запуск инициализации при загрузке страницы
         loadProfile();
