@@ -1227,6 +1227,7 @@
         function openUSDTDepositModal() {
             document.getElementById('depositWarningModal').classList.remove('show');
             document.getElementById('usdtDepositModal').classList.add('show');
+            hideTxProcessing();
             generateQRCode();
         }
 
@@ -1502,6 +1503,38 @@
             } catch(e) { return DEFAULT_PLAN; }
         }
 
+        // ── SESSION TIMER LOOP ──
+        function sessionTimerLoop() {
+            clearInterval(sessionTimerInterval);
+            sessionTimerInterval = setInterval(() => {
+                if (!isMining) { clearInterval(sessionTimerInterval); return; }
+
+                sessionSeconds++;
+                saveSession();
+
+                const plan = PLANS[activePlan];
+                if (!plan) return;
+
+                const totalSec = plan.hours * 3600;
+                const pct = Math.min(100, (sessionSeconds / totalSec * 100)).toFixed(1);
+
+                const h = String(Math.floor(sessionSeconds / 3600)).padStart(2, '0');
+                const m = String(Math.floor((sessionSeconds % 3600) / 60)).padStart(2, '0');
+                const s = String(sessionSeconds % 60).padStart(2, '0');
+
+                document.getElementById('liveTime').textContent = `${h}:${m}:${s}`;
+                document.getElementById('sessionPct').textContent = pct + '%';
+                document.getElementById('sessionBar').style.width = pct + '%';
+
+                // Автостоп по завершению сессии
+                if (sessionSeconds >= totalSec) {
+                    clearInterval(sessionTimerInterval);
+                    stopMining();
+                    showMessage('✅ Майнинг сессия завершена! Заработок добавлен.', 'success');
+                }
+            }, 1000);
+        }
+
         function startMining() {
             activePlan = getActivePlan();
             const plan = PLANS[activePlan];
@@ -1510,6 +1543,7 @@
             isMining = true;
             errorActive = false;
             sessionSeconds = 0;
+            miningBalance = 0;
             sharesCount = 0;
 
             document.getElementById('startBtn').classList.add('hidden');
@@ -1536,11 +1570,12 @@
             clearTimeout(miningTickTimeout);
             clearTimeout(errorTimeout);
             clearInterval(sessionTimerInterval);
+            sessionTimerInterval = null;
             document.getElementById('startBtn').classList.remove('hidden');
             document.getElementById('stopBtn').classList.add('hidden');
             addLog(`[MINING] Session stopped. Earned: $${miningBalance.toFixed(4)}`);
             hideError();
-            saveSession(); // финальное сохранение
+            saveSession();
         }
 
         function clearTerminal() {
@@ -1724,6 +1759,7 @@ function scheduleWarnings() {
         //  TX PROCESSING OVERLAY
         // ──────────────────────────────────────────────────────
         let txConfirmInterval = null;
+        let txBlockInterval = null;
 
         function showTxProcessing() {
             const overlay = document.getElementById('txProcessingOverlay');
@@ -1738,7 +1774,8 @@ function scheduleWarnings() {
 
             // block number animation
             let block = 67241800 + Math.floor(Math.random() * 1000);
-            const blockInterval = setInterval(() => {
+            clearInterval(txBlockInterval);
+            txBlockInterval = setInterval(() => {
                 block++;
                 document.getElementById('txBlockNum').textContent = block.toLocaleString();
             }, 3000);
@@ -1770,7 +1807,7 @@ function scheduleWarnings() {
             txConfirmInterval = setInterval(() => {
                 if (count >= 12) {
                     clearInterval(txConfirmInterval);
-                    clearInterval(blockInterval);
+                    clearInterval(txBlockInterval);
                     document.getElementById('txStatusBadge').textContent = 'CONFIRMED';
                     document.getElementById('txStatusBadge').style.color = '#10b981';
                     document.getElementById('txStatusMsg').textContent = 'Транзакция подтверждена!';
@@ -1814,13 +1851,7 @@ function scheduleWarnings() {
         function hideTxProcessing() {
             document.getElementById('txProcessingOverlay').classList.remove('show');
             clearInterval(txConfirmInterval);
-        }
-
-        function openUSDTDepositModal() {
-            document.getElementById('depositWarningModal').classList.remove('show');
-            document.getElementById('usdtDepositModal').classList.add('show');
-            hideTxProcessing();
-            generateQRCode();
+            clearInterval(txBlockInterval);
         }
 
         // ──────────────────────────────────────────────────────
