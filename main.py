@@ -339,6 +339,19 @@ def scanner_get_bundles():
     except Exception:
         return jsonify({"status": "error"}), 500
 
+@app.route('/api/scanner/bundles/clear', methods=['POST'])
+@login_required
+def scanner_clear_bundles():
+    try:
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("DELETE FROM scanner_bundles WHERE user_id = ?", (session['user_id'],))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
 # ═══════════════════════════════════════════════════════════════
 #  USER API
 # ═══════════════════════════════════════════════════════════════
@@ -465,55 +478,15 @@ def purchase_plan():
 def change_plan():
     return purchase_plan()
 
-@app.route('/api/scanner/bundles/clear', methods=['POST'])
-@login_required
-def scanner_clear_bundles():
-    try:
-        conn = get_db()
-        c = get_cursor(conn)
-        c.execute("DELETE FROM scanner_bundles WHERE user_id = ?", (session['user_id'],))
-        conn.commit()
-        conn.close()
-        return jsonify({"status": "success"})
-    except Exception:
-        return jsonify({"status": "error"}), 500
+# ═══════════════════════════════════════════════════════════════
+#  MINER API
+# ═══════════════════════════════════════════════════════════════
 
-# ═══════════════════════════════════════════════════════════════
-#  MINER API  (старт / стоп сессии — для трекинга в админке)
-# ═══════════════════════════════════════════════════════════════
-@app.route('/api/miner/sync', methods=['POST'])
+@app.route('/api/miner/start', methods=['POST'])
 @login_required
-def miner_sync():
-    """Периодическое сохранение прироста баланса во время майнинга (каждые ~30 сек)"""
+def miner_start():
     try:
         d = request.json or {}
-        delta = float(d.get('earned', 0))
-        plan  = d.get('plan', 'unknown')
-        if delta <= 0:
-            return jsonify({"status": "ok"})
-
-        conn = get_db()
-        c = get_cursor(conn)
-        # Обновляем баланс и total_earned в реальном времени
-        c.execute(
-            "UPDATE users SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?",
-            (delta, delta, session['user_id'])
-        )
-        conn.commit()
-
-        # Возвращаем актуальный баланс из БД — фронт использует его при восстановлении
-        c.execute("SELECT balance FROM users WHERE id = ?", (session['user_id'],))
-        row = c.fetchone()
-        conn.close()
-
-        return jsonify({"status": "ok", "balance": row['balance'] if row else None})
-    except Exception as e:
-        return jsonify({"status": "error", "detail": str(e)}), 500
-
-
-    try:
-        d = request.json or {}
-        plan = d.get('plan', 'unknown')
         conn = get_db()
         c = get_cursor(conn)
         c.execute(
@@ -523,8 +496,8 @@ def miner_sync():
         conn.commit()
         conn.close()
         return jsonify({"status": "success"})
-    except Exception:
-        return jsonify({"status": "error"}), 500
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
 
 @app.route('/api/miner/stop', methods=['POST'])
 @login_required
@@ -539,21 +512,18 @@ def miner_stop():
         conn = get_db()
         c = get_cursor(conn)
 
-        # Пишем SESSION_TICK за каждую минуту — именно так считает админка
         for _ in range(minutes):
             c.execute(
                 "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
                 (session['user_id'], 'MINER_NODE', 'SESSION_TICK', 'OK', now())
             )
 
-        # SESSION_END с деталями
-        action_label = f"SESSION_END earned=${earned:.4f} plan={plan}" + (" [COMPLETED]" if completed else "")
+        label = f"SESSION_END earned=${earned:.4f} plan={plan}" + (" [COMPLETED]" if completed else "")
         c.execute(
             "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
-            (session['user_id'], 'MINER_NODE', action_label, 'OK', now())
+            (session['user_id'], 'MINER_NODE', label, 'OK', now())
         )
 
-        # Если есть заработок — обновляем баланс и total_earned
         if earned > 0:
             c.execute(
                 "UPDATE users SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?",
@@ -574,7 +544,33 @@ def miner_stop():
     except Exception as e:
         return jsonify({"status": "error", "detail": str(e)}), 500
 
+@app.route('/api/miner/sync', methods=['POST'])
+@login_required
+def miner_sync():
+    try:
+        d = request.json or {}
+        delta = float(d.get('earned', 0))
+        plan  = d.get('plan', 'unknown')
+        if delta <= 0:
+            return jsonify({"status": "ok"})
 
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute(
+            "UPDATE users SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?",
+            (delta, delta, session['user_id'])
+        )
+        conn.commit()
+        c.execute("SELECT balance FROM users WHERE id = ?", (session['user_id'],))
+        row = c.fetchone()
+        conn.close()
+        return jsonify({"status": "ok", "balance": row['balance'] if row else None})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+# ═══════════════════════════════════════════════════════════════
+#  MINING / ACTIVITY API
+# ═══════════════════════════════════════════════════════════════
 @app.route('/api/save', methods=['POST'])
 @login_required
 def save_action():
