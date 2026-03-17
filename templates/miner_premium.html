@@ -393,6 +393,95 @@
             letter-spacing: 1px;
         }
         .sc-dot { width: 6px; height: 6px; border-radius: 50%; background: #ef4444; animation: dotPulse 1.2s ease infinite; }
+
+        /* ══════════════════════════════════════
+           MOBILE RESPONSIVE — miner_premium
+        ══════════════════════════════════════ */
+
+        /* Навбар */
+        @media (max-width: 640px) {
+            nav .max-w-7xl { padding: 10px 14px; }
+            nav h1 { font-size: 14px !important; }
+            nav .flex.items-center.gap-8 { gap: 10px !important; }
+            /* Скрываем надпись Balance, оставляем только сумму */
+            #top-balance ~ span, nav .text-xs.text-slate-400 { display: none; }
+            nav .px-4.py-2.rounded-xl { padding: 6px 10px !important; gap: 6px !important; }
+            nav .text-base.font-bold { font-size: 13px !important; }
+            /* Скрываем имя пользователя в кнопке профиля */
+            nav button #profileName { display: none; }
+            nav button .fa-chevron-down { display: none; }
+            /* Иконка логотипа — чуть меньше */
+            nav .w-10.h-10 { width: 34px !important; height: 34px !important; }
+
+            /* Основной контент */
+            .max-w-7xl.mx-auto.px-6.py-12 { padding: 16px 14px !important; }
+
+            /* Заголовки секций */
+            .text-4xl { font-size: 24px !important; }
+            .mb-12 { margin-bottom: 24px !important; }
+
+            /* Карточки меню — убираем hover-transform на мобиле */
+            #minerCard, #minerCard ~ div { touch-action: manipulation; }
+
+            /* Секция майнера — шапка */
+            #minerSection .mb-6.flex { flex-direction: column; gap: 10px !important; align-items: flex-start !important; }
+            #minerSection .mb-6.flex > div { width: 100%; }
+            #minerSection .mb-6.flex > button { width: 100%; justify-content: center; }
+
+            /* Майнер — грид 3 колонки → 1 */
+            .grid.grid-cols-1.lg\\:grid-cols-3 { display: flex !important; flex-direction: column !important; }
+            .lg\\:col-span-2 { width: 100% !important; }
+
+            /* Терминал — меньше высота */
+            #terminal { height: 220px !important; font-size: 11px !important; padding: 12px !important; }
+
+            /* Кнопки START/PAUSE */
+            #minerSection .mt-6.flex.gap-4 button { font-size: 13px !important; padding: 12px !important; }
+
+            /* Тарифы — 1 колонка */
+            .grid.grid-cols-1.md\\:grid-cols-3 { grid-template-columns: 1fr !important; gap: 16px !important; }
+
+            /* Модалки — full width */
+            .modal-backdrop .glass.rounded-2xl,
+            .modal-backdrop > div { margin: 12px !important; width: calc(100% - 24px) !important; max-width: 100% !important; padding: 20px 16px !important; }
+
+            /* USDT депозит — 2 колонки → 1 */
+            .grid.grid-cols-1.md\\:grid-cols-2 { grid-template-columns: 1fr !important; }
+
+            /* Профиль-меню */
+            #profileMenu { width: 240px !important; }
+
+            /* Change plan modal */
+            .grid.grid-cols-1.md\\:grid-cols-3.gap-4 { grid-template-columns: 1fr !important; }
+
+            /* Кнопки в модалках */
+            .flex.gap-3 { flex-direction: column !important; }
+            .flex.gap-3 button { width: 100% !important; }
+
+            /* Секция Activity — убрать лишние отступы */
+            .space-y-4 .glass.rounded-2xl { padding: 16px !important; }
+
+            /* Текст заголовка майнера */
+            .text-4xl.font-bold { font-size: 28px !important; }
+
+            /* Plan section кнопка назад */
+            #planSection .mb-8 { margin-bottom: 16px !important; }
+            #planSection h2 { font-size: 24px !important; }
+
+            /* Stat-карточки внутри планов */
+            #minerSection .glass.rounded-2xl.border.border-slate-700.p-5 { padding: 14px !important; }
+
+            /* Support FAB position */
+            .support-fab { bottom: 16px !important; right: 16px !important; width: 50px !important; height: 50px !important; }
+            .support-window { bottom: 80px !important; right: 10px !important; width: calc(100vw - 20px) !important; max-height: 70vh !important; }
+        }
+
+        @media (max-width: 380px) {
+            nav h1 { display: none; }
+            nav .flex.items-center.gap-2 .w-10 { width: 30px !important; height: 30px !important; }
+            .text-4xl { font-size: 20px !important; }
+            .modal-backdrop .glass.rounded-2xl { padding: 16px 12px !important; }
+        }
     </style>
 </head>
 <body>

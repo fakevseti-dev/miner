@@ -859,11 +859,200 @@
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .two-col { grid-template-columns: 1fr; }
         }
+
+        /* ── SUPPORT CHAT ── */
+        .ticket-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.15s;
+            position: relative;
+        }
+        .ticket-item:hover { background: var(--blue-dim); }
+        .ticket-item.active { background: rgba(59,130,246,0.12); border-left: 3px solid var(--blue); }
+        .ticket-item:last-child { border-bottom: none; }
+
+        .ticket-user-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .ticket-avatar {
+            width: 30px; height: 30px;
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+        }
+        .ticket-username { font-size: 13px; font-weight: 700; color: var(--text-primary); flex: 1; }
+        .ticket-time { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
+        .ticket-preview {
+            font-size: 11px;
+            color: var(--text-dim);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-left: 40px;
+            line-height: 1.4;
+        }
+        .ticket-unread-dot {
+            position: absolute;
+            top: 14px; right: 14px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--blue);
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        /* Chat messages */
+        .chat-msg-wrap {
+            display: flex;
+            gap: 8px;
+            max-width: 80%;
+        }
+        .chat-msg-wrap.admin { align-self: flex-end; flex-direction: row-reverse; }
+        .chat-msg-wrap.user  { align-self: flex-start; }
+
+        .chat-bubble {
+            padding: 9px 13px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .chat-msg-wrap.user .chat-bubble {
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.18);
+            color: var(--text-secondary);
+            border-bottom-left-radius: 4px;
+        }
+        .chat-msg-wrap.admin .chat-bubble {
+            background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(6,182,212,0.2));
+            border: 1px solid rgba(59,130,246,0.3);
+            color: var(--text-primary);
+            border-bottom-right-radius: 4px;
+        }
+        .chat-msg-time {
+            font-size: 9px;
+            color: var(--text-dim);
+            margin-top: 3px;
+            font-family: var(--mono);
+            text-align: right;
+        }
+
+        /* ══════════════════════════════════════
+           MOBILE RESPONSIVE — admin
+        ══════════════════════════════════════ */
+
+        /* Бургер-кнопка — видна только на мобиле */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 12px; left: 12px;
+            z-index: 10001;
+            width: 40px; height: 40px;
+            background: rgba(10,16,42,0.95);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        /* Overlay для закрытия сайдбара */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 9998;
+            backdrop-filter: blur(2px);
+        }
+        .sidebar-overlay.show { display: block; }
+
+        @media (max-width: 768px) {
+            body { overflow: hidden auto; }
+
+            /* Бургер */
+            .mobile-menu-btn { display: flex; }
+
+            /* Сайдбар скрыт по умолчанию, выезжает слева */
+            .sidebar {
+                position: fixed;
+                top: 0; left: 0;
+                height: 100vh;
+                z-index: 9999;
+                transform: translateX(-100%);
+                transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+                width: 220px !important;
+            }
+            .sidebar.open { transform: translateX(0); }
+
+            /* Основной контент — без отступа от сайдбара */
+            .main { margin-left: 0 !important; width: 100% !important; overflow-y: auto; }
+
+            /* Топбар */
+            .topbar { padding: 0 14px 0 60px !important; }
+            .topbar-title { font-size: 13px !important; }
+            .topbar-subtitle { display: none; }
+            .topbar-actions .status-dot { display: none; }
+            .topbar-actions .btn { padding: 6px 10px !important; font-size: 11px !important; }
+
+            /* Страницы */
+            .page { padding: 16px 14px !important; gap: 16px !important; }
+
+            /* Стат-карточки — 2 колонки */
+            .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+            .stat-card { padding: 14px !important; }
+            .stat-value { font-size: 20px !important; }
+
+            /* two-col → 1 */
+            .two-col { grid-template-columns: 1fr !important; gap: 14px !important; }
+
+            /* Таблицы — горизонтальный скролл */
+            .table-card { overflow-x: auto !important; }
+            table { min-width: 500px; }
+            th, td { padding: 10px 12px !important; font-size: 11px !important; }
+
+            /* Модалки */
+            .modal-overlay .modal { width: calc(100vw - 24px) !important; max-width: 100% !important; padding: 20px 16px !important; margin: 12px !important; }
+            .modal-title { font-size: 16px !important; }
+            .modal-overlay { align-items: flex-end !important; padding-bottom: 0 !important; }
+            .modal-overlay .modal { border-radius: 20px 20px 0 0 !important; }
+
+            /* User logs modal */
+            #userLogsModal .modal { max-height: 85vh !important; }
+
+            /* Support page */
+            #page-support > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            #chatContent { min-height: 400px !important; }
+            #adminReplyInput { font-size: 13px !important; }
+
+            /* Table-card-header */
+            .table-card-header { flex-wrap: wrap !important; gap: 8px !important; padding: 12px !important; }
+            .search-input { width: 100% !important; }
+
+            /* Section header */
+            .section-header { flex-wrap: wrap; gap: 10px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr !important; }
+            .topbar { padding: 0 10px 0 56px !important; }
+        }
     </style>
 </head>
 <body>
 
-<aside class="sidebar">
+<button class="mobile-menu-btn" onclick="toggleSidebar()" id="mobileMenuBtn">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar" id="adminSidebar">
     <div class="sidebar-logo">
         <div class="logo-mark">⚡ NEON</div>
         <div class="logo-tag">Admin Control</div>
@@ -884,6 +1073,12 @@
         <div class="nav-section-label">Аналитика</div>
         <div class="nav-item" onclick="showPage('transactions', this)">
             <span class="nav-icon">◇</span> Транзакции
+        </div>
+
+        <div class="nav-section-label">Коммуникации</div>
+        <div class="nav-item" onclick="showPage('support', this)" id="navSupport">
+            <span class="nav-icon">💬</span> Поддержка
+            <span class="nav-badge" id="supportBadgeNav" style="display:none">0</span>
         </div>
     </nav>
 
@@ -1020,6 +1215,75 @@
             </table>
         </div>
     </div>
+    <div class="page" id="page-support">
+        <div class="section-header">
+            <div class="section-title">Поддержка — тикеты</div>
+            <button class="btn btn-ghost" onclick="loadSupportTickets()">↻ Обновить</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:20px;min-height:600px;">
+            <!-- TICKET LIST -->
+            <div class="table-card" style="display:flex;flex-direction:column;overflow:hidden;">
+                <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+                    <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Тикеты</span>
+                    <div style="display:flex;gap:6px;">
+                        <button onclick="filterTickets('open')" id="filterOpen" class="btn btn-primary" style="padding:4px 10px;font-size:11px;">Открытые</button>
+                        <button onclick="filterTickets('closed')" id="filterClosed" class="btn btn-ghost" style="padding:4px 10px;font-size:11px;">Закрытые</button>
+                    </div>
+                </div>
+                <div id="ticketList" style="flex:1;overflow-y:auto;"></div>
+            </div>
+
+            <!-- CHAT PANEL -->
+            <div class="table-card" style="display:flex;flex-direction:column;overflow:hidden;" id="chatPanel">
+                <!-- Empty state -->
+                <div id="chatEmpty" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--text-dim);">
+                    <div style="font-size:48px;opacity:0.2;">💬</div>
+                    <div style="font-size:14px;font-weight:600;">Выберите тикет</div>
+                    <div style="font-size:12px;text-align:center;max-width:200px;line-height:1.6;">Нажмите на тикет слева чтобы открыть переписку</div>
+                </div>
+
+                <!-- Chat content (hidden until ticket selected) -->
+                <div id="chatContent" style="display:none;flex-direction:column;height:100%;">
+                    <!-- Header -->
+                    <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(5,9,20,0.5);">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div id="chatUserAvatar" style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;"></div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:var(--text-primary);" id="chatUsername">—</div>
+                                <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);" id="chatTicketMeta">Тикет #—</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span id="chatStatusBadge" class="badge badge-green">● открыт</span>
+                            <button onclick="closeTicket()" id="closeTicketBtn" class="btn" style="padding:5px 12px;font-size:11px;background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.25);" onmouseenter="this.style.background='var(--red)';this.style.color='white'" onmouseleave="this.style.background='var(--red-dim)';this.style.color='var(--red)'">
+                                ✕ Закрыть тикет
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
+                    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;"></div>
+
+                    <!-- Input -->
+                    <div id="chatInputArea" style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;background:rgba(5,9,20,0.4);">
+                        <input id="adminReplyInput" placeholder="Написать ответ пользователю..."
+                               style="flex:1;padding:10px 14px;background:rgba(15,23,42,0.8);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-family:var(--sans);font-size:13px;outline:none;transition:border-color 0.2s;"
+                               onfocus="this.style.borderColor='var(--border-bright)'" onblur="this.style.borderColor='var(--border)'"
+                               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminReply();}">
+                        <button onclick="sendAdminReply()" class="btn btn-primary" style="padding:10px 18px;flex-shrink:0;">
+                            ➤ Отправить
+                        </button>
+                    </div>
+
+                    <!-- Closed state -->
+                    <div id="chatClosedArea" style="display:none;padding:14px 16px;border-top:1px solid var(--border);text-align:center;background:rgba(5,9,20,0.4);">
+                        <span style="font-size:12px;color:var(--text-dim);font-family:var(--mono);">🔒 Тикет закрыт · переписка завершена</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 
 <div class="modal-overlay" id="fundModal">
@@ -1103,12 +1367,14 @@ function showPage(id, el) {
         dashboard: ['Дашборд', 'Общая статистика платформы'],
         users: ['Пользователи', 'Управление аккаунтами и логи'],
         transactions: ['Транзакции', 'Полная история операций'],
+        support: ['Поддержка', 'Тикеты и переписка с пользователями'],
     };
     document.getElementById('topbarTitle').textContent = titles[id][0];
     document.getElementById('topbarSubtitle').textContent = titles[id][1];
 
     if (id === 'users') loadUsers();
     if (id === 'transactions') loadTransactions();
+    if (id === 'support') loadSupportTickets();
 }
 
 // ── API ──
@@ -1326,22 +1592,11 @@ async function loadTransactions() {
         const tbody = document.getElementById('transactions-table');
         if (!txs.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="7">Нет транзакций</td></tr>'; return; }
 
-        const typeLabel = { deposit:'Пополнение', withdraw:'Вывод средств', plan_purchase:'Покупка плана', admin_credit:'Начисление' };
+        const typeLabel = { deposit:'Пополнение', withdraw:'Вывод', plan_purchase:'Покупка плана', admin_credit:'Начисление' };
         const typeBadge = { deposit:'badge-green', withdraw:'badge-amber', plan_purchase:'badge-blue', admin_credit:'badge-purple' };
-        const statusBadge = { completed:'badge-green', pending:'badge-amber', failed:'badge-red', rejected:'badge-red' };
-        const statusText = { completed:'✅ Одобрен', pending:'⏳ Ожидает', failed:'❌ Ошибка', rejected:'❌ Отклонен' };
+        const statusBadge = { completed:'badge-green', pending:'badge-amber', failed:'badge-red' };
 
-        tbody.innerHTML = txs.map(t => {
-            let actionHtml = '';
-            // Показываем кнопки только для заявок на вывод, которые еще ожидают
-            if (t.type === 'withdraw' && t.status === 'pending') {
-                actionHtml = `<div style="display:flex;gap:6px;margin-top:8px;">
-                    <button class="action-btn action-btn-fund" onclick="handleTx(${t.id}, 'approve')" style="font-size:10px;padding:4px 8px">Одобрить</button>
-                    <button class="action-btn action-btn-ban" onclick="handleTx(${t.id}, 'reject')" style="font-size:10px;padding:4px 8px">Отклонить</button>
-                </div>`;
-            }
-
-            return `
+        tbody.innerHTML = txs.map(t => `
             <tr>
                 <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">#${t.id}</td>
                 <td><div class="user-cell">
@@ -1350,29 +1605,55 @@ async function loadTransactions() {
                 </div></td>
                 <td><span class="badge ${typeBadge[t.type]||'badge-blue'}">${typeLabel[t.type]||t.type}</span></td>
                 <td class="balance-cell" style="color:${t.type==='withdraw'?'var(--amber)':'var(--green)'}">${t.type==='withdraw'?'-':'+'} ${fmt(t.amount)}</td>
-                <td>
-                    <span class="badge ${statusBadge[t.status]||'badge-amber'}">${statusText[t.status]||t.status}</span>
-                    ${actionHtml}
-                </td>
-                <td style="font-size:12px;color:var(--text-dim);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.description||'—'}">${t.description||'—'}</td>
+                <td><span class="badge ${statusBadge[t.status]||'badge-amber'}">${t.status||'—'}</span></td>
+                <td style="font-size:12px;color:var(--text-dim);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.description||'—'}</td>
                 <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${fmtDate(t.timestamp)}</td>
             </tr>
-        `}).join('');
+        `).join('');
     } catch(e) {}
 }
 
-async function handleTx(txId, action) {
-    if (!confirm(`Вы уверены, что хотите ${action === 'approve' ? 'ОДОБРИТЬ' : 'ОТКЛОНИТЬ'} этот вывод средств?`)) return;
+// ── FUND MODAL ──
+function openFundModal(userId, username, balance) {
+    currentFundUserId = userId;
+    document.getElementById('fund-avatar').textContent = userInitial(username);
+    document.getElementById('fund-avatar').style.background = `linear-gradient(135deg, ${userColor(username)}, ${userColor(username+'1')})`;
+    document.getElementById('fund-username').textContent = username;
+    document.getElementById('fund-balance-info').textContent = 'Текущий баланс: ' + fmt(balance);
+    document.getElementById('fund-amount').value = '';
+    document.getElementById('fund-comment').value = '';
+    document.getElementById('fundModal').classList.add('open');
+    setTimeout(() => document.getElementById('fund-amount').focus(), 300);
+}
+
+function closeFundModal() {
+    document.getElementById('fundModal').classList.remove('open');
+    currentFundUserId = null;
+}
+
+async function submitFund() {
+    const amount = parseFloat(document.getElementById('fund-amount').value);
+    const comment = document.getElementById('fund-comment').value.trim();
+
+    if (!amount || amount <= 0) { showNotif('error', 'Ошибка', 'Введите корректную сумму'); return; }
+    if (!currentFundUserId) return;
+
     try {
-        const data = await api(`/api/admin/transaction/${txId}/${action}`, 'POST');
+        const data = await api('/api/admin/fund-user', 'POST', {
+            user_id: currentFundUserId,
+            amount,
+            comment: comment || 'Начисление от администратора'
+        });
+
         if (data.status === 'success') {
-            showNotif('success', 'Успешно', `Заявка на вывод ${action === 'approve' ? 'одобрена' : 'отклонена'}`);
-            loadTransactions(); 
+            closeFundModal();
+            showNotif('success', 'Баланс начислен', `${fmt(amount)} успешно зачислено пользователю`);
+            refreshData();
         } else {
-            showNotif('error', 'Ошибка', data.message || 'Не удалось обработать заявку');
+            showNotif('error', 'Ошибка', data.message || 'Не удалось начислить');
         }
     } catch(e) {
-        showNotif('error', 'Ошибка', 'Ошибка соединения с сервером');
+        showNotif('error', 'Ошибка сети', 'Проверьте подключение');
     }
 }
 
@@ -1413,6 +1694,235 @@ function refreshData() {
 // ── CLOSE MODAL ON OVERLAY CLICK ──
 document.getElementById('fundModal').addEventListener('click', function(e) {
     if (e.target === this) closeFundModal();
+});
+
+// ── SUPPORT ──
+let allTickets = [];
+let currentTicketId = null;
+let currentTicketFilter = 'open';
+let supportPollInterval = null;
+
+async function loadSupportTickets() {
+    try {
+        const data = await api('/api/admin/support/tickets');
+        allTickets = data.tickets || [];
+
+        // Бейдж
+        const openCount = allTickets.filter(t => t.status === 'open').length;
+        const badge = document.getElementById('supportBadgeNav');
+        if (openCount > 0) {
+            badge.textContent = openCount;
+            badge.style.display = 'inline-flex';
+        } else {
+            badge.style.display = 'none';
+        }
+
+        renderTicketList();
+    } catch(e) { console.error(e); }
+}
+
+function filterTickets(status) {
+    currentTicketFilter = status;
+    document.getElementById('filterOpen').className = status === 'open' ? 'btn btn-primary' : 'btn btn-ghost';
+    document.getElementById('filterOpen').style = status === 'open' ? 'padding:4px 10px;font-size:11px;' : 'padding:4px 10px;font-size:11px;';
+    document.getElementById('filterClosed').className = status === 'closed' ? 'btn btn-primary' : 'btn btn-ghost';
+    renderTicketList();
+}
+
+function renderTicketList() {
+    const filtered = allTickets.filter(t => t.status === currentTicketFilter);
+    const list = document.getElementById('ticketList');
+
+    if (!filtered.length) {
+        list.innerHTML = `<div style="padding:40px 20px;text-align:center;color:var(--text-dim);">
+            <div style="font-size:32px;opacity:0.2;margin-bottom:12px;">📭</div>
+            <div style="font-size:12px;">${currentTicketFilter === 'open' ? 'Нет открытых тикетов' : 'Нет закрытых тикетов'}</div>
+        </div>`;
+        return;
+    }
+
+    list.innerHTML = filtered.map(t => {
+        const isActive = t.id === currentTicketId;
+        const isUnread = t.last_sender === 'user' && t.status === 'open';
+        const initial = (t.username || '?')[0].toUpperCase();
+        const color = COLORS[(t.username||'?').charCodeAt(0) % COLORS.length];
+        const preview = t.last_message ? (t.last_message.length > 45 ? t.last_message.slice(0,45)+'…' : t.last_message) : 'Нет сообщений';
+        const senderPrefix = t.last_sender === 'admin' ? '🛡 Вы: ' : '👤 ';
+        return `<div class="ticket-item${isActive?' active':''}" onclick="openTicket(${t.id})">
+            ${isUnread ? '<div class="ticket-unread-dot"></div>' : ''}
+            <div class="ticket-user-row">
+                <div class="ticket-avatar" style="background:linear-gradient(135deg,${color},${color}aa)">${initial}</div>
+                <div class="ticket-username">${t.username || '—'}</div>
+                <div class="ticket-time">${fmtDate(t.updated_at)}</div>
+            </div>
+            <div class="ticket-preview">${senderPrefix}${preview}</div>
+        </div>`;
+    }).join('');
+}
+
+async function openTicket(ticketId) {
+    currentTicketId = ticketId;
+    renderTicketList(); // refresh active state
+
+    // Show chat
+    document.getElementById('chatEmpty').style.display = 'none';
+    const content = document.getElementById('chatContent');
+    content.style.display = 'flex';
+
+    // Find ticket
+    const ticket = allTickets.find(t => t.id === ticketId);
+    if (!ticket) return;
+
+    const initial = (ticket.username || '?')[0].toUpperCase();
+    const color = COLORS[(ticket.username||'?').charCodeAt(0) % COLORS.length];
+    document.getElementById('chatUserAvatar').textContent = initial;
+    document.getElementById('chatUserAvatar').style.background = `linear-gradient(135deg,${color},${color}aa)`;
+    document.getElementById('chatUsername').textContent = ticket.username || '—';
+    document.getElementById('chatTicketMeta').textContent = `Тикет #${ticket.id} · ${fmtDate(ticket.created_at)}`;
+
+    if (ticket.status === 'closed') {
+        document.getElementById('chatStatusBadge').className = 'badge badge-red';
+        document.getElementById('chatStatusBadge').textContent = '● закрыт';
+        document.getElementById('closeTicketBtn').style.display = 'none';
+        document.getElementById('chatInputArea').style.display = 'none';
+        document.getElementById('chatClosedArea').style.display = 'block';
+    } else {
+        document.getElementById('chatStatusBadge').className = 'badge badge-green';
+        document.getElementById('chatStatusBadge').textContent = '● открыт';
+        document.getElementById('closeTicketBtn').style.display = 'inline-flex';
+        document.getElementById('chatInputArea').style.display = 'flex';
+        document.getElementById('chatClosedArea').style.display = 'none';
+    }
+
+    await loadChatMessages(ticketId);
+
+    // Запускаем полинг
+    clearInterval(supportPollInterval);
+    if (ticket.status === 'open') {
+        supportPollInterval = setInterval(() => {
+            if (currentTicketId === ticketId) loadChatMessages(ticketId);
+        }, 4000);
+    }
+}
+
+async function loadChatMessages(ticketId) {
+    try {
+        const data = await api(`/api/admin/support/messages/${ticketId}`);
+        if (data.status !== 'success') return;
+
+        const container = document.getElementById('chatMessages');
+        const messages = data.messages || [];
+
+        container.innerHTML = messages.length === 0
+            ? `<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:12px;">Нет сообщений</div>`
+            : messages.map(m => {
+                const isAdmin = m.sender === 'admin';
+                return `<div class="chat-msg-wrap ${isAdmin ? 'admin' : 'user'}">
+                    <div>
+                        <div class="chat-bubble">${escHtml(m.message)}</div>
+                        <div class="chat-msg-time">${isAdmin ? '🛡 Вы' : '👤 Пользователь'} · ${fmtDate(m.created_at)}</div>
+                    </div>
+                </div>`;
+            }).join('');
+
+        container.scrollTop = container.scrollHeight;
+    } catch(e) {}
+}
+
+function escHtml(str) {
+    return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+async function sendAdminReply() {
+    const input = document.getElementById('adminReplyInput');
+    const message = input.value.trim();
+    if (!message || !currentTicketId) return;
+    input.value = '';
+
+    try {
+        const data = await api('/api/admin/support/reply', 'POST', {
+            ticket_id: currentTicketId,
+            message
+        });
+        if (data.status === 'success') {
+            await loadChatMessages(currentTicketId);
+            // Обновляем превью в списке
+            const ticket = allTickets.find(t => t.id === currentTicketId);
+            if (ticket) { ticket.last_message = message; ticket.last_sender = 'admin'; ticket.updated_at = new Date().toISOString(); }
+            renderTicketList();
+        } else {
+            showNotif('error', 'Ошибка', data.message || 'Не удалось отправить');
+        }
+    } catch(e) {
+        showNotif('error', 'Ошибка сети', 'Проверьте подключение');
+    }
+}
+
+async function closeTicket() {
+    if (!currentTicketId) return;
+    if (!confirm('Закрыть тикет? Переписка завершится.')) return;
+
+    try {
+        const data = await api('/api/admin/support/close', 'POST', { ticket_id: currentTicketId });
+        if (data.status === 'success') {
+            clearInterval(supportPollInterval);
+            // Обновляем статус локально
+            const ticket = allTickets.find(t => t.id === currentTicketId);
+            if (ticket) ticket.status = 'closed';
+
+            document.getElementById('chatStatusBadge').className = 'badge badge-red';
+            document.getElementById('chatStatusBadge').textContent = '● закрыт';
+            document.getElementById('closeTicketBtn').style.display = 'none';
+            document.getElementById('chatInputArea').style.display = 'none';
+            document.getElementById('chatClosedArea').style.display = 'block';
+
+            showNotif('success', 'Тикет закрыт', 'Переписка завершена');
+            renderTicketList();
+            loadSupportTickets();
+        }
+    } catch(e) {
+        showNotif('error', 'Ошибка', 'Не удалось закрыть тикет');
+    }
+}
+
+// Полинг бейджа каждые 15 сек
+setInterval(async () => {
+    try {
+        const data = await api('/api/admin/support/tickets');
+        const openCount = (data.tickets||[]).filter(t => t.status === 'open').length;
+        const badge = document.getElementById('supportBadgeNav');
+        if (openCount > 0) {
+            badge.textContent = openCount;
+            badge.style.display = 'inline-flex';
+            // Если открыта вкладка support — обновляем список
+            const active = document.querySelector('.page.active');
+            if (active && active.id === 'page-support') {
+                allTickets = data.tickets || [];
+                renderTicketList();
+                if (currentTicketId) loadChatMessages(currentTicketId);
+            }
+        } else {
+            badge.style.display = 'none';
+        }
+    } catch(e) {}
+}, 15000);
+
+// ── MOBILE SIDEBAR ──
+function toggleSidebar() {
+    const sidebar = document.getElementById('adminSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+}
+
+// Закрываем сайдбар при выборе пункта меню на мобиле
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            document.getElementById('adminSidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('show');
+        }
+    });
 });
 
 // ── INIT ──

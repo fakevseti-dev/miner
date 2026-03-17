@@ -201,6 +201,19 @@
 
         .back a { color: #3b82f6; text-decoration: none; }
         .back a:hover { color: #60a5fa; }
+
+        @media (max-width: 480px) {
+            .container { padding: 12px; }
+            .card { padding: 28px 18px; border-radius: 16px; }
+            .logo { font-size: 22px; }
+            .header h1 { font-size: 17px; }
+            input { font-size: 16px; /* предотвращает зум на iOS */ padding: 11px 12px; }
+            .btn { padding: 12px; font-size: 11px; }
+        }
+
+        @media (max-width: 360px) {
+            .card { padding: 22px 14px; }
+        }
     </style>
 </head>
 <body>

@@ -348,17 +348,22 @@
 
         @media (max-width: 480px) {
             .form-wrapper {
-                padding: 30px 20px;
+                padding: 28px 18px;
                 border-radius: 16px;
             }
+            .header h1 { font-size: 20px; }
+            .container { max-width: 100%; padding: 12px; }
+            .logo { font-size: 26px; }
+            .submit-btn { padding: 13px; font-size: 13px; }
+            input[type="text"],
+            input[type="password"],
+            input[type="email"] { font-size: 16px; /* предотвращает зум на iOS */ }
+            .form-group { margin-bottom: 14px; }
+        }
 
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .container {
-                max-width: 100%;
-            }
+        @media (max-width: 360px) {
+            .form-wrapper { padding: 22px 14px; }
+            .header { margin-bottom: 22px; }
         }
     </style>
 </head>
@@ -450,8 +455,6 @@
     </div>
 
     <script>
-        localStorage.clear();
-
         const form = document.getElementById('registerForm');
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
