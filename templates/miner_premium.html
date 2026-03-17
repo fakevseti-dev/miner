@@ -1472,6 +1472,13 @@
             sharesCount    = data.shares   || 0;
             activePlan     = data.plan     || getActivePlan();
 
+            // ── ИСПРАВЛЕНИЕ БАГА С ДВОЙНЫМ БАЛАНСОМ ──
+            // Сообщаем майнеру, что этот баланс уже отправлен на сервер:
+            lastSyncedMiningBalance = miningBalance; 
+            // Отнимаем баланс сессии от визуального баланса, чтобы они не дублировались:
+            currentBalance = Math.max(0, currentBalance - miningBalance);
+            // ─────────────────────────────────────────
+
             const plan = PLANS[activePlan];
             if (!plan) return;
 
