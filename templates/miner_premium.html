@@ -2201,8 +2201,16 @@ function scheduleWarnings() {
             fetch('/api/user/ping', { method: 'POST' }).catch(() => {});
             setInterval(() => {
                 fetch('/api/user/ping', { method: 'POST' }).catch(() => {});
-            }, 5 * 60 * 1000);
+            }, 30 * 1000);
         }
+
+        // Фиксируем стоп и МГНОВЕННЫЙ выход при закрытии вкладки
+        window.addEventListener('beforeunload', () => {
+            navigator.sendBeacon('/api/user/offline'); // <-- СИГНАЛ ЗАКРЫТИЯ САЙТА
+            if (isMining && sessionSeconds > 0) {
+                navigator.sendBeacon('/api/miner/stop', JSON.stringify({ seconds: sessionSeconds, earned: miningBalance, plan: activePlan }));
+            }
+        });
 
         // Запуск инициализации при загрузке страницы
         loadProfile();

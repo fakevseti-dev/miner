@@ -412,7 +412,6 @@
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="glass border-b border-slate-700/50 sticky top-0" style="z-index:1000;">
     <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         <div class="flex items-center gap-3">
@@ -432,7 +431,6 @@
 
 <div class="max-w-7xl mx-auto px-6 py-8">
 
-    <!-- HEADER -->
     <div class="mb-8 flex items-start justify-between flex-wrap gap-4">
         <div>
             <h1 style="font-size:32px;font-weight:800;color:#f1f5f9;margin-bottom:6px;">
@@ -456,7 +454,6 @@
         </div>
     </div>
 
-    <!-- STATS -->
     <div class="stats-bar mb-6">
         <div class="stat-card">
             <div class="stat-label">Всего проверено</div>
@@ -480,7 +477,6 @@
         </div>
     </div>
 
-    <!-- TABS -->
     <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid rgba(16,185,129,0.08);">
         <button class="tab-btn active-tab" id="tab-console" onclick="switchTab('console')" style="padding:9px 20px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;font-family:'Sora',sans-serif;color:#10b981;border-bottom:2px solid #10b981;transition:all 0.2s;">
             <i class="fas fa-terminal"></i> &nbsp;Консоль
@@ -490,7 +486,6 @@
         </button>
     </div>
 
-    <!-- CONSOLE SECTION -->
     <div id="section-console">
         <div class="console-wrap">
             <div class="console-header">
@@ -513,7 +508,6 @@
         </div>
     </div>
 
-    <!-- SAVED SECTION -->
     <div id="section-saved" style="display:none;">
         <div class="console-wrap">
             <div class="console-header">
@@ -540,9 +534,6 @@
 
 </div>
 
-<!-- ══════════════════════════════════
-     SETTINGS MODAL
-══════════════════════════════════ -->
 <div class="modal-backdrop" id="settingsModal">
     <div class="modal-box">
         <div class="modal-title">
@@ -550,7 +541,6 @@
             Настройки сканера
         </div>
 
-        <!-- 1. Монеты -->
         <div class="setting-row">
             <div class="setting-label">1. Монеты для сканирования</div>
             <div class="btn-group" id="grp-coins">
@@ -569,7 +559,6 @@
             </div>
         </div>
 
-        <!-- 2. Биржи -->
         <div class="setting-row">
             <div class="setting-label">2. Биржи</div>
             <div class="btn-group" id="grp-exchanges">
@@ -584,7 +573,6 @@
             </div>
         </div>
 
-        <!-- 3. Скорость -->
         <div class="setting-row">
             <div class="setting-label">3. Скорость сканирования (задержка)</div>
             <div class="btn-group" id="grp-speed">
@@ -592,7 +580,6 @@
             </div>
         </div>
 
-        <!-- 4. Минимальный спред -->
         <div class="setting-row">
             <div class="setting-label">4. Минимальный спред (порог прибыли)</div>
             <div class="btn-group" id="grp-minspread">
@@ -605,7 +592,6 @@
             </div>
         </div>
 
-        <!-- 5. Максимальный спред -->
         <div class="setting-row">
             <div class="setting-label">5. Максимальный спред (фильтр аномалий)</div>
             <div class="btn-group" id="grp-maxspread">
@@ -616,7 +602,6 @@
             </div>
         </div>
 
-        <!-- 6. Котировочная валюта -->
         <div class="setting-row">
             <div class="setting-label">6. Котировочная валюта</div>
             <div class="btn-group" id="grp-quote">
@@ -627,7 +612,6 @@
             </div>
         </div>
 
-        <!-- 7. Автосохранение -->
         <div class="setting-row">
             <div class="setting-label">7. Автосохранение прибыльных связок</div>
             <div class="btn-group" id="grp-autosave">
@@ -636,7 +620,6 @@
             </div>
         </div>
 
-        <!-- 8. Показ серых связок -->
         <div class="setting-row">
             <div class="setting-label">8. Отображать нейтральные связки (серые)</div>
             <div class="btn-group" id="grp-showgray">
@@ -645,7 +628,6 @@
             </div>
         </div>
 
-        <!-- 9. Показ красных связок -->
         <div class="setting-row">
             <div class="setting-label">9. Отображать убыточные связки (красные)</div>
             <div class="btn-group" id="grp-showred">
@@ -654,7 +636,6 @@
             </div>
         </div>
 
-        <!-- 10. Звуковой сигнал -->
         <div class="setting-row">
             <div class="setting-label">10. Звуковой сигнал при находке</div>
             <div class="btn-group" id="grp-sound">
@@ -681,15 +662,15 @@
 let scannerRunning = false;
 let scanInterval = null;
 let savedBundles = [];
-let bundlesCleared = false; // флаг — пользователь очистил, не перезагружать из БД
+let bundlesCleared = false;
 
 let statTotal = 0, statGreen = 0, statSaved = 0, statMax = 0;
-let sessionStartTime = null;   // для подсчёта минут
+let sessionStartTime = null;
 
 let settings = {
     coins: ['ALL'],
     exchanges: ['ALL'],
-    speed: 5000, // Изменили дефолтную скорость на 5 секунд
+    speed: 5000,
     minSpread: 0.5,
     maxSpread: 10,
     quote: 'USDT',
@@ -699,20 +680,13 @@ let settings = {
     sound: true,
 };
 
-// Генерируем первое время появления зелёной связки (от 3 до 20 минут)
 let nextGreenTime = Date.now() + (Math.floor(Math.random() * (20 - 3 + 1)) + 3) * 60000;
 
-// ── DATA POOLS ──
 const ALL_COINS = ['BTC','ETH','SOL','BNB','XRP','AVAX','DOGE','MATIC','LTC','TRX','ADA','DOT','ATOM','NEAR','APT','ARB','OP'];
 const ALL_EXCHANGES = ['Binance','Bybit','OKX','Kraken','Huobi','Gate.io','Kucoin','MEXC','Bitget'];
 
-function getCoins() {
-    return settings.coins.includes('ALL') ? ALL_COINS : settings.coins;
-}
-
-function getExchanges() {
-    return settings.exchanges.includes('ALL') ? ALL_EXCHANGES : settings.exchanges;
-}
+function getCoins() { return settings.coins.includes('ALL') ? ALL_COINS : settings.coins; }
+function getExchanges() { return settings.exchanges.includes('ALL') ? ALL_EXCHANGES : settings.exchanges; }
 
 // ══════════════════════════════════
 //  SCANNER ENGINE
@@ -727,7 +701,6 @@ function startScanner() {
     document.getElementById('statusDot').classList.add('scanning');
     document.getElementById('statusText').textContent = 'SCANNING';
 
-    // Сообщаем бэкенду о старте
     fetch('/api/scanner/start', { method: 'POST', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
 
     addSysLine('> Сканер запущен. Ищем арбитражные связки...');
@@ -748,7 +721,6 @@ function stopScanner() {
     document.getElementById('statusDot').classList.remove('scanning');
     document.getElementById('statusText').textContent = 'STOPPED';
 
-    // Считаем минуты сессии и отправляем на бэкенд
     const minutes = sessionStartTime ? Math.max(1, Math.round((Date.now() - sessionStartTime) / 60000)) : 0;
     fetch('/api/scanner/stop', {
         method: 'POST',
@@ -756,12 +728,10 @@ function stopScanner() {
         body: JSON.stringify({ minutes, found: statGreen, saved: statSaved })
     }).catch(() => {});
 
-    // Накапливаем минуты в localStorage — карточка на главном экране их покажет
     const prev = parseInt(localStorage.getItem('scannerTotalMinutes') || '0');
     localStorage.setItem('scannerTotalMinutes', prev + minutes);
 
     sessionStartTime = null;
-
     addSysLine('> Сканер остановлен. Итого проверено: ' + statTotal + ' пар. Прибыльных: ' + statGreen);
 }
 
@@ -771,7 +741,6 @@ function clearConsole() {
     updateStats();
 }
 
-// ── GENERATE ONE ARBITRAGE LINE ──
 function generateLine() {
     const coins = getCoins();
     const exchanges = getExchanges();
@@ -785,45 +754,30 @@ function generateLine() {
     let spread;
     const now = Date.now();
 
-    // Проверяем, наступило ли время выдать ЗЕЛЕНУЮ связку
     if (now >= nextGreenTime) {
-        // Генерируем красивый прибыльный спред (чуть больше минимального)
         spread = +(settings.minSpread + Math.random() * 2.5).toFixed(3);
-        
-        // Назначаем время для следующей зелёной связки (от 3 до 20 минут)
-        const minMs = 3 * 60 * 1000;  // 3 минуты
-        const maxMs = 20 * 60 * 1000; // 20 минут
+        const minMs = 3 * 60 * 1000;
+        const maxMs = 20 * 60 * 1000;
         nextGreenTime = now + Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
     } else {
-        // Генерируем СЕРЫЙ или КРАСНЫЙ спред (строго ниже minSpread)
         const maxGraySpread = settings.minSpread - 0.01;
         spread = +(Math.random() * maxGraySpread).toFixed(3);
-        
-        // С вероятностью 30% делаем спред отрицательным (убыточным) для реализма
-        if (Math.random() > 0.7) {
-            spread = -(Math.random() * 0.8).toFixed(3);
-        }
+        if (Math.random() > 0.7) spread = -(Math.random() * 0.8).toFixed(3);
     }
 
     if (spread > settings.maxSpread) spread = settings.maxSpread - Math.random() * 0.5;
     spread = +spread.toFixed(3);
-
     statTotal++;
 
     const isGreen = spread >= settings.minSpread;
     const isRed   = spread < 0.15;
 
-    if (isGreen) { statGreen++; }
+    if (isGreen) statGreen++;
+    if (statTotal === 1 || spread > statMax) statMax = spread;
 
-    if (statTotal === 1 || spread > statMax) {
-        statMax = spread;
-    }
-
-    // Filter by settings
     if (!isGreen && isRed && !settings.showRed) { updateStats(); return; }
     if (!isGreen && !isRed && !settings.showGray) { updateStats(); return; }
 
-    // Autosave
     if (isGreen && settings.autosave) {
         saveBundle(coin, ex1, ex2, spread, quote, true);
     }
@@ -832,11 +786,9 @@ function generateLine() {
     updateStats();
 }
 
-// ── RENDER LINE ──
 function appendConsoleLine(coin, ex1, ex2, spread, quote, isGreen, isRed) {
     const body = document.getElementById('consoleBody');
     const el = document.createElement('div');
-
     const now = new Date();
     const ts = now.toTimeString().slice(0,8);
 
@@ -864,13 +816,10 @@ function appendConsoleLine(coin, ex1, ex2, spread, quote, isGreen, isRed) {
     }
 
     const spreadStr = (spread >= 0 ? '+' : '') + spread.toFixed(3) + '%';
-
-    // Price simulation
     const basePrice = { BTC:94000, ETH:3200, SOL:175, BNB:620, XRP:0.62, AVAX:38, DOGE:0.16, MATIC:0.92, LTC:85, TRX:0.13, ADA:0.45, DOT:8, ATOM:10, NEAR:6, APT:9, ARB:1.1, OP:2.1 };
     const bp = basePrice[coin] || 10;
     const p1 = +(bp * (1 + (Math.random()-0.5)*0.01)).toFixed(4);
     const p2 = +(p1 * (1 + spread/100)).toFixed(4);
-
     const saveId = 'sb-' + Date.now() + '-' + Math.random().toString(36).slice(2,6);
 
     el.className = lineClass;
@@ -888,16 +837,11 @@ function appendConsoleLine(coin, ex1, ex2, spread, quote, isGreen, isRed) {
 
     body.appendChild(el);
 
-    // Auto-scroll if near bottom
     const threshold = 120;
     if (body.scrollHeight - body.scrollTop - body.clientHeight < threshold) {
         body.scrollTop = body.scrollHeight;
     }
-
-    // Max lines = 300
-    while (body.children.length > 300) {
-        body.removeChild(body.firstChild);
-    }
+    while (body.children.length > 300) body.removeChild(body.firstChild);
 }
 
 function addSysLine(text) {
@@ -921,7 +865,6 @@ function clearSaved() {
     statSaved = 0;
     updateStats();
     updateSavedTable();
-    // Очищаем на бэкенде
     fetch('/api/scanner/bundles/clear', { method: 'POST', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
     showNotif('🗑️ Все сохранённые связки очищены');
 }
@@ -935,26 +878,18 @@ function saveBtnClick(btn, coin, ex1, ex2, spread, quote) {
 
 function saveBundle(coin, ex1, ex2, spread, quote, auto) {
     const now = new Date();
-    savedBundles.unshift({
-        id: Date.now(),
-        coin, ex1, ex2, spread, quote,
-        ts: now.toLocaleString('ru-RU'),
-        auto
-    });
+    savedBundles.unshift({ id: Date.now(), coin, ex1, ex2, spread, quote, ts: now.toLocaleString('ru-RU'), auto });
     statSaved++;
     updateStats();
     updateSavedTable();
 
-    // Сохраняем в БД
     fetch('/api/scanner/save-bundle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ coin, ex1, ex2, spread, quote })
     }).catch(() => {});
 
-    if (!auto) {
-        showNotif('💾 Связка сохранена: ' + coin + '/' + quote + ' ' + (spread >= 0 ? '+' : '') + spread.toFixed(3) + '%');
-    }
+    if (!auto) showNotif('💾 Связка сохранена: ' + coin + '/' + quote + ' ' + (spread >= 0 ? '+' : '') + spread.toFixed(3) + '%');
 }
 
 function updateSavedTable() {
@@ -967,7 +902,6 @@ function updateSavedTable() {
         return;
     }
 
-    // Добавили колонку для кнопки (пустой <th> в конце)
     let html = `<table class="saved-table">
         <thead>
             <tr>
@@ -985,8 +919,6 @@ function updateSavedTable() {
 
     savedBundles.forEach(b => {
         const spreadStr = (b.spread >= 0 ? '+' : '') + (+b.spread).toFixed(3) + '%';
-        
-        // Формируем текст, который будет копироваться в буфер
         const textToCopy = `${b.coin}/${b.quote}: ${b.ex1} ➔ ${b.ex2} (Спред: ${spreadStr})`;
 
         html += `<tr>
@@ -1008,31 +940,20 @@ function updateSavedTable() {
             </td>
         </tr>`;
     });
-
     html += '</tbody></table>';
     body.innerHTML = html;
 }
 
-// ══════════════════════════════════
-//  COPY FUNCTION
-// ══════════════════════════════════
 function copyBundle(btn, text) {
     navigator.clipboard.writeText(text).then(() => {
-        // Запоминаем старый стиль
         const originalHtml = btn.innerHTML;
-        
-        // Меняем кнопку на зеленую галочку
         btn.innerHTML = '<i class="fas fa-check"></i>';
         btn.style.color = '#10b981';
         btn.style.borderColor = 'rgba(16,185,129,0.3)';
         btn.style.background = 'rgba(16,185,129,0.1)';
         btn.onmouseout = () => { btn.style.background = 'rgba(16,185,129,0.1)' };
         btn.onmouseover = () => { btn.style.background = 'rgba(16,185,129,0.2)' };
-        
-        // Показываем уведомление (используем твою готовую функцию)
         showNotif('📋 Связка скопирована в буфер!');
-        
-        // Возвращаем кнопку в исходное состояние через 2 секунды
         setTimeout(() => {
             btn.innerHTML = originalHtml;
             btn.style.color = '#3b82f6';
@@ -1047,9 +968,6 @@ function copyBundle(btn, text) {
     });
 }
 
-// ══════════════════════════════════
-//  STATS
-// ══════════════════════════════════
 function updateStats() {
     document.getElementById('statTotal').textContent = statTotal;
     document.getElementById('statGreen').textContent = statGreen;
@@ -1058,9 +976,6 @@ function updateStats() {
     document.getElementById('totalFound').textContent = statGreen;
 }
 
-// ══════════════════════════════════
-//  TABS
-// ══════════════════════════════════
 function switchTab(tab) {
     document.getElementById('section-console').style.display = tab === 'console' ? 'block' : 'none';
     document.getElementById('section-saved').style.display   = tab === 'saved'   ? 'block' : 'none';
@@ -1079,7 +994,6 @@ function switchTab(tab) {
 }
 
 async function loadBundlesFromDB() {
-    // Если пользователь только что очистил — не перезагружаем из БД
     if (bundlesCleared) { updateSavedTable(); return; }
     try {
         const res = await fetch('/api/scanner/bundles');
@@ -1087,14 +1001,8 @@ async function loadBundlesFromDB() {
         const data = await res.json();
         if (data.bundles && data.bundles.length > 0) {
             const dbBundles = data.bundles.map(b => ({
-                id: b.id,
-                coin: b.coin,
-                ex1: b.exchange_buy,
-                ex2: b.exchange_sell,
-                spread: b.spread,
-                quote: b.quote,
-                ts: b.saved_at,
-                auto: true
+                id: b.id, coin: b.coin, ex1: b.exchange_buy, ex2: b.exchange_sell,
+                spread: b.spread, quote: b.quote, ts: b.saved_at, auto: true
             }));
             if (savedBundles.length === 0) {
                 savedBundles = dbBundles;
@@ -1103,24 +1011,17 @@ async function loadBundlesFromDB() {
             }
         }
         updateSavedTable();
-    } catch(e) {
-        updateSavedTable();
-    }
+    } catch(e) { updateSavedTable(); }
 }
 
-// ══════════════════════════════════
-//  SETTINGS MODAL
-// ══════════════════════════════════
 function openSettings() { document.getElementById('settingsModal').classList.add('show'); }
 function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
 
 function applySettings() {
-    // Coins
     const coinBtns = document.querySelectorAll('#grp-coins .opt-btn.active-green');
     settings.coins = Array.from(coinBtns).map(b => b.dataset.val);
     if (settings.coins.length === 0) settings.coins = ['ALL'];
 
-    // Exchanges
     const exBtns = document.querySelectorAll('#grp-exchanges .opt-btn.active-green');
     settings.exchanges = Array.from(exBtns).map(b => b.dataset.val);
     if (settings.exchanges.length === 0) settings.exchanges = ['ALL'];
@@ -1134,13 +1035,11 @@ function applySettings() {
     settings.showRed  = getActiveVal('grp-showred')  === 'true';
     settings.sound    = getActiveVal('grp-sound')    === 'true';
 
-    // Restart interval if running
     if (scannerRunning) {
         clearInterval(scanInterval);
         scanInterval = setInterval(generateLine, settings.speed);
         addSysLine('> Настройки обновлены. Скорость: ' + settings.speed + 'мс  |  Мин. спред: ' + settings.minSpread + '%');
     }
-
     closeSettings();
     showNotif('⚙️ Настройки применены');
 }
@@ -1150,15 +1049,11 @@ function getActiveVal(groupId) {
     return el ? el.dataset.val : null;
 }
 
-// Single-select
 function pickOne(btn, groupId) {
-    document.querySelectorAll('#' + groupId + ' .opt-btn').forEach(b => {
-        b.classList.remove('active', 'active-green');
-    });
+    document.querySelectorAll('#' + groupId + ' .opt-btn').forEach(b => b.classList.remove('active', 'active-green'));
     btn.classList.add('active');
 }
 
-// Multi-select coins
 function toggleCoin(btn) {
     if (btn.dataset.val === 'ALL') {
         document.querySelectorAll('#grp-coins .opt-btn').forEach(b => b.classList.remove('active-green'));
@@ -1166,12 +1061,12 @@ function toggleCoin(btn) {
     } else {
         document.querySelector('#grp-coins [data-val="ALL"]').classList.remove('active-green');
         btn.classList.toggle('active-green');
-        const anyActive = document.querySelectorAll('#grp-coins .opt-btn.active-green').length > 0;
-        if (!anyActive) document.querySelector('#grp-coins [data-val="ALL"]').classList.add('active-green');
+        if (document.querySelectorAll('#grp-coins .opt-btn.active-green').length === 0) {
+            document.querySelector('#grp-coins [data-val="ALL"]').classList.add('active-green');
+        }
     }
 }
 
-// Multi-select exchanges
 function toggleExchange(btn) {
     if (btn.dataset.val === 'ALL') {
         document.querySelectorAll('#grp-exchanges .opt-btn').forEach(b => b.classList.remove('active-green'));
@@ -1179,22 +1074,14 @@ function toggleExchange(btn) {
     } else {
         document.querySelector('#grp-exchanges [data-val="ALL"]').classList.remove('active-green');
         btn.classList.toggle('active-green');
-        const anyActive = document.querySelectorAll('#grp-exchanges .opt-btn.active-green').length > 0;
-        if (!anyActive) document.querySelector('#grp-exchanges [data-val="ALL"]').classList.add('active-green');
+        if (document.querySelectorAll('#grp-exchanges .opt-btn.active-green').length === 0) {
+            document.querySelector('#grp-exchanges [data-val="ALL"]').classList.add('active-green');
+        }
     }
 }
 
-// Close modal on backdrop click
 document.getElementById('settingsModal').addEventListener('click', function(e) {
     if (e.target === this) closeSettings();
-});
-
-// Фиксируем стоп при закрытии вкладки
-window.addEventListener('beforeunload', () => {
-    if (scannerRunning && sessionStartTime) {
-        const minutes = Math.max(1, Math.round((Date.now() - sessionStartTime) / 60000));
-        navigator.sendBeacon('/api/scanner/stop', JSON.stringify({ minutes, found: statGreen, saved: statSaved }));
-    }
 });
 
 // ══════════════════════════════════
@@ -1206,11 +1093,32 @@ function showNotif(msg) {
     el.textContent = msg;
     document.body.appendChild(el);
     setTimeout(() => {
-        el.style.transition = 'opacity 0.4s';
+        el.style.transition = 'opacity 0.3s ease-out';
         el.style.opacity = '0';
-        setTimeout(() => el.remove(), 400);
-    }, 2500);
+        setTimeout(() => el.remove(), 300);
+    }, 3000);
 }
+
+// ══════════════════════════════════
+//  PING & OFFLINE SYSTEM
+// ══════════════════════════════════
+function startPing() {
+    fetch('/api/user/ping', { method: 'POST' }).catch(() => {});
+    setInterval(() => {
+        fetch('/api/user/ping', { method: 'POST' }).catch(() => {});
+    }, 30 * 1000);
+}
+
+startPing(); // Запускаем фоновый пинг
+
+// ЕДИНСТВЕННЫЙ обработчик закрытия вкладки
+window.addEventListener('beforeunload', () => {
+    navigator.sendBeacon('/api/user/offline'); // <-- СИГНАЛ ЗАКРЫТИЯ САЙТА (ОФЛАЙН)
+    if (scannerRunning && sessionStartTime) {
+        const minutes = Math.max(1, Math.round((Date.now() - sessionStartTime) / 60000));
+        navigator.sendBeacon('/api/scanner/stop', JSON.stringify({ minutes, found: statGreen, saved: statSaved }));
+    }
+});
 </script>
 </body>
 </html>
