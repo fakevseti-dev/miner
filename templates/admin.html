@@ -566,8 +566,8 @@
         .badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
         .badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
         .badge-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
-        .badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
         .badge-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(6,182,212,0.2); }
+        .badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
 
         .balance-cell {
             font-family: var(--mono);
@@ -1258,6 +1258,32 @@ function togglePwd(id, plain) {
     }
 }
 
+// ── FORMATTERS FOR LOGS ──
+function formatLogAction(action) {
+    if (!action) return '—';
+    if (action === 'SESSION_START') return '<b style="color:var(--green)">🚀 Запуск (Start)</b>';
+    if (action === 'SESSION_TICK') return '<span style="color:var(--text-dim)">↻ В процессе (Sync)</span>';
+    if (action === 'SESSION_PAUSE') return '<b style="color:var(--amber)">⏸ Пауза (Pause)</b>';
+    if (action === 'SESSION_RESUME') return '<b style="color:var(--blue)">▶ Возобновлен (Resume)</b>';
+    
+    if (action.startsWith('SESSION_END')) {
+        let text = action.replace('SESSION_END', '<b style="color:var(--red)">⏹ Остановлен (Stop)</b><br>');
+        text = text.replace('time=', '<span style="color:var(--text-dim)">Время:</span> ');
+        text = text.replace('earned=', '<span style="color:var(--text-dim)">Заработано:</span> ');
+        text = text.replace('plan=', '<span style="color:var(--text-dim)">Тариф:</span> ');
+        text = text.replace('found=', '<span style="color:var(--text-dim)">Найдено связок:</span> ');
+        text = text.replace('saved=', '<span style="color:var(--text-dim)">Сохранено:</span> ');
+        return text;
+    }
+    return action;
+}
+
+function formatLogModule(module) {
+    if (module === 'MINER_NODE') return '⛏ Майнер';
+    if (module === 'NETWORK_SCANNER') return '⚡ Сканер';
+    return module || 'СИСТЕМА';
+}
+
 // ── USER LOGS MODAL ──
 function openUserLogsModal(userId, username) {
     document.getElementById('log-username').textContent = username;
@@ -1274,8 +1300,8 @@ function openUserLogsModal(userId, username) {
             tbody.innerHTML = data.logs.map(l => `
                 <tr>
                     <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim);white-space:nowrap;">${fmtDate(l.timestamp)}</td>
-                    <td><span class="badge ${(l.module||'').includes('SCANNER') ? 'badge-cyan' : 'badge-blue'}">${l.module || 'SYSTEM'}</span></td>
-                    <td style="font-size:12px;color:var(--text-primary);word-break:break-word;">${l.action || '—'}</td>
+                    <td><span class="badge ${(l.module||'').includes('SCANNER') ? 'badge-cyan' : 'badge-blue'}">${formatLogModule(l.module)}</span></td>
+                    <td style="font-size:12px;color:var(--text-primary);word-break:break-word;line-height:1.5;">${formatLogAction(l.action)}</td>
                 </tr>
             `).join('');
         }
