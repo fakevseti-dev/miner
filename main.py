@@ -532,13 +532,6 @@ def miner_stop():
         conn = get_db()
         c = get_cursor(conn)
 
-        # Пишем SESSION_TICK за каждую минуту (для счётчика в админке)
-        for _ in range(minutes):
-            c.execute(
-                "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
-                (session['user_id'], 'MINER_NODE', 'SESSION_TICK', 'OK', now())
-            )
-
         # SESSION_END с точным временем из таймера майнера
         label = f"SESSION_END time={time_str} earned=${earned:.4f} plan={plan}" + (" [COMPLETED]" if completed else "")
         c.execute(
@@ -707,8 +700,10 @@ def admin_stats():
         c.execute("SELECT COUNT(DISTINCT user_id) as n FROM activity_log WHERE timestamp >= ?", (today,))
         active_users = c.fetchone()['n']
 
-        c.execute("SELECT COUNT(*) as n FROM activity_log WHERE module='MINER_NODE' AND timestamp >= ?", (today,))
-        mining_minutes_today = c.fetchone()['n']
+        # Считаем только полезные тики (1 тик майнера = 30 секунд = 0.5 мин)
+        c.execute("SELECT COUNT(*) as n FROM activity_log WHERE module='MINER_NODE' AND action='SESSION_TICK' AND timestamp >= ?", (today,))
+        mining_ticks = c.fetchone()['n']
+        mining_minutes_today = int(mining_ticks * 0.5)
 
         c.execute("SELECT id, username, email, balance, total_earned, last_login, is_active FROM users ORDER BY created_at DESC LIMIT 5")
         recent_users = [dict(r) for r in c.fetchall()]
@@ -790,12 +785,11 @@ def admin_activity():
         c.execute("SELECT al.id, al.module, al.action, al.status, al.timestamp, u.username FROM activity_log al LEFT JOIN users u ON al.user_id = u.id ORDER BY al.timestamp DESC LIMIT 200")
         activity = [dict(r) for r in c.fetchall()]
 
-        # Считаем SESSION_TICK для минут (обратная совместимость)
-        # + берём точные секунды из mining_stats для майнера
+        # Считаем именно ТИКИ (TICK), а не все логи подряд (START, END, ошибки и т.д.)
         c.execute("""
             SELECT u.username, u.id as user_id,
-                SUM(CASE WHEN al.module='MINER_NODE' THEN 1 ELSE 0 END) AS miner_minutes,
-                SUM(CASE WHEN al.module='NETWORK_SCANNER' THEN 1 ELSE 0 END) AS scanner_minutes,
+                SUM(CASE WHEN al.module='MINER_NODE' AND al.action='SESSION_TICK' THEN 1 ELSE 0 END) AS miner_ticks,
+                SUM(CASE WHEN al.module='NETWORK_SCANNER' AND al.action='SESSION_TICK' THEN 1 ELSE 0 END) AS scanner_minutes,
                 COUNT(*) AS total_events, MAX(al.timestamp) AS last_activity
             FROM activity_log al
             LEFT JOIN users u ON al.user_id = u.id
@@ -808,17 +802,23 @@ def admin_activity():
         # Добавляем точные секунды майнера из mining_stats
         for s in sessions:
             uid = s.get('user_id')
+            # Переводим живые тики в секунды (1 тик синхронизации майнера = 30 секунд)
+            live_miner_seconds = s.get('miner_ticks', 0) * 30
+            
             if uid:
                 c.execute(
                     "SELECT COALESCE(SUM(duration_seconds),0) as total FROM mining_stats WHERE user_id = ? AND timestamp >= ?",
                     (uid, today)
                 )
                 row = c.fetchone()
-                s['miner_seconds']   = int(row['total']) if row else s['miner_minutes'] * 60
-                s['scanner_seconds'] = s['scanner_minutes'] * 60
+                total_completed_sec = int(row['total']) if row else 0
+                
+                # ИСПРАВЛЕНИЕ БАГА С НУЛЕМ: Берем максимум между сохраненным временем завершенных сессий и живым временем
+                s['miner_seconds']   = max(total_completed_sec, live_miner_seconds)
+                s['scanner_seconds'] = s.get('scanner_minutes', 0) * 60
             else:
-                s['miner_seconds']   = s['miner_minutes'] * 60
-                s['scanner_seconds'] = s['scanner_minutes'] * 60
+                s['miner_seconds']   = live_miner_seconds
+                s['scanner_seconds'] = s.get('scanner_minutes', 0) * 60
 
         conn.close()
         return jsonify({"status": "success", "activity": activity, "sessions": sessions})
