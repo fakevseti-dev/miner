@@ -432,16 +432,6 @@
             border-color: var(--border-bright);
         }
 
-        .btn-danger {
-            background: linear-gradient(135deg, var(--red), #dc2626);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(239,68,68,0.35);
-        }
-
         .btn-success {
             background: linear-gradient(135deg, var(--green), #059669);
             color: white;
@@ -527,6 +517,12 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .user-cell:hover {
+            opacity: 0.8;
         }
 
         .user-avatar {
@@ -544,6 +540,8 @@
             font-weight: 600;
             color: var(--text-primary);
             font-size: 13px;
+            text-decoration: underline dotted rgba(255,255,255,0.3);
+            text-underline-offset: 3px;
         }
 
         .user-email {
@@ -569,6 +567,7 @@
         .badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
         .badge-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
         .badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
+        .badge-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(6,182,212,0.2); }
 
         .balance-cell {
             font-family: var(--mono);
@@ -754,32 +753,6 @@
             line-height: 1.4;
         }
 
-        /* ── ACTIVITY PAGE ── */
-        .activity-filters {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 6px 14px;
-            border-radius: 7px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            font-family: var(--sans);
-            transition: all 0.2s;
-        }
-
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--blue-dim);
-            border-color: var(--border-bright);
-            color: var(--blue);
-        }
-
         /* ── CHARTS (CSS-only sparklines) ── */
         .sparkline {
             display: flex;
@@ -850,21 +823,6 @@
             flex-shrink: 0;
         }
 
-        /* ── USER SESSION TIME ── */
-        .session-bar {
-            height: 6px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-
-        .session-fill {
-            height: 100%;
-            border-radius: 3px;
-            background: linear-gradient(90deg, var(--blue), var(--cyan));
-        }
-
         /* ── SCROLLBAR ── */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -905,7 +863,6 @@
 </head>
 <body>
 
-<!-- ── SIDEBAR ── -->
 <aside class="sidebar">
     <div class="sidebar-logo">
         <div class="logo-mark">⚡ NEON</div>
@@ -923,14 +880,8 @@
             <span class="nav-icon">◈</span> Пользователи
             <span class="nav-badge" id="usersBadge">—</span>
         </div>
-        <div class="nav-item" onclick="showPage('finance', this)">
-            <span class="nav-icon">◎</span> Начисления
-        </div>
 
         <div class="nav-section-label">Аналитика</div>
-        <div class="nav-item" onclick="showPage('activity', this)">
-            <span class="nav-icon">◈</span> Активность
-        </div>
         <div class="nav-item" onclick="showPage('transactions', this)">
             <span class="nav-icon">◇</span> Транзакции
         </div>
@@ -947,9 +898,7 @@
     </div>
 </aside>
 
-<!-- ── MAIN ── -->
 <main class="main">
-    <!-- TOPBAR -->
     <div class="topbar">
         <div>
             <div class="topbar-title" id="topbarTitle">Дашборд</div>
@@ -961,7 +910,6 @@
         </div>
     </div>
 
-    <!-- ── PAGE: DASHBOARD ── -->
     <div class="page active" id="page-dashboard">
         <div class="stats-grid">
             <div class="stat-card blue">
@@ -989,7 +937,6 @@
         </div>
 
         <div class="two-col">
-            <!-- Recent Users -->
             <div>
                 <div class="section-header" style="margin-bottom: 14px;">
                     <div class="section-title">Последние пользователи</div>
@@ -1011,7 +958,6 @@
                 </div>
             </div>
 
-            <!-- Recent Activity -->
             <div>
                 <div class="section-header" style="margin-bottom: 14px;">
                     <div class="section-title">Последняя активность</div>
@@ -1023,7 +969,6 @@
         </div>
     </div>
 
-    <!-- ── PAGE: USERS ── -->
     <div class="page" id="page-users">
         <div class="section-header">
             <div class="section-title">Управление пользователями</div>
@@ -1036,7 +981,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Пользователь</th>
+                        <th>Пользователь (Клик = Логи)</th>
                         <th>Пароль</th>
                         <th>Баланс</th>
                         <th>Заработано</th>
@@ -1052,78 +997,6 @@
         </div>
     </div>
 
-    <!-- ── PAGE: FINANCE ── -->
-    <div class="page" id="page-finance">
-        <div class="section-header">
-            <div class="section-title">Начисление баланса</div>
-        </div>
-
-        <!-- Quick fund -->
-        <div class="table-card">
-            <div class="table-card-header">
-                <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Быстрое начисление</span>
-                <input class="search-input" type="text" placeholder="🔍  Поиск пользователя..." oninput="filterFinanceUsers(this.value)">
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Пользователь</th>
-                        <th>Email</th>
-                        <th>Текущий баланс</th>
-                        <th>Начислить</th>
-                    </tr>
-                </thead>
-                <tbody id="finance-table">
-                    <tr class="loading-row"><td colspan="4">Загрузка...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ── PAGE: ACTIVITY ── -->
-    <div class="page" id="page-activity">
-        <div class="section-header">
-            <div class="section-title">Активность пользователей</div>
-            <div class="activity-filters">
-                <button class="filter-btn active" onclick="filterActivity('all', this)">Все</button>
-                <button class="filter-btn" onclick="filterActivity('MINER_NODE', this)">Майнинг</button>
-                <button class="filter-btn" onclick="filterActivity('NETWORK_SCANNER', this)">Сканер</button>
-            </div>
-        </div>
-
-        <!-- Session time stats -->
-        <div class="table-card">
-            <div class="table-card-header">
-                <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Время сессий сегодня</span>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Пользователь</th>
-                        <th>Майнер (мин)</th>
-                        <th>Сканер (мин)</th>
-                        <th>Всего событий</th>
-                        <th>Последняя активность</th>
-                    </tr>
-                </thead>
-                <tbody id="activity-sessions-table">
-                    <tr class="loading-row"><td colspan="5">Загрузка...</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Full log -->
-        <div class="section-header" style="margin-top:8px;">
-            <div class="section-title">Журнал событий</div>
-        </div>
-        <div class="table-card">
-            <div class="activity-list" id="activity-log-list">
-                <div class="loading-row" style="padding:40px;text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:12px;">Загрузка...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ── PAGE: TRANSACTIONS ── -->
     <div class="page" id="page-transactions">
         <div class="section-header">
             <div class="section-title">Все транзакции</div>
@@ -1149,7 +1022,6 @@
     </div>
 </main>
 
-<!-- ── FUND MODAL ── -->
 <div class="modal-overlay" id="fundModal">
     <div class="modal">
         <div class="modal-title">💰 Начисление баланса</div>
@@ -1176,7 +1048,30 @@
     </div>
 </div>
 
-<!-- ── NOTIFICATION ── -->
+<div class="modal-overlay" id="userLogsModal">
+    <div class="modal" style="width: 600px; max-width: 95vw;">
+        <div class="modal-title">Логи пользователя <span id="log-username" style="color: var(--blue);"></span></div>
+        <div class="modal-subtitle">Последние 200 действий (клики, работа сессии)</div>
+        <div class="table-card" style="max-height: 400px; overflow-y: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Время</th>
+                        <th>Модуль</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="user-logs-table">
+                    <tr class="loading-row"><td colspan="3">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-actions" style="margin-top: 15px;">
+            <button class="btn btn-ghost" onclick="closeUserLogsModal()" style="width: 100%;">Закрыть</button>
+        </div>
+    </div>
+</div>
+
 <div class="notification" id="notification">
     <div class="notif-icon" id="notif-icon">✓</div>
     <div>
@@ -1188,16 +1083,14 @@
 <script>
 // ── STATE ──
 let allUsers = [];
-let allActivity = [];
 let allTransactions = [];
 let currentFundUserId = null;
-let activityFilter = 'all';
 
 const COLORS = ['#3b82f6','#06b6d4','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899'];
 function userColor(name) { return COLORS[name.charCodeAt(0) % COLORS.length]; }
 function userInitial(name) { return (name || '?')[0].toUpperCase(); }
 function fmt(n) { return '$' + parseFloat(n || 0).toFixed(2); }
-function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
 
 // ── NAVIGATION ──
 function showPage(id, el) {
@@ -1208,17 +1101,13 @@ function showPage(id, el) {
 
     const titles = {
         dashboard: ['Дашборд', 'Общая статистика платформы'],
-        users: ['Пользователи', 'Управление аккаунтами'],
-        finance: ['Начисления', 'Управление балансами пользователей'],
-        activity: ['Активность', 'Мониторинг сессий в реальном времени'],
+        users: ['Пользователи', 'Управление аккаунтами и логи'],
         transactions: ['Транзакции', 'Полная история операций'],
     };
     document.getElementById('topbarTitle').textContent = titles[id][0];
     document.getElementById('topbarSubtitle').textContent = titles[id][1];
 
     if (id === 'users') loadUsers();
-    if (id === 'finance') loadFinance();
-    if (id === 'activity') loadActivity();
     if (id === 'transactions') loadTransactions();
 }
 
@@ -1298,10 +1187,12 @@ function renderUsers(users) {
     if (!users.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="7">Нет пользователей</td></tr>'; return; }
     tbody.innerHTML = users.map(u => `
         <tr>
-            <td><div class="user-cell">
-                <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(u.username)},${userColor(u.username+'1')})">${userInitial(u.username)}</div>
-                <div><div class="user-name">${u.username}</div><div class="user-email">${u.email}</div></div>
-            </div></td>
+            <td onclick="openUserLogsModal(${u.id}, '${u.username}')" title="Нажмите, чтобы посмотреть все логи пользователя">
+                <div class="user-cell">
+                    <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(u.username)},${userColor(u.username+'1')})">${userInitial(u.username)}</div>
+                    <div><div class="user-name">${u.username}</div><div class="user-email">${u.email}</div></div>
+                </div>
+            </td>
             <td>
                 <div style="display:flex;align-items:center;gap:6px;">
                     <span id="pwd-${u.id}" style="font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:2px;">••••••••</span>
@@ -1332,16 +1223,14 @@ function userStatusBadge(u) {
         return '<span class="badge" style="background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border)">○ не входил</span>';
     }
     const last = new Date(u.last_login);
-        const diffMin = (Date.now() - last.getTime()) / 60000;
-        
-        // Было 15, меняем на 1.5 минуты для точного реального времени
-        if (diffMin <= 1.5) {
-            return '<span class="badge badge-green">● онлайн</span>';
-        }
-        if (diffMin <= 60) {
-            return `<span class="badge" style="background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2)">◐ был ${Math.round(diffMin)} мин. назад</span>`;
-        }
-        return '<span class="badge" style="background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border)">○ не в сети</span>';
+    const diffMin = (Date.now() - last.getTime()) / 60000;
+    if (diffMin <= 15) {
+        return '<span class="badge badge-green">● онлайн</span>';
+    }
+    if (diffMin <= 60) {
+        return `<span class="badge" style="background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2)">◐ был ${Math.round(diffMin)} мин. назад</span>`;
+    }
+    return '<span class="badge" style="background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border)">○ не в сети</span>';
 }
 
 function filterUsers(q) {
@@ -1369,109 +1258,39 @@ function togglePwd(id, plain) {
     }
 }
 
-// ── FINANCE ──
-async function loadFinance() {
-    try {
-        const data = await api('/api/admin/users');
-        allUsers = data.users || [];
-        renderFinance(allUsers);
-    } catch(e) {}
+// ── USER LOGS MODAL ──
+function openUserLogsModal(userId, username) {
+    document.getElementById('log-username').textContent = username;
+    document.getElementById('userLogsModal').classList.add('open');
+    document.getElementById('user-logs-table').innerHTML = '<tr class="loading-row"><td colspan="3">Загрузка логов...</td></tr>';
+
+    api('/api/admin/user_activity/' + userId).then(data => {
+        if (data.status === 'success') {
+            const tbody = document.getElementById('user-logs-table');
+            if (!data.logs || !data.logs.length) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:var(--text-dim);">История действий пуста</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.logs.map(l => `
+                <tr>
+                    <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim);white-space:nowrap;">${fmtDate(l.timestamp)}</td>
+                    <td><span class="badge ${(l.module||'').includes('SCANNER') ? 'badge-cyan' : 'badge-blue'}">${l.module || 'SYSTEM'}</span></td>
+                    <td style="font-size:12px;color:var(--text-primary);word-break:break-word;">${l.action || '—'}</td>
+                </tr>
+            `).join('');
+        }
+    }).catch(err => {
+        document.getElementById('user-logs-table').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--red);">Ошибка загрузки</td></tr>';
+    });
 }
 
-function renderFinance(users) {
-    const tbody = document.getElementById('finance-table');
-    if (!users.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="4">Нет пользователей</td></tr>'; return; }
-    tbody.innerHTML = users.map(u => `
-        <tr>
-            <td><div class="user-cell">
-                <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(u.username)},${userColor(u.username+'1')})">${userInitial(u.username)}</div>
-                <div class="user-name">${u.username}</div>
-            </div></td>
-            <td style="font-family:var(--mono);font-size:12px;color:var(--text-secondary)">${u.email}</td>
-            <td class="balance-cell">${fmt(u.balance)}</td>
-            <td>
-                <div style="display:flex;gap:6px;flex-wrap:wrap">
-                    <button class="btn btn-success" style="font-size:11px;padding:7px 14px" onclick="openFundModal(${u.id}, '${u.username}', ${u.balance})">+ Начислить</button>
-                    <button class="btn" style="font-size:11px;padding:7px 14px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white" onclick="confirmPayment(${u.id}, '${u.username}')">⚡ Платёж</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
+function closeUserLogsModal() {
+    document.getElementById('userLogsModal').classList.remove('open');
 }
 
-function filterFinanceUsers(q) {
-    const f = allUsers.filter(u => u.username.toLowerCase().includes(q.toLowerCase()) || u.email.toLowerCase().includes(q.toLowerCase()));
-    renderFinance(f);
-}
-
-// ── ACTIVITY ──
-async function loadActivity() {
-    try {
-        const data = await api('/api/admin/activity');
-        allActivity = data.activity || [];
-        renderActivityLog(allActivity);
-        renderSessionsTable(data.sessions || []);
-    } catch(e) {}
-}
-
-function filterActivity(type, btn) {
-    activityFilter = type;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const filtered = type === 'all' ? allActivity : allActivity.filter(a => (a.module || '').includes(type));
-    renderActivityLog(filtered);
-}
-
-function renderActivityLog(items) {
-    const el = document.getElementById('activity-log-list');
-    if (!items.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">◎</div><div>Нет событий</div></div>'; return; }
-    el.innerHTML = items.slice(0, 50).map(a => {
-        const isScanner = (a.module || '').includes('SCANNER');
-        const type = isScanner ? 'scanner' : 'mining';
-        return `<div class="activity-item">
-            <div class="activity-dot ${type}"></div>
-            <div class="activity-body">
-                <div class="activity-title">${a.username || 'Система'} <span style="color:var(--text-dim);font-weight:400">→</span> ${a.action || ''}</div>
-                <div class="activity-meta">${a.module || ''} · статус: ${a.status || ''}</div>
-            </div>
-            <div class="activity-time">${fmtDate(a.timestamp)}</div>
-        </div>`;
-    }).join('');
-}
-
-function secsToHMS(totalSecs) {
-    const h = Math.floor(totalSecs / 3600);
-    const m = Math.floor((totalSecs % 3600) / 60);
-    const s = totalSecs % 60;
-    if (h > 0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-function renderSessionsTable(sessions) {
-    const tbody = document.getElementById('activity-sessions-table');
-    if (!sessions.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="5">Нет данных о сессиях</td></tr>'; return; }
-    tbody.innerHTML = sessions.map(s => {
-        const minerSecs   = (s.miner_seconds   || s.miner_minutes   * 60 || 0);
-        const scannerSecs = (s.scanner_seconds || s.scanner_minutes * 60 || 0);
-        const minerPct = Math.min(100, (minerSecs / Math.max(minerSecs + scannerSecs, 1)) * 100);
-        return `<tr>
-            <td><div class="user-cell">
-                <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(s.username)},${userColor(s.username+'1')})">${userInitial(s.username)}</div>
-                <div class="user-name">${s.username}</div>
-            </div></td>
-            <td>
-                <div style="font-family:var(--mono);font-size:13px;color:var(--blue)">${secsToHMS(minerSecs)}</div>
-                <div class="session-bar"><div class="session-fill" style="width:${minerPct}%;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div></div>
-            </td>
-            <td>
-                <div style="font-family:var(--mono);font-size:13px;color:var(--cyan)">${secsToHMS(scannerSecs)}</div>
-                <div class="session-bar"><div class="session-fill" style="width:${100-minerPct}%;background:linear-gradient(90deg,var(--cyan),var(--purple))"></div></div>
-            </td>
-            <td style="font-family:var(--mono);font-size:12px;color:var(--text-secondary)">${s.total_events || 0}</td>
-            <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${fmtDate(s.last_activity)}</td>
-        </tr>`;
-    }).join('');
-}
+document.getElementById('userLogsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeUserLogsModal();
+});
 
 // ── TRANSACTIONS ──
 async function loadTransactions() {
@@ -1577,8 +1396,6 @@ function refreshData() {
     const id = active.id.replace('page-', '');
     if (id === 'dashboard') loadDashboard();
     if (id === 'users') loadUsers();
-    if (id === 'finance') loadFinance();
-    if (id === 'activity') loadActivity();
     if (id === 'transactions') loadTransactions();
 }
 
@@ -1587,75 +1404,10 @@ document.getElementById('fundModal').addEventListener('click', function(e) {
     if (e.target === this) closeFundModal();
 });
 
-// ── CONFIRM PAYMENT MODAL ──
-let confirmPaymentUserId = null;
-
-function confirmPayment(userId, username) {
-    confirmPaymentUserId = userId;
-    document.getElementById('confirmPaymentUsername').textContent = username;
-    document.getElementById('confirmPaymentModal').classList.add('open');
-}
-
-function closeConfirmPaymentModal() {
-    document.getElementById('confirmPaymentModal').classList.remove('open');
-    confirmPaymentUserId = null;
-}
-
-async function submitConfirmPayment() {
-    if (!confirmPaymentUserId) return;
-    const amount = parseFloat(document.getElementById('confirmPaymentAmount').value);
-    if (!amount || amount <= 0) { showNotif('error', 'Ошибка', 'Введите сумму платежа'); return; }
-
-    try {
-        const data = await api('/api/admin/confirm-payment', 'POST', {
-            user_id: confirmPaymentUserId,
-            amount: amount
-        });
-        if (data.status === 'success') {
-            closeConfirmPaymentModal();
-            showNotif('success', 'Платёж подтверждён', 'Пользователь получил уведомление с анимацией транзакции');
-            refreshData();
-        } else {
-            showNotif('error', 'Ошибка', data.message || 'Не удалось подтвердить');
-        }
-    } catch(e) {
-        showNotif('error', 'Ошибка сети', 'Проверьте подключение');
-    }
-}
-
 // ── INIT ──
 loadDashboard();
 setInterval(loadDashboard, 30000);
 </script>
-<!-- ── CONFIRM PAYMENT MODAL ── -->
-<div class="modal-overlay" id="confirmPaymentModal">
-    <div class="modal">
-        <div class="modal-title">⚡ Подтвердить платёж</div>
-        <div class="modal-subtitle">Пользователь увидит анимацию "Транзакция в обработке" с прогрессом подтверждений</div>
-
-        <div class="modal-user-info">
-            <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;">⚡</div>
-            <div>
-                <div style="font-weight:700;font-size:13px;color:var(--text-primary)" id="confirmPaymentUsername">—</div>
-                <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">USDT TRC-20 · Ожидает подтверждения</div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Сумма платежа (USD)</label>
-            <input class="form-input" type="number" id="confirmPaymentAmount" placeholder="0.00" min="0.01" step="0.01">
-        </div>
-
-        <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:#f59e0b;line-height:1.5;margin-bottom:4px;">
-            ⚠️ После подтверждения пользователю придёт уведомление, в его модальном окне пополнения запустится анимация «Транзакция в обработке. Подтверждения сети: 1 из 12»
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="closeConfirmPaymentModal()">Отмена</button>
-            <button class="btn" style="flex:1;justify-content:center;padding:12px;font-size:13px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none" onclick="submitConfirmPayment()">⚡ Подтвердить</button>
-        </div>
-    </div>
-</div>
 
 </body>
 </html>
