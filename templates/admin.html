@@ -1224,7 +1224,7 @@ function userStatusBadge(u) {
     }
     const last = new Date(u.last_login);
     const diffMin = (Date.now() - last.getTime()) / 60000;
-    if (diffMin <= 15) {
+    if (diffMin <= 2) {
         return '<span class="badge badge-green">● онлайн</span>';
     }
     if (diffMin <= 60) {
