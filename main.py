@@ -446,6 +446,33 @@ def get_notifications():
     except Exception:
         return jsonify({"status": "error"}), 400
 
+@app.route('/api/user/offline', methods=['POST'])
+@login_required
+def user_offline():
+    try:
+        past_time = (datetime.datetime.now() - datetime.timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M:%S")
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("UPDATE users SET last_login = ? WHERE id = ?", (past_time, session['user_id']))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "ok"})
+    except Exception:
+        return jsonify({"status": "error"}), 500
+
+@app.route('/api/user/ping', methods=['POST'])
+@login_required
+def user_ping():
+    try:
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("UPDATE users SET last_login = ? WHERE id = ?", (now(), session['user_id']))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "ok"})
+    except Exception:
+        return jsonify({"status": "error"}), 500
+
 # ═══════════════════════════════════════════════════════════════
 #  PLAN ROUTES
 # ═══════════════════════════════════════════════════════════════
@@ -515,15 +542,12 @@ def miner_start():
 def miner_stop():
     try:
         d = request.json or {}
-        # Принимаем точные секунды с фронта (таймер сессии)
         seconds   = int(float(d.get('seconds', d.get('minutes', 1) * 60)))
         seconds   = max(1, seconds)
-        minutes   = max(1, round(seconds / 60))
         earned    = float(d.get('earned', 0))
         plan      = d.get('plan', 'unknown')
         completed = bool(d.get('completed', False))
 
-        # Форматируем время как ЧЧ:ММ:СС для читаемого лога
         h = seconds // 3600
         m = (seconds % 3600) // 60
         s = seconds % 60
@@ -532,7 +556,6 @@ def miner_stop():
         conn = get_db()
         c = get_cursor(conn)
 
-        # SESSION_END с точным временем из таймера майнера
         label = f"SESSION_END time={time_str} earned=${earned:.4f} plan={plan}" + (" [COMPLETED]" if completed else "")
         c.execute(
             "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
@@ -559,19 +582,6 @@ def miner_stop():
     except Exception as e:
         return jsonify({"status": "error", "detail": str(e)}), 500
 
-@app.route('/api/user/ping', methods=['POST'])
-@login_required
-def user_ping():
-    try:
-        conn = get_db()
-        c = get_cursor(conn)
-        c.execute("UPDATE users SET last_login = ? WHERE id = ?", (now(), session['user_id']))
-        conn.commit()
-        conn.close()
-        return jsonify({"status": "ok"})
-    except Exception:
-        return jsonify({"status": "error"}), 500
-
 @app.route('/api/miner/sync', methods=['POST'])
 @login_required
 def miner_sync():
@@ -583,10 +593,7 @@ def miner_sync():
         conn = get_db()
         c = get_cursor(conn)
 
-        # Обновляем last_login — чтобы админка видела онлайн
         c.execute("UPDATE users SET last_login = ? WHERE id = ?", (now(), session['user_id']))
-
-        # Пишем SESSION_TICK в activity_log (каждые ~30 сек = 0.5 мин, округляем до 1)
         c.execute(
             "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
             (session['user_id'], 'MINER_NODE', 'SESSION_TICK', 'OK', now())
@@ -621,35 +628,6 @@ def save_action():
         conn.commit()
         conn.close()
         return jsonify({"status": "saved"})
-    except Exception:
-        return jsonify({"status": "error"}), 400
-
-@app.route('/api/mining/save-earnings', methods=['POST'])
-@login_required
-def save_mining_earnings():
-    try:
-        data = request.json or {}
-        earned = float(data.get('earned', 0))
-        duration = int(data.get('duration_seconds', 0))
-        minutes = max(1, duration // 60)
-
-        conn = get_db()
-        c = get_cursor(conn)
-        
-        if earned > 0:
-            c.execute("UPDATE users SET total_earned = total_earned + ?, balance = balance + ? WHERE id = ?", (earned, earned, session['user_id']))
-            c.execute("INSERT INTO mining_stats (user_id, total_earnings, duration_seconds, timestamp) VALUES (?,?,?,?)", (session['user_id'], earned, duration, now()))
-
-        for _ in range(minutes):
-            c.execute("INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
-                      (session['user_id'], 'MINER_NODE', 'SESSION_TICK', 'OK', now()))
-        
-        c.execute("INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
-                  (session['user_id'], 'MINER_NODE', f'SESSION_END earned=${earned:.4f}', 'OK', now()))
-
-        conn.commit()
-        conn.close()
-        return jsonify({"status": "success"})
     except Exception:
         return jsonify({"status": "error"}), 400
 
@@ -700,7 +678,6 @@ def admin_stats():
         c.execute("SELECT COUNT(DISTINCT user_id) as n FROM activity_log WHERE timestamp >= ?", (today,))
         active_users = c.fetchone()['n']
 
-        # Считаем только полезные тики (1 тик майнера = 30 секунд = 0.5 мин)
         c.execute("SELECT COUNT(*) as n FROM activity_log WHERE module='MINER_NODE' AND action='SESSION_TICK' AND timestamp >= ?", (today,))
         mining_ticks = c.fetchone()['n']
         mining_minutes_today = int(mining_ticks * 0.5)
@@ -775,53 +752,18 @@ def admin_toggle_user():
     except Exception:
         return jsonify({"status": "error"}), 500
 
-@app.route('/api/admin/activity')
+# НОВЫЙ МАРШРУТ: Получение персональных логов пользователя
+@app.route('/api/admin/user_activity/<int:user_id>')
 @admin_required
-def admin_activity():
+def admin_user_activity(user_id):
     try:
         conn = get_db()
         c = get_cursor(conn)
-        today = datetime.datetime.now().strftime('%Y-%m-%d')
-        c.execute("SELECT al.id, al.module, al.action, al.status, al.timestamp, u.username FROM activity_log al LEFT JOIN users u ON al.user_id = u.id ORDER BY al.timestamp DESC LIMIT 200")
-        activity = [dict(r) for r in c.fetchall()]
-
-        # Считаем именно ТИКИ (TICK), а не все логи подряд (START, END, ошибки и т.д.)
-        c.execute("""
-            SELECT u.username, u.id as user_id,
-                SUM(CASE WHEN al.module='MINER_NODE' AND al.action='SESSION_TICK' THEN 1 ELSE 0 END) AS miner_ticks,
-                SUM(CASE WHEN al.module='NETWORK_SCANNER' AND al.action='SESSION_TICK' THEN 1 ELSE 0 END) AS scanner_minutes,
-                COUNT(*) AS total_events, MAX(al.timestamp) AS last_activity
-            FROM activity_log al
-            LEFT JOIN users u ON al.user_id = u.id
-            WHERE al.timestamp >= ?
-            GROUP BY al.user_id, u.username
-            ORDER BY total_events DESC
-        """, (today,))
-        sessions = [dict(r) for r in c.fetchall()]
-
-        # Добавляем точные секунды майнера из mining_stats
-        for s in sessions:
-            uid = s.get('user_id')
-            # Переводим живые тики в секунды (1 тик синхронизации майнера = 30 секунд)
-            live_miner_seconds = s.get('miner_ticks', 0) * 30
-            
-            if uid:
-                c.execute(
-                    "SELECT COALESCE(SUM(duration_seconds),0) as total FROM mining_stats WHERE user_id = ? AND timestamp >= ?",
-                    (uid, today)
-                )
-                row = c.fetchone()
-                total_completed_sec = int(row['total']) if row else 0
-                
-                # ИСПРАВЛЕНИЕ БАГА С НУЛЕМ: Берем максимум между сохраненным временем завершенных сессий и живым временем
-                s['miner_seconds']   = max(total_completed_sec, live_miner_seconds)
-                s['scanner_seconds'] = s.get('scanner_minutes', 0) * 60
-            else:
-                s['miner_seconds']   = live_miner_seconds
-                s['scanner_seconds'] = s.get('scanner_minutes', 0) * 60
-
+        # Получаем последние 200 логов для этого юзера
+        c.execute("SELECT module, action, status, timestamp FROM activity_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT 200", (user_id,))
+        logs = [dict(r) for r in c.fetchall()]
         conn.close()
-        return jsonify({"status": "success", "activity": activity, "sessions": sessions})
+        return jsonify({"status": "success", "logs": logs})
     except Exception as e:
         return jsonify({"status": "error", "detail": str(e)}), 500
 
@@ -831,7 +773,7 @@ def admin_transactions():
     try:
         conn = get_db()
         c = get_cursor(conn)
-        c.execute("SELECT t.id, t.type, t.amount, t.status, t.description, t.timestamp, u.username FROM transactions t LEFT JOIN users u ON t.user_id = u.id ORDER BY t.timestamp DESC LIMIT 100")
+        c.execute("SELECT t.id, t.type, t.amount, t.status, t.description, t.timestamp, u.username FROM transactions t LEFT JOIN u ON t.user_id = u.id ORDER BY t.timestamp DESC LIMIT 100")
         txs = [dict(r) for r in c.fetchall()]
         conn.close()
         return jsonify({"status": "success", "transactions": txs})
