@@ -417,13 +417,15 @@
             #withdrawModal { align-items: center !important; }
             #withdrawModalInner {
                 border-radius: 20px !important;
-                margin: 16px !important;
+                margin: 16px auto !important;
+                height: auto !important;
                 max-height: 90vh !important;
             }
             #usdtDepositModal { align-items: center !important; }
             #usdtDepositModal > div {
                 border-radius: 20px !important;
                 margin: 16px auto !important;
+                height: auto !important;
                 max-height: 90vh !important;
             }
         }
@@ -930,7 +932,7 @@
     </div>
 
     <div id="usdtDepositModal" class="modal-backdrop" style="align-items:flex-end;" onclick="if(event.target===this)closeUSDTDepositModal()">
-        <div class="glass border border-slate-700 w-full" style="max-width:640px;margin:0 auto;border-radius:24px 24px 0 0;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;position:relative;">
+        <div class="glass border border-slate-700 w-full" style="max-width:640px;margin:0 auto;border-radius:24px 24px 0 0;height:92dvh;max-height:92dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;">
 
             <!-- Drag handle -->
             <div style="padding:10px 0 4px;display:flex;justify-content:center;flex-shrink:0;">
@@ -1032,7 +1034,7 @@
             </div>
 
             <!-- Скроллируемое тело -->
-            <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:16px 20px 28px;">
+            <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0;padding:16px 20px 40px;">
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 icon-gradient-1 rounded-2xl flex items-center justify-center mx-auto mb-3">
                         <i class="fas fa-coins text-3xl text-white"></i>
@@ -1089,7 +1091,7 @@
     <!-- ══════════════════════════════════════════════════ -->
     <div id="withdrawModal" class="modal-backdrop" style="align-items:flex-end;" onclick="if(event.target===this)closeWithdrawModal()">
         <div class="glass border border-slate-700 w-full" id="withdrawModalInner"
-             style="max-width:480px;margin:0 auto;border-radius:24px 24px 0 0;overflow:hidden;max-height:92vh;display:flex;flex-direction:column;">
+             style="max-width:480px;margin:0 auto;border-radius:24px 24px 0 0;overflow:hidden;height:92dvh;max-height:92dvh;display:flex;flex-direction:column;">
 
             <!-- Drag handle (мобайл) -->
             <div style="padding:10px 0 4px;display:flex;justify-content:center;flex-shrink:0;">
@@ -1097,7 +1099,7 @@
             </div>
 
             <!-- Шаг 1: Форма -->
-            <div id="withdrawStep1" style="display:flex;flex-direction:column;overflow:hidden;flex:1;">
+            <div id="withdrawStep1" style="display:flex;flex-direction:column;flex:1;min-height:0;">
                 <!-- Заголовок — фиксированный -->
                 <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(6,182,212,0.08));border-bottom:1px solid rgba(59,130,246,0.15);padding:16px 20px;flex-shrink:0;">
                     <div style="display:flex;align-items:center;gap:12px;">
@@ -1112,7 +1114,7 @@
                 </div>
 
                 <!-- Скроллируемое тело -->
-                <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:18px 20px 24px;">
+                <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0;padding:18px 20px 40px;">
                     <!-- Инфо о тарифе и минималке -->
                     <div id="withdrawPlanInfo" style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:12px 14px;margin-bottom:16px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
@@ -2835,6 +2837,9 @@ function scheduleWarnings() {
     let currentTicketId = null;
     let supportPollInterval = null;
     let lastSeenMessageCount = 0;
+    let defaultReplySent = false;      // флаг — дефолтный ответ уже был показан
+    let operatorJoinedShown = false;   // флаг — баннер «оператор присоединился» уже показан
+    let ticketClosed = false;          // флаг — тикет закрыт
 
     const SUPPORT_RESPONSES = {
         'пополн': 'Для пополнения баланса нажмите на ваш профиль (правый верхний угол) → «Пополнить». Мы принимаем USDT по сети TRC-20 (TRON). Средства зачисляются автоматически в течение 1–5 минут после подтверждения сети.',
@@ -2883,6 +2888,119 @@ function scheduleWarnings() {
         container.scrollTop = container.scrollHeight;
     }
 
+    // ── Баннер «оператор присоединился» ──
+    function appendOperatorJoined() {
+        if (operatorJoinedShown) return;
+        operatorJoinedShown = true;
+        const container = document.getElementById('supportMessages');
+        const div = document.createElement('div');
+        div.style.cssText = 'margin:10px 0;';
+        div.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(6,182,212,0.06));border:1px solid rgba(16,185,129,0.2);border-radius:14px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">👨‍💼</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:13px;font-weight:700;color:#f1f5f9;">Оператор Владислав</div>
+                    <div style="font-size:11px;color:#10b981;margin-top:1px;">✓ Присоединился к диалогу · Задавайте ваши вопросы</div>
+                </div>
+                <div style="font-size:9px;color:#334155;font-family:monospace;flex-shrink:0;">${nowTime()}</div>
+            </div>`;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        // Блокируем инпут бота — теперь отвечает живой оператор
+        document.getElementById('supportInput').placeholder = 'Напишите Владиславу...';
+    }
+
+    // ── Баннер «диалог закрыт» + звёзды ──
+    function appendTicketClosed() {
+        if (ticketClosed) return;
+        ticketClosed = true;
+        clearInterval(supportPollInterval);
+
+        const container = document.getElementById('supportMessages');
+
+        // Разделитель
+        const sep = document.createElement('div');
+        sep.style.cssText = 'display:flex;align-items:center;gap:8px;margin:14px 0 10px;';
+        sep.innerHTML = `<div style="flex:1;height:1px;background:rgba(239,68,68,0.15);"></div><span style="font-size:10px;color:#475569;font-family:monospace;white-space:nowrap;">ДИАЛОГ ЗАВЕРШЁН</span><div style="flex:1;height:1px;background:rgba(239,68,68,0.15);"></div>`;
+        container.appendChild(sep);
+
+        // Баннер закрытия
+        const closed = document.createElement('div');
+        closed.style.cssText = 'margin-bottom:12px;';
+        closed.innerHTML = `
+            <div style="padding:12px 14px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:14px;text-align:center;">
+                <div style="font-size:13px;font-weight:700;color:#fca5a5;margin-bottom:3px;">🔒 Оператор Владислав закрыл диалог</div>
+                <div style="font-size:11px;color:#475569;">Если вопрос не решён — начните новый диалог</div>
+            </div>`;
+        container.appendChild(closed);
+
+        // Форма оценки
+        const rating = document.createElement('div');
+        rating.innerHTML = `
+            <div style="padding:14px 16px;background:rgba(15,23,42,0.8);border:1px solid rgba(59,130,246,0.15);border-radius:16px;text-align:center;" id="ratingBlock">
+                <div style="font-size:13px;font-weight:700;color:#f1f5f9;margin-bottom:4px;">Оцените качество поддержки</div>
+                <div style="font-size:11px;color:#475569;margin-bottom:14px;">Ваш отзыв помогает нам стать лучше</div>
+                <div style="display:flex;justify-content:center;gap:8px;margin-bottom:12px;" id="starRow">
+                    ${[1,2,3,4,5].map(i => `<span data-star="${i}" onclick="rateStar(${i})" style="font-size:28px;cursor:pointer;filter:grayscale(1);opacity:0.4;transition:all 0.2s;user-select:none;" onmouseenter="hoverStars(${i})" onmouseleave="resetStarHover()">★</span>`).join('')}
+                </div>
+                <div style="font-size:11px;color:#475569;min-height:16px;" id="ratingLabel"></div>
+            </div>`;
+        container.appendChild(rating);
+        container.scrollTop = container.scrollHeight;
+
+        // Блокируем ввод
+        const input = document.getElementById('supportInput');
+        input.disabled = true;
+        input.placeholder = 'Диалог завершён';
+        input.style.opacity = '0.4';
+    }
+
+    const STAR_LABELS = ['', 'Плохо 😞', 'Неплохо 😐', 'Хорошо 🙂', 'Отлично 😊', 'Превосходно 🔥'];
+    let selectedRating = 0;
+
+    function hoverStars(n) {
+        document.querySelectorAll('#starRow span').forEach((s, i) => {
+            s.style.filter = i < n ? 'none' : 'grayscale(1)';
+            s.style.opacity = i < n ? '1' : '0.3';
+            s.style.transform = i < n ? 'scale(1.15)' : 'scale(1)';
+        });
+        document.getElementById('ratingLabel').textContent = STAR_LABELS[n];
+        document.getElementById('ratingLabel').style.color = '#f59e0b';
+    }
+
+    function resetStarHover() {
+        if (selectedRating > 0) { hoverStars(selectedRating); return; }
+        document.querySelectorAll('#starRow span').forEach(s => {
+            s.style.filter = 'grayscale(1)';
+            s.style.opacity = '0.4';
+            s.style.transform = 'scale(1)';
+        });
+        document.getElementById('ratingLabel').textContent = '';
+    }
+
+    function rateStar(n) {
+        selectedRating = n;
+        hoverStars(n);
+        // Отправляем оценку на сервер
+        fetch('/api/support/rate', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ ticket_id: currentTicketId, rating: n })
+        }).catch(() => {});
+
+        setTimeout(() => {
+            const block = document.getElementById('ratingBlock');
+            if (block) {
+                block.innerHTML = `
+                    <div style="padding:8px 0;text-align:center;">
+                        <div style="font-size:24px;margin-bottom:6px;">${n >= 4 ? '🎉' : n >= 3 ? '👍' : '🙏'}</div>
+                        <div style="font-size:13px;font-weight:700;color:#10b981;">Спасибо за оценку!</div>
+                        <div style="font-size:11px;color:#475569;margin-top:3px;">Вы поставили ${n} из 5 звёзд</div>
+                    </div>`;
+            }
+        }, 400);
+    }
+
     function showTyping() {
         const container = document.getElementById('supportMessages');
         const div = document.createElement('div');
@@ -2903,30 +3021,40 @@ function scheduleWarnings() {
         for (const [key, reply] of Object.entries(SUPPORT_RESPONSES)) {
             if (lower.includes(key)) return reply;
         }
-        // Дефолтный ответ
-        return 'Спасибо за ваш вопрос! Я передал его оператору поддержки. Ожидайте ответа в течение 5–10 минут. ⏳\n\nТакже вы можете воспользоваться быстрыми кнопками для получения ответов на частые вопросы.';
+        return null; // null = нет готового ответа
     }
 
     function sendSupportMsg() {
         const input = document.getElementById('supportInput');
         const text = input.value.trim();
-        if (!text) return;
+        if (!text || ticketClosed) return;
         input.value = '';
 
         appendSupportMsg(text, 'user');
 
+        const reply = getBotReply(text);
 
+        if (reply) {
+            // Есть конкретный ответ — показываем
+            clearTimeout(supportTypingTimeout);
+            showTyping();
+            supportTypingTimeout = setTimeout(() => {
+                hideTyping();
+                appendSupportMsg(reply, 'bot');
+            }, 800 + Math.random() * 600);
+        } else if (!defaultReplySent) {
+            // Дефолтный ответ — только один раз
+            defaultReplySent = true;
+            clearTimeout(supportTypingTimeout);
+            showTyping();
+            supportTypingTimeout = setTimeout(() => {
+                hideTyping();
+                appendSupportMsg('Ваш вопрос принят! ⏳ Оператор ответит в течение 5–10 минут.', 'bot');
+            }, 900 + Math.random() * 500);
+        }
+        // Если defaultReplySent = true и нет готового ответа — бот молчит
 
-        // Показываем индикатор печати
-        clearTimeout(supportTypingTimeout);
-        showTyping();
-        const delay = 900 + Math.random() * 800;
-        supportTypingTimeout = setTimeout(() => {
-            hideTyping();
-            appendSupportMsg(getBotReply(text), 'bot');
-        }, delay);
-
-        // Отправляем реальное сообщение на сервер
+        // Отправляем на сервер
         fetch('/api/support/message', {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
@@ -2946,7 +3074,7 @@ function scheduleWarnings() {
 
     function startAdminReplyPolling() {
         clearInterval(supportPollInterval);
-        supportPollInterval = setInterval(pollAdminReplies, 5000);
+        supportPollInterval = setInterval(pollAdminReplies, 4000);
     }
 
     async function pollAdminReplies() {
@@ -2956,15 +3084,23 @@ function scheduleWarnings() {
             const data = await res.json();
             const messages = data.messages || [];
 
+            // Проверяем статус тикета
+            if (data.ticket_status === 'closed' && !ticketClosed) {
+                appendTicketClosed();
+                return;
+            }
+
             // Показываем только новые сообщения от admin
             const adminMsgs = messages.filter(m => m.sender === 'admin');
             if (adminMsgs.length > lastSeenMessageCount) {
                 const newMsgs = adminMsgs.slice(lastSeenMessageCount);
+                lastSeenMessageCount = adminMsgs.length;
+
                 newMsgs.forEach(m => {
-                    // Убираем бота-ответ если он был
+                    // Первый ответ от admin — показываем баннер присоединения
+                    if (!operatorJoinedShown) appendOperatorJoined();
                     appendSupportMsg(m.message, 'bot');
                 });
-                lastSeenMessageCount = adminMsgs.length;
 
                 // Бейдж если чат закрыт
                 if (!supportOpen) {
@@ -2975,7 +3111,7 @@ function scheduleWarnings() {
         } catch(e) {}
     }
 
-    // Показываем бейдж через 3 секунды (входящее «сообщение» от поддержки)
+    // Показываем бейдж через 3 секунды
     setTimeout(() => {
         if (!supportOpen) {
             document.getElementById('supportBadge').style.display = 'flex';
