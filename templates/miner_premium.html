@@ -1740,9 +1740,28 @@
             sessionTimerInterval = null;
             document.getElementById('pauseBtn').classList.add('hidden');
             document.getElementById('resumeBtn').classList.remove('hidden');
+            
+            // Сохраняем заработок перед паузой
+            const delta = miningBalance - lastSyncedMiningBalance;
+            if (delta > 0) {
+                lastSyncedMiningBalance = miningBalance;
+                fetch('/api/miner/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ earned: delta, plan: activePlan })
+                }).catch(() => {});
+            }
+
             const ts = new Date().toTimeString().slice(0,8);
             addLog(`[${ts}] ⏸ Mining paused. Earned so far: $${miningBalance.toFixed(4)}`, 'warn');
             saveSession();
+
+            // ОТПРАВЛЯЕМ ЛОГ "ПАУЗА" В АДМИНКУ
+            fetch('/api/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ module: 'MINER_NODE', action: 'SESSION_PAUSE' })
+            }).catch(() => {});
         }
 
         function resumeMining() {
@@ -1754,6 +1773,13 @@
             addLog(`[${ts}] ▶ Mining resumed.`, 'fix');
             miningLoop();
             sessionTimerLoop();
+
+            // ОТПРАВЛЯЕМ ЛОГ "ВОЗОБНОВЛЕНИЕ" В АДМИНКУ
+            fetch('/api/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ module: 'MINER_NODE', action: 'SESSION_RESUME' })
+            }).catch(() => {});
         }
 
         function clearTerminal() {
