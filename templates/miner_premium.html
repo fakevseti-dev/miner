@@ -1980,6 +1980,13 @@ function scheduleWarnings() {
         }
 
         function logout() {
+            // Очищаем всю память браузера от старого аккаунта перед выходом
+            localStorage.removeItem('miner_session_v2');
+            localStorage.removeItem('miner_session_done');
+            localStorage.removeItem('miner_session_done_balance');
+            localStorage.removeItem('selectedPlan');
+            localStorage.removeItem('scannerTotalMinutes');
+            
             window.location.href = '/logout';
         }
 
