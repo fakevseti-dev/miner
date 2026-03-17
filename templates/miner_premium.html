@@ -60,13 +60,22 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(5px);
-            z-index: 99999; /* ИСПРАВЛЕНО: теперь модалки 100% перекрывают верхнее меню */
+            z-index: 99999;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal-backdrop.show {
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Блокировка скролла страницы когда модалка открыта */
+        body.modal-open {
+            overflow: hidden !important;
+            position: fixed;
+            width: 100%;
         }
 
         .icon-gradient-1 {
@@ -409,6 +418,12 @@
             #withdrawModalInner {
                 border-radius: 20px !important;
                 margin: 16px !important;
+                max-height: 90vh !important;
+            }
+            #usdtDepositModal { align-items: center !important; }
+            #usdtDepositModal > div {
+                border-radius: 20px !important;
+                margin: 16px auto !important;
                 max-height: 90vh !important;
             }
         }
@@ -914,9 +929,15 @@
         </div>
     </div>
 
-    <div id="usdtDepositModal" class="modal-backdrop">
-        <div class="glass rounded-2xl border border-slate-700 p-8 max-w-2xl w-full mx-4" style="position:relative;overflow:visible;">
+    <div id="usdtDepositModal" class="modal-backdrop" style="align-items:flex-end;" onclick="if(event.target===this)closeUSDTDepositModal()">
+        <div class="glass border border-slate-700 w-full" style="max-width:640px;margin:0 auto;border-radius:24px 24px 0 0;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;position:relative;">
 
+            <!-- Drag handle -->
+            <div style="padding:10px 0 4px;display:flex;justify-content:center;flex-shrink:0;">
+                <div style="width:40px;height:4px;background:rgba(148,163,184,0.2);border-radius:2px;"></div>
+            </div>
+
+            <!-- TX Processing Overlay — поверх всего внутри модалки -->
             <div class="tx-overlay" id="txProcessingOverlay">
                 <div class="tx-header">
                     <div class="tx-ring-wrap">
@@ -1009,53 +1030,56 @@
                     <span id="txStatusMsg">Ожидание подтверждений от SR-нод TRON...</span>
                 </div>
             </div>
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 icon-gradient-1 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-coins text-4xl text-white"></i>
-                </div>
-                <h2 class="text-3xl font-bold mb-2">Пополнить баланс</h2>
-                <p class="text-slate-400">Отправьте USDT (TRC-20) на указанный адрес</p>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="flex justify-center items-start">
-                    <div class="qr-container" id="qrCodeContainer"></div>
+            <!-- Скроллируемое тело -->
+            <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:16px 20px 28px;">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 icon-gradient-1 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-coins text-3xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-1">Пополнить баланс</h2>
+                    <p class="text-slate-400 text-sm">Отправьте USDT (TRC-20) на указанный адрес</p>
                 </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-sm text-slate-400 mb-2">Сеть</p>
-                        <div class="glass rounded-lg p-3 border border-slate-700">
-                            <p class="font-bold flex items-center gap-2">
-                                <i class="fas fa-link text-blue-400"></i> TRON (TRC-20)
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                    <div class="flex justify-center items-start">
+                        <div class="qr-container" id="qrCodeContainer"></div>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-sm text-slate-400 mb-2">Сеть</p>
+                            <div class="glass rounded-lg p-3 border border-slate-700">
+                                <p class="font-bold flex items-center gap-2">
+                                    <i class="fas fa-link text-blue-400"></i> TRON (TRC-20)
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-400 mb-2">Адрес кошелька</p>
+                            <div class="glass rounded-lg p-3 border border-slate-700 flex items-center justify-between">
+                                <p class="font-mono text-sm break-all" id="walletAddress">TQCz49r91qcFJ8wvcKxJqRNWJNSH24YqcK</p>
+                                <button onclick="copyAddress()" class="copy-button ml-2 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-bold flex-shrink-0">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+                            <p class="text-sm text-blue-300 flex items-start gap-2">
+                                <i class="fas fa-info-circle mt-0.5 flex-shrink-0"></i>
+                                <span>Отправляйте только USDT. Минимум: $1. Баланс пополнится автоматически в течение 5 минут.</span>
                             </p>
                         </div>
                     </div>
-                    <div>
-                        <p class="text-sm text-slate-400 mb-2">Адрес кошелька</p>
-                        <div class="glass rounded-lg p-3 border border-slate-700 flex items-center justify-between">
-                            <p class="font-mono text-sm break-all" id="walletAddress">TQCz49r91qcFJ8wvcKxJqRNWJNSH24YqcK</p>
-                            <button onclick="copyAddress()" class="copy-button ml-2 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-bold">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
-                        <p class="text-sm text-blue-300 flex items-start gap-2">
-                            <i class="fas fa-info-circle mt-0.5 flex-shrink-0"></i>
-                            <span>Отправляйте только USDT. Минимум: $1. Баланс пополнится автоматически в течение 5 минут.</span>
-                        </p>
-                    </div>
                 </div>
-            </div>
 
-            <div class="flex gap-3">
-                <button onclick="copyAddress()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition flex items-center justify-center gap-2">
-                    <i class="fas fa-copy"></i> Копировать адрес
-                </button>
-                <button onclick="closeUSDTDepositModal()" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
-                    Готово
-                </button>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <button onclick="copyAddress()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition flex items-center justify-center gap-2">
+                        <i class="fas fa-copy"></i> Копировать адрес
+                    </button>
+                    <button onclick="closeUSDTDepositModal()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+                        Готово
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1374,6 +1398,7 @@
 
             if (currentBalance <= 0 && !hasPlan) {
                 document.getElementById('depositWarningModal').classList.add('show');
+                lockBodyScroll();
             } else {
                 showSection('planSection');
             }
@@ -1402,6 +1427,7 @@
                     showMessage('❌ Недостаточно средств!', 'error');
                     showSection('menuSection');
                     document.getElementById('depositWarningModal').classList.add('show');
+                    lockBodyScroll();
                     return;
                 }
 
@@ -1536,36 +1562,59 @@
             }
         });
 
+        // ── SCROLL LOCK ──
+        let _scrollY = 0;
+        function lockBodyScroll() {
+            _scrollY = window.scrollY;
+            document.body.style.top = `-${_scrollY}px`;
+            document.body.classList.add('modal-open');
+        }
+        function unlockBodyScroll() {
+            document.body.classList.remove('modal-open');
+            document.body.style.top = '';
+            window.scrollTo(0, _scrollY);
+        }
+        function anyModalOpen() {
+            return !!document.querySelector('.modal-backdrop.show');
+        }
+
         function openUSDTDepositModal() {
             document.getElementById('depositWarningModal').classList.remove('show');
             document.getElementById('usdtDepositModal').classList.add('show');
+            lockBodyScroll();
             hideTxProcessing();
             generateQRCode();
         }
 
         function closeUSDTDepositModal() {
             document.getElementById('usdtDepositModal').classList.remove('show');
+            if (!anyModalOpen()) unlockBodyScroll();
         }
 
         function closeDepositWarningModal() {
             document.getElementById('depositWarningModal').classList.remove('show');
+            if (!anyModalOpen()) unlockBodyScroll();
         }
 
         function openWithdrawModal() {
             document.getElementById('withdrawModal').classList.add('show');
+            lockBodyScroll();
         }
 
         function closeWithdrawModal() {
             document.getElementById('withdrawModal').classList.remove('show');
+            if (!anyModalOpen()) unlockBodyScroll();
         }
 
         function openTransactionsModal() {
             document.getElementById('transactionsModal').classList.add('show');
+            lockBodyScroll();
             loadTransactions();
         }
 
         function closeTransactionsModal() {
             document.getElementById('transactionsModal').classList.remove('show');
+            if (!anyModalOpen()) unlockBodyScroll();
         }
 
         // QR код
@@ -2391,10 +2440,12 @@ function scheduleWarnings() {
             });
 
             document.getElementById('changePlanModal').classList.add('show');
+            lockBodyScroll();
         }
 
         function closeChangePlanModal() {
             document.getElementById('changePlanModal').classList.remove('show');
+            if (!anyModalOpen()) unlockBodyScroll();
         }
 
         function selectChangePlan(planName, planPrice) {
@@ -2975,10 +3026,12 @@ function scheduleWarnings() {
         document.getElementById('withdrawWalletError').style.display = 'none';
 
         document.getElementById('withdrawModal').classList.add('show');
+        lockBodyScroll();
     }
 
     function closeWithdrawModal() {
         document.getElementById('withdrawModal').classList.remove('show');
+        if (!anyModalOpen()) unlockBodyScroll();
     }
 
     function validateWithdrawAmount() {
