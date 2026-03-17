@@ -2522,17 +2522,22 @@ function scheduleWarnings() {
             flex-shrink: 0;
         }
         .quick-btn {
-            padding: 5px 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
             background: rgba(59,130,246,0.08);
             border: 1px solid rgba(59,130,246,0.2);
             border-radius: 20px;
             font-size: 11px;
+            font-weight: 600;
             color: #60a5fa;
             cursor: pointer;
             transition: all 0.2s;
             font-family: 'Sora', sans-serif;
         }
-        .quick-btn:hover { background: rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.4); }
+        .quick-btn:hover { background: rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.5); color: #93c5fd; }
+        .quick-btn i { font-size: 11px; opacity: 0.85; }
 
         .support-input-row {
             padding: 12px 14px;
@@ -2639,11 +2644,11 @@ function scheduleWarnings() {
         </div>
 
         <div class="support-quick-btns" id="supportQuickBtns">
-            <button class="quick-btn" onclick="sendQuickMsg('Как пополнить баланс?')">💳 Пополнение</button>
-            <button class="quick-btn" onclick="sendQuickMsg('Как вывести средства?')">📤 Вывод средств</button>
-            <button class="quick-btn" onclick="sendQuickMsg('Почему майнинг остановился?')">⛏️ Майнинг</button>
-            <button class="quick-btn" onclick="sendQuickMsg('Как выбрать тариф?')">📦 Тарифы</button>
-            <button class="quick-btn" onclick="sendQuickMsg('Сколько ждать вывода?')">⏱️ Сроки</button>
+            <button class="quick-btn" onclick="sendQuickMsg('Как пополнить баланс?')"><i class="fas fa-credit-card"></i> Пополнение</button>
+            <button class="quick-btn" onclick="sendQuickMsg('Как вывести средства?')"><i class="fas fa-arrow-up-right-from-square"></i> Вывод средств</button>
+            <button class="quick-btn" onclick="sendQuickMsg('Почему майнинг остановился?')"><i class="fas fa-microchip"></i> Майнинг</button>
+            <button class="quick-btn" onclick="sendQuickMsg('Как выбрать тариф?')"><i class="fas fa-layer-group"></i> Тарифы</button>
+            <button class="quick-btn" onclick="sendQuickMsg('Сколько ждать вывода?')"><i class="fas fa-clock"></i> Сроки</button>
         </div>
 
         <div class="support-input-row">
@@ -2744,8 +2749,7 @@ function scheduleWarnings() {
 
         appendSupportMsg(text, 'user');
 
-        // Скрываем быстрые кнопки после первого сообщения
-        document.getElementById('supportQuickBtns').style.display = 'none';
+
 
         // Показываем индикатор печати
         clearTimeout(supportTypingTimeout);
