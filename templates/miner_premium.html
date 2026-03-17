@@ -394,6 +394,25 @@
         }
         .sc-dot { width: 6px; height: 6px; border-radius: 50%; background: #ef4444; animation: dotPulse 1.2s ease infinite; }
 
+        /* Withdraw modal — bottom sheet анимация */
+        #withdrawModal.show #withdrawModalInner {
+            animation: slideUpSheet 0.32s cubic-bezier(0.32,0.72,0,1);
+        }
+        @keyframes slideUpSheet {
+            from { transform: translateY(100%); opacity: 0.5; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
+        /* На десктопе — центрируем как обычную модалку */
+        @media (min-width: 641px) {
+            #withdrawModal { align-items: center !important; }
+            #withdrawModalInner {
+                border-radius: 20px !important;
+                margin: 16px !important;
+                max-height: 90vh !important;
+            }
+        }
+
         /* ══════════════════════════════════════
            MOBILE RESPONSIVE — miner_premium
         ══════════════════════════════════════ */
@@ -1044,58 +1063,66 @@
     <!-- ══════════════════════════════════════════════════ -->
     <!--  WITHDRAW MODAL — полный сценарий                  -->
     <!-- ══════════════════════════════════════════════════ -->
-    <div id="withdrawModal" class="modal-backdrop">
-        <div class="glass rounded-2xl border border-slate-700 max-w-md w-full mx-4" style="overflow:hidden;">
+    <div id="withdrawModal" class="modal-backdrop" style="align-items:flex-end;" onclick="if(event.target===this)closeWithdrawModal()">
+        <div class="glass border border-slate-700 w-full" id="withdrawModalInner"
+             style="max-width:480px;margin:0 auto;border-radius:24px 24px 0 0;overflow:hidden;max-height:92vh;display:flex;flex-direction:column;">
+
+            <!-- Drag handle (мобайл) -->
+            <div style="padding:10px 0 4px;display:flex;justify-content:center;flex-shrink:0;">
+                <div style="width:40px;height:4px;background:rgba(148,163,184,0.2);border-radius:2px;"></div>
+            </div>
 
             <!-- Шаг 1: Форма -->
-            <div id="withdrawStep1">
-                <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(6,182,212,0.08));border-bottom:1px solid rgba(59,130,246,0.15);padding:24px 28px 20px;">
-                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:4px;">
-                        <div style="width:44px;height:44px;background:linear-gradient(135deg,#3b82f6,#06b6d4);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fas fa-paper-plane" style="color:white;font-size:18px;"></i>
+            <div id="withdrawStep1" style="display:flex;flex-direction:column;overflow:hidden;flex:1;">
+                <!-- Заголовок — фиксированный -->
+                <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(6,182,212,0.08));border-bottom:1px solid rgba(59,130,246,0.15);padding:16px 20px;flex-shrink:0;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:40px;height:40px;background:linear-gradient(135deg,#3b82f6,#06b6d4);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fas fa-paper-plane" style="color:white;font-size:16px;"></i>
                         </div>
                         <div>
-                            <div style="font-size:20px;font-weight:800;color:#f1f5f9;">Вывод средств</div>
-                            <div style="font-size:12px;color:#475569;">USDT · TRC-20 · TRON Network</div>
+                            <div style="font-size:17px;font-weight:800;color:#f1f5f9;">Вывод средств</div>
+                            <div style="font-size:11px;color:#475569;">USDT · TRC-20 · TRON Network</div>
                         </div>
                     </div>
                 </div>
 
-                <div style="padding:24px 28px;">
+                <!-- Скроллируемое тело -->
+                <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:18px 20px 24px;">
                     <!-- Инфо о тарифе и минималке -->
-                    <div id="withdrawPlanInfo" style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:14px 16px;margin-bottom:20px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <div id="withdrawPlanInfo" style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:12px 14px;margin-bottom:16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
                             <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-family:monospace;">Ваш тариф</span>
                             <span style="font-size:12px;font-weight:700;color:#60a5fa;font-family:monospace;" id="withdrawPlanName">—</span>
                         </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
                             <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-family:monospace;">Мин. вывод</span>
-                            <span style="font-size:14px;font-weight:800;color:#10b981;font-family:monospace;" id="withdrawMinLabel">$100.00</span>
+                            <span style="font-size:13px;font-weight:800;color:#10b981;font-family:monospace;" id="withdrawMinLabel">$100.00</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;">
                             <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-family:monospace;">Доступно</span>
-                            <span style="font-size:14px;font-weight:800;color:#f59e0b;font-family:monospace;" id="withdrawAvailable">$0.00</span>
+                            <span style="font-size:13px;font-weight:800;color:#f59e0b;font-family:monospace;" id="withdrawAvailable">$0.00</span>
                         </div>
                     </div>
 
                     <!-- Поле суммы -->
-                    <div style="margin-bottom:16px;">
-                        <label style="font-size:13px;color:#94a3b8;margin-bottom:8px;display:block;font-weight:600;">Сумма вывода (USD)</label>
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:12px;color:#94a3b8;margin-bottom:7px;display:block;font-weight:600;">Сумма вывода (USD)</label>
                         <div style="position:relative;">
                             <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#475569;font-size:16px;font-weight:700;">$</span>
                             <input type="number" id="withdrawAmount" placeholder="0.00"
                                    oninput="validateWithdrawAmount()"
-                                   style="width:100%;padding:14px 14px 14px 32px;background:#0f172a;border:1px solid rgba(71,85,105,0.6);border-radius:10px;color:#f1f5f9;font-size:16px;font-weight:700;font-family:monospace;outline:none;box-sizing:border-box;"
+                                   style="width:100%;padding:13px 14px 13px 32px;background:#0f172a;border:1px solid rgba(71,85,105,0.6);border-radius:10px;color:#f1f5f9;font-size:16px;font-weight:700;font-family:monospace;outline:none;box-sizing:border-box;"
                                    onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='rgba(71,85,105,0.6)'">
                         </div>
                         <div id="withdrawAmountError" style="display:none;font-size:11px;color:#ef4444;margin-top:6px;padding:6px 10px;background:rgba(239,68,68,0.08);border-radius:6px;font-family:monospace;"></div>
                     </div>
 
                     <!-- Сеть -->
-                    <div style="margin-bottom:16px;">
-                        <label style="font-size:13px;color:#94a3b8;margin-bottom:8px;display:block;font-weight:600;">Сеть вывода</label>
-                        <div style="padding:12px 14px;background:#0f172a;border:1px solid rgba(59,130,246,0.3);border-radius:10px;display:flex;align-items:center;gap:10px;">
-                            <div style="width:28px;height:28px;background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:12px;color:#94a3b8;margin-bottom:7px;display:block;font-weight:600;">Сеть вывода</label>
+                        <div style="padding:11px 14px;background:#0f172a;border:1px solid rgba(59,130,246,0.3);border-radius:10px;display:flex;align-items:center;gap:10px;">
+                            <div style="width:26px;height:26px;background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                                 <span style="font-size:10px;font-weight:800;color:white;">T</span>
                             </div>
                             <div>
@@ -1106,38 +1133,37 @@
                     </div>
 
                     <!-- Адрес кошелька -->
-                    <div style="margin-bottom:20px;">
-                        <label style="font-size:13px;color:#94a3b8;margin-bottom:8px;display:block;font-weight:600;">Адрес TRC-20 кошелька</label>
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:12px;color:#94a3b8;margin-bottom:7px;display:block;font-weight:600;">Адрес TRC-20 кошелька</label>
                         <input type="text" id="walletAddressWithdraw" placeholder="TRC20 адрес (начинается с T...)"
-                               style="width:100%;padding:13px 14px;background:#0f172a;border:1px solid rgba(71,85,105,0.6);border-radius:10px;color:#f1f5f9;font-size:13px;font-family:monospace;outline:none;box-sizing:border-box;"
+                               style="width:100%;padding:12px 14px;background:#0f172a;border:1px solid rgba(71,85,105,0.6);border-radius:10px;color:#f1f5f9;font-size:14px;font-family:monospace;outline:none;box-sizing:border-box;"
                                onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='rgba(71,85,105,0.6)'">
                         <div id="withdrawWalletError" style="display:none;font-size:11px;color:#ef4444;margin-top:6px;padding:6px 10px;background:rgba(239,68,68,0.08);border-radius:6px;font-family:monospace;"></div>
                     </div>
 
                     <!-- Предупреждение -->
-                    <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 14px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;">
-                        <i class="fas fa-exclamation-triangle" style="color:#f59e0b;font-size:13px;margin-top:1px;flex-shrink:0;"></i>
+                    <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:11px 14px;margin-bottom:18px;display:flex;gap:10px;align-items:flex-start;">
+                        <i class="fas fa-exclamation-triangle" style="color:#f59e0b;font-size:12px;margin-top:2px;flex-shrink:0;"></i>
                         <p style="font-size:11px;color:#92400e;line-height:1.5;">Убедитесь в правильности адреса. Транзакции в сети TRON необратимы. Вывод обрабатывается вручную в течение 24 часов.</p>
                     </div>
 
-                    <div style="display:flex;gap:10px;">
+                    <!-- Кнопки -->
+                    <div style="display:flex;flex-direction:column;gap:8px;">
                         <button onclick="submitWithdraw()" id="withdrawSubmitBtn"
-                                style="flex:1;padding:14px;background:linear-gradient(135deg,#3b82f6,#06b6d4);border:none;border-radius:10px;font-weight:800;color:white;font-size:14px;cursor:pointer;transition:opacity 0.2s;"
-                                onmouseenter="this.style.opacity='0.9'" onmouseleave="this.style.opacity='1'">
+                                style="width:100%;padding:14px;background:linear-gradient(135deg,#3b82f6,#06b6d4);border:none;border-radius:10px;font-weight:800;color:white;font-size:14px;cursor:pointer;">
                             <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Отправить заявку
                         </button>
                         <button onclick="closeWithdrawModal()"
-                                style="padding:14px 18px;background:rgba(71,85,105,0.3);border:1px solid rgba(71,85,105,0.4);border-radius:10px;font-weight:600;color:#94a3b8;font-size:14px;cursor:pointer;transition:all 0.2s;"
-                                onmouseenter="this.style.background='rgba(71,85,105,0.5)'" onmouseleave="this.style.background='rgba(71,85,105,0.3)'">
+                                style="width:100%;padding:13px;background:rgba(71,85,105,0.2);border:1px solid rgba(71,85,105,0.3);border-radius:10px;font-weight:600;color:#94a3b8;font-size:14px;cursor:pointer;">
                             Отмена
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Шаг 2: Подтверждение / Обработка -->
-            <div id="withdrawStep2" style="display:none;padding:40px 28px;text-align:center;">
-                <div id="withdrawProcessingIcon" style="width:72px;height:72px;margin:0 auto 20px;position:relative;">
+            <!-- Шаг 2: Обработка -->
+            <div id="withdrawStep2" style="display:none;padding:48px 28px;text-align:center;flex:1;">
+                <div style="width:72px;height:72px;margin:0 auto 20px;position:relative;">
                     <div style="position:absolute;inset:0;border-radius:50%;border:3px solid rgba(59,130,246,0.12);border-top-color:#3b82f6;border-right-color:#06b6d4;animation:txSpin 1.1s linear infinite;"></div>
                     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;">⏳</div>
                 </div>
@@ -1146,19 +1172,19 @@
             </div>
 
             <!-- Шаг 3: Успех -->
-            <div id="withdrawStep3" style="display:none;padding:40px 28px;text-align:center;">
-                <div style="width:72px;height:72px;margin:0 auto 20px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(6,182,212,0.1));border:2px solid rgba(16,185,129,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 30px rgba(16,185,129,0.15);">✅</div>
-                <div style="font-size:20px;font-weight:800;color:#10b981;margin-bottom:8px;">Заявка принята!</div>
-                <div style="font-size:13px;color:#64748b;margin-bottom:24px;line-height:1.6;">Ваша заявка на вывод поставлена в очередь.<br>Обработка до <strong style="color:#94a3b8;">24 часов</strong>.</div>
+            <div id="withdrawStep3" style="display:none;padding:32px 20px;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;">
+                <div style="width:64px;height:64px;margin:0 auto 16px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(6,182,212,0.1));border:2px solid rgba(16,185,129,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;">✅</div>
+                <div style="font-size:18px;font-weight:800;color:#10b981;margin-bottom:8px;">Заявка принята!</div>
+                <div style="font-size:13px;color:#64748b;margin-bottom:20px;line-height:1.6;">Ваша заявка на вывод поставлена в очередь.<br>Обработка до <strong style="color:#94a3b8;">24 часов</strong>.</div>
 
-                <div style="background:rgba(15,23,42,0.8);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:16px;margin-bottom:24px;text-align:left;">
+                <div style="background:rgba(15,23,42,0.8);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;">
                     <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
                         <span style="font-size:11px;color:#475569;font-family:monospace;">СУММА</span>
                         <span style="font-size:14px;font-weight:800;color:#10b981;font-family:monospace;" id="withdrawConfirmAmount">$0.00</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
                         <span style="font-size:11px;color:#475569;font-family:monospace;">АДРЕС</span>
-                        <span style="font-size:11px;font-weight:600;color:#94a3b8;font-family:monospace;max-width:200px;overflow:hidden;text-overflow:ellipsis;" id="withdrawConfirmWallet">—</span>
+                        <span style="font-size:11px;font-weight:600;color:#94a3b8;font-family:monospace;max-width:180px;overflow:hidden;text-overflow:ellipsis;" id="withdrawConfirmWallet">—</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;">
                         <span style="font-size:11px;color:#475569;font-family:monospace;">СТАТУС</span>
