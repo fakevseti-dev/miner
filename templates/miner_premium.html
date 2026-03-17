@@ -2226,5 +2226,26 @@ function scheduleWarnings() {
         startNotificationPolling();
         startPing();
     </script>
+    // Запуск инициализации при загрузке страницы
+        loadProfile();
+        startNotificationPolling();
+        startPing();
+    </script>
+
+    <div id="supportBtn" style="z-index: 999999;" class="fixed bottom-6 right-6 ...">
+        ... (код кнопки) ...
+    </div>
+
+    <div id="supportChat" style="z-index: 999999;" class="fixed bottom-24 right-6 ...">
+        ... (код окна чата) ...
+    </div>
+
+    <script>
+        function toggleSupport() {
+            ... (код функций чата) ...
+        }
+    </script>
+    </body>
+</html>
 </body>
 </html>
