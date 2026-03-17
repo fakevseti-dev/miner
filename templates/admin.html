@@ -1326,11 +1326,22 @@ async function loadTransactions() {
         const tbody = document.getElementById('transactions-table');
         if (!txs.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="7">Нет транзакций</td></tr>'; return; }
 
-        const typeLabel = { deposit:'Пополнение', withdraw:'Вывод', plan_purchase:'Покупка плана', admin_credit:'Начисление' };
+        const typeLabel = { deposit:'Пополнение', withdraw:'Вывод средств', plan_purchase:'Покупка плана', admin_credit:'Начисление' };
         const typeBadge = { deposit:'badge-green', withdraw:'badge-amber', plan_purchase:'badge-blue', admin_credit:'badge-purple' };
-        const statusBadge = { completed:'badge-green', pending:'badge-amber', failed:'badge-red' };
+        const statusBadge = { completed:'badge-green', pending:'badge-amber', failed:'badge-red', rejected:'badge-red' };
+        const statusText = { completed:'✅ Одобрен', pending:'⏳ Ожидает', failed:'❌ Ошибка', rejected:'❌ Отклонен' };
 
-        tbody.innerHTML = txs.map(t => `
+        tbody.innerHTML = txs.map(t => {
+            let actionHtml = '';
+            // Показываем кнопки только для заявок на вывод, которые еще ожидают
+            if (t.type === 'withdraw' && t.status === 'pending') {
+                actionHtml = `<div style="display:flex;gap:6px;margin-top:8px;">
+                    <button class="action-btn action-btn-fund" onclick="handleTx(${t.id}, 'approve')" style="font-size:10px;padding:4px 8px">Одобрить</button>
+                    <button class="action-btn action-btn-ban" onclick="handleTx(${t.id}, 'reject')" style="font-size:10px;padding:4px 8px">Отклонить</button>
+                </div>`;
+            }
+
+            return `
             <tr>
                 <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">#${t.id}</td>
                 <td><div class="user-cell">
@@ -1339,55 +1350,29 @@ async function loadTransactions() {
                 </div></td>
                 <td><span class="badge ${typeBadge[t.type]||'badge-blue'}">${typeLabel[t.type]||t.type}</span></td>
                 <td class="balance-cell" style="color:${t.type==='withdraw'?'var(--amber)':'var(--green)'}">${t.type==='withdraw'?'-':'+'} ${fmt(t.amount)}</td>
-                <td><span class="badge ${statusBadge[t.status]||'badge-amber'}">${t.status||'—'}</span></td>
-                <td style="font-size:12px;color:var(--text-dim);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.description||'—'}</td>
+                <td>
+                    <span class="badge ${statusBadge[t.status]||'badge-amber'}">${statusText[t.status]||t.status}</span>
+                    ${actionHtml}
+                </td>
+                <td style="font-size:12px;color:var(--text-dim);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.description||'—'}">${t.description||'—'}</td>
                 <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${fmtDate(t.timestamp)}</td>
             </tr>
-        `).join('');
+        `}).join('');
     } catch(e) {}
 }
 
-// ── FUND MODAL ──
-function openFundModal(userId, username, balance) {
-    currentFundUserId = userId;
-    document.getElementById('fund-avatar').textContent = userInitial(username);
-    document.getElementById('fund-avatar').style.background = `linear-gradient(135deg, ${userColor(username)}, ${userColor(username+'1')})`;
-    document.getElementById('fund-username').textContent = username;
-    document.getElementById('fund-balance-info').textContent = 'Текущий баланс: ' + fmt(balance);
-    document.getElementById('fund-amount').value = '';
-    document.getElementById('fund-comment').value = '';
-    document.getElementById('fundModal').classList.add('open');
-    setTimeout(() => document.getElementById('fund-amount').focus(), 300);
-}
-
-function closeFundModal() {
-    document.getElementById('fundModal').classList.remove('open');
-    currentFundUserId = null;
-}
-
-async function submitFund() {
-    const amount = parseFloat(document.getElementById('fund-amount').value);
-    const comment = document.getElementById('fund-comment').value.trim();
-
-    if (!amount || amount <= 0) { showNotif('error', 'Ошибка', 'Введите корректную сумму'); return; }
-    if (!currentFundUserId) return;
-
+async function handleTx(txId, action) {
+    if (!confirm(`Вы уверены, что хотите ${action === 'approve' ? 'ОДОБРИТЬ' : 'ОТКЛОНИТЬ'} этот вывод средств?`)) return;
     try {
-        const data = await api('/api/admin/fund-user', 'POST', {
-            user_id: currentFundUserId,
-            amount,
-            comment: comment || 'Начисление от администратора'
-        });
-
+        const data = await api(`/api/admin/transaction/${txId}/${action}`, 'POST');
         if (data.status === 'success') {
-            closeFundModal();
-            showNotif('success', 'Баланс начислен', `${fmt(amount)} успешно зачислено пользователю`);
-            refreshData();
+            showNotif('success', 'Успешно', `Заявка на вывод ${action === 'approve' ? 'одобрена' : 'отклонена'}`);
+            loadTransactions(); 
         } else {
-            showNotif('error', 'Ошибка', data.message || 'Не удалось начислить');
+            showNotif('error', 'Ошибка', data.message || 'Не удалось обработать заявку');
         }
     } catch(e) {
-        showNotif('error', 'Ошибка сети', 'Проверьте подключение');
+        showNotif('error', 'Ошибка', 'Ошибка соединения с сервером');
     }
 }
 
