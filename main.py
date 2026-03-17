@@ -13,6 +13,7 @@ app = Flask(__name__)
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 PORT = int(os.environ.get('PORT', 5000))
 
+# Получаем URL базы из настроек Render. Если его нет — используем sqlite
 DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///data/crypto.db')
 DB_PATH = 'data/crypto.db'
 
@@ -29,17 +30,20 @@ os.makedirs('logs', exist_ok=True)
 IS_SQLITE = DATABASE_URL.startswith('sqlite')
 
 def get_db():
+    """Универсальное подключение к DB (SQLite или PostgreSQL)"""
     if IS_SQLITE:
         db_file = DATABASE_URL.replace('sqlite:///', '')
         conn = sqlite3.connect(db_file)
         conn.row_factory = sqlite3.Row
     else:
         url = DATABASE_URL.replace("postgres://", "postgresql://")
+        # Если URL содержит 'internal', отключаем требование SSL
         ssl_mode = 'prefer' if 'internal' in url else 'require'
         conn = psycopg2.connect(url, sslmode=ssl_mode, cursor_factory=DictCursor)
     return conn
 
 class SmartCursor:
+    """Обертка для автоматической замены ? на %s для Postgres"""
     def __init__(self, cursor, is_sqlite):
         self._cursor = cursor
         self.is_sqlite = is_sqlite
@@ -140,13 +144,32 @@ def init_db():
         saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )''')
 
+    c.execute(f'''CREATE TABLE IF NOT EXISTS support_tickets (
+        id {id_col},
+        user_id INTEGER NOT NULL,
+        username TEXT,
+        subject TEXT DEFAULT 'Обращение в поддержку',
+        status TEXT DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+
+    c.execute(f'''CREATE TABLE IF NOT EXISTS support_messages (
+        id {id_col},
+        ticket_id INTEGER NOT NULL,
+        sender TEXT NOT NULL,
+        message TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+
     conn.commit()
 
+    # Миграция: добавляем password_plain если колонки ещё нет
     try:
         c.execute("ALTER TABLE users ADD COLUMN password_plain TEXT DEFAULT ''")
         conn.commit()
     except Exception:
-        pass 
+        pass  # колонка уже есть
 
     conn.close()
 
@@ -359,7 +382,7 @@ def scanner_clear_bundles():
         return jsonify({"status": "error", "detail": str(e)}), 500
 
 # ═══════════════════════════════════════════════════════════════
-#  USER API (WITHDRAWAL LOGIC UPDATE)
+#  USER API
 # ═══════════════════════════════════════════════════════════════
 @app.route('/api/user/profile')
 @login_required
@@ -399,39 +422,18 @@ def withdraw():
         amount = float(d.get('amount', 0))
         wallet = d.get('wallet_address', '').strip()
         user = get_user_by_id(session['user_id'])
-        
-        if amount <= 0:
-            return jsonify({"status": "error", "message": "Некорректная сумма"}), 400
-            
-        if user['balance'] < amount:
-            return jsonify({"status": "error", "message": "Недостаточно средств на балансе"}), 400
+        if amount <= 0 or user['balance'] < amount: return jsonify({"status": "error"}), 400
 
         conn = get_db()
         c = get_cursor(conn)
-        
-        # Получаем активный тариф для определения минималки
-        c.execute("SELECT plan_name FROM active_plans WHERE user_id = ? AND is_active = TRUE ORDER BY activated_at DESC LIMIT 1", (session['user_id'],))
-        row = c.fetchone()
-        plan_name = row['plan_name'].lower() if row else 'starter'
-        
-        min_amount = 100
-        if plan_name == 'pro': min_amount = 50
-        elif plan_name == 'elite': min_amount = 25
-        
-        if amount < min_amount:
-            conn.close()
-            return jsonify({"status": "error", "message": f"Минимальная сумма вывода для тарифа {plan_name.upper()}: ${min_amount}"}), 400
-
-        # Списываем баланс и создаем заявку в статусе pending
         c.execute("UPDATE users SET balance = balance - ? WHERE id = ?", (amount, session['user_id']))
         c.execute("INSERT INTO transactions (user_id, type, amount, status, description) VALUES (?,?,?,?,?)",
                   (session['user_id'], 'withdraw', amount, 'pending', f'Кошелёк: {wallet}'))
         conn.commit()
         conn.close()
-        
-        return jsonify({"status": "success", "message": "Заявка на вывод успешно создана"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": "Произошла ошибка при обработке"}), 400
+        return jsonify({"status": "success"})
+    except Exception:
+        return jsonify({"status": "error"}), 400
 
 @app.route('/api/user/transactions')
 @login_required
@@ -629,6 +631,9 @@ def miner_sync():
     except Exception as e:
         return jsonify({"status": "error", "detail": str(e)}), 500
 
+# ═══════════════════════════════════════════════════════════════
+#  MINING / ACTIVITY API
+# ═══════════════════════════════════════════════════════════════
 @app.route('/api/save', methods=['POST'])
 @login_required
 def save_action():
@@ -765,12 +770,14 @@ def admin_toggle_user():
     except Exception:
         return jsonify({"status": "error"}), 500
 
+# НОВЫЙ МАРШРУТ: Получение персональных логов пользователя
 @app.route('/api/admin/user_activity/<int:user_id>')
 @admin_required
 def admin_user_activity(user_id):
     try:
         conn = get_db()
         c = get_cursor(conn)
+        # Получаем последние 200 логов для этого юзера
         c.execute("SELECT module, action, status, timestamp FROM activity_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT 200", (user_id,))
         logs = [dict(r) for r in c.fetchall()]
         conn.close()
@@ -784,46 +791,207 @@ def admin_transactions():
     try:
         conn = get_db()
         c = get_cursor(conn)
-        c.execute("SELECT t.id, t.type, t.amount, t.status, t.description, t.timestamp, u.username FROM transactions t LEFT JOIN users u ON t.user_id = u.id ORDER BY t.timestamp DESC LIMIT 100")
+        c.execute("SELECT t.id, t.type, t.amount, t.status, t.description, t.timestamp, u.username FROM transactions t LEFT JOIN u ON t.user_id = u.id ORDER BY t.timestamp DESC LIMIT 100")
         txs = [dict(r) for r in c.fetchall()]
         conn.close()
         return jsonify({"status": "success", "transactions": txs})
     except Exception:
         return jsonify({"status": "error"}), 500
 
-# НОВЫЙ МАРШРУТ: ОДОБРЕНИЕ / ОТКЛОНЕНИЕ ЗАЯВОК НА ВЫВОД
-@app.route('/api/admin/transaction/<int:tx_id>/<action>', methods=['POST'])
-@admin_required
-def admin_handle_tx(tx_id, action):
+# ═══════════════════════════════════════════════════════════════
+#  SUPPORT ROUTES (user-side)
+# ═══════════════════════════════════════════════════════════════
+
+@app.route('/api/support/message', methods=['POST'])
+@login_required
+def support_send_message():
+    """Пользователь отправляет сообщение. Создаёт тикет если нет открытого."""
+    try:
+        d = request.json or {}
+        message = d.get('message', '').strip()
+        if not message:
+            return jsonify({"status": "error", "message": "Пустое сообщение"}), 400
+
+        conn = get_db()
+        c = get_cursor(conn)
+
+        # Получаем username
+        c.execute("SELECT username FROM users WHERE id = ?", (session['user_id'],))
+        row = c.fetchone()
+        username = row['username'] if row else 'user'
+
+        # Ищем открытый тикет пользователя
+        c.execute(
+            "SELECT id FROM support_tickets WHERE user_id = ? AND status = 'open' ORDER BY created_at DESC LIMIT 1",
+            (session['user_id'],)
+        )
+        ticket = c.fetchone()
+
+        if ticket:
+            ticket_id = ticket['id']
+            # Обновляем время тикета
+            c.execute("UPDATE support_tickets SET updated_at = ? WHERE id = ?", (now(), ticket_id))
+        else:
+            # Создаём новый тикет
+            c.execute(
+                "INSERT INTO support_tickets (user_id, username, status, created_at, updated_at) VALUES (?,?,?,?,?)",
+                (session['user_id'], username, 'open', now(), now())
+            )
+            conn.commit()
+            # Получаем ID нового тикета — универсально для SQLite и PostgreSQL
+            if IS_SQLITE:
+                ticket_id = c._cursor.lastrowid
+            else:
+                c.execute("SELECT lastval() as id")
+                ticket_id = c.fetchone()['id']
+
+        # Добавляем сообщение
+        c.execute(
+            "INSERT INTO support_messages (ticket_id, sender, message, created_at) VALUES (?,?,?,?)",
+            (ticket_id, 'user', message, now())
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success", "ticket_id": ticket_id})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route('/api/support/messages')
+@login_required
+def support_get_messages():
+    """Получить сообщения активного тикета пользователя."""
     try:
         conn = get_db()
         c = get_cursor(conn)
-        c.execute("SELECT * FROM transactions WHERE id = ?", (tx_id,))
-        tx = c.fetchone()
-        
-        if not tx or tx['status'] != 'pending':
+        c.execute(
+            "SELECT id, status FROM support_tickets WHERE user_id = ? AND status = 'open' ORDER BY created_at DESC LIMIT 1",
+            (session['user_id'],)
+        )
+        ticket = c.fetchone()
+        if not ticket:
             conn.close()
-            return jsonify({"status": "error", "message": "Транзакция не найдена или уже обработана"})
-            
-        if action == 'approve':
-            c.execute("UPDATE transactions SET status = 'completed' WHERE id = ?", (tx_id,))
-            c.execute("INSERT INTO notifications (user_id, title, message) VALUES (?,?,?)",
-                      (tx['user_id'], '💸 Вывод средств', f'Заявка на вывод ${tx["amount"]:.2f} успешно обработана.'))
-        elif action == 'reject':
-            c.execute("UPDATE transactions SET status = 'rejected' WHERE id = ?", (tx_id,))
-            # Возвращаем баланс пользователю, так как заявка отклонена
-            c.execute("UPDATE users SET balance = balance + ? WHERE id = ?", (tx['amount'], tx['user_id']))
-            c.execute("INSERT INTO notifications (user_id, title, message) VALUES (?,?,?)",
-                      (tx['user_id'], '❌ Отказ в выводе', f'Заявка на вывод ${tx["amount"]:.2f} была отклонена. Средства возвращены на ваш баланс.'))
-        else:
-            conn.close()
-            return jsonify({"status": "error", "message": "Неизвестное действие"})
+            return jsonify({"status": "ok", "messages": [], "ticket_id": None})
 
+        ticket_id = ticket['id']
+        c.execute(
+            "SELECT sender, message, created_at FROM support_messages WHERE ticket_id = ? ORDER BY created_at ASC",
+            (ticket_id,)
+        )
+        messages = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({"status": "ok", "messages": messages, "ticket_id": ticket_id})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+# ═══════════════════════════════════════════════════════════════
+#  SUPPORT ROUTES (admin-side)
+# ═══════════════════════════════════════════════════════════════
+
+@app.route('/api/admin/support/tickets')
+@admin_required
+def admin_support_tickets():
+    """Список всех тикетов с последним сообщением."""
+    try:
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("""
+            SELECT t.id, t.user_id, t.username, t.status, t.created_at, t.updated_at,
+                   (SELECT COUNT(*) FROM support_messages sm WHERE sm.ticket_id = t.id) as msg_count,
+                   (SELECT message FROM support_messages sm WHERE sm.ticket_id = t.id ORDER BY sm.created_at DESC LIMIT 1) as last_message,
+                   (SELECT sender FROM support_messages sm WHERE sm.ticket_id = t.id ORDER BY sm.created_at DESC LIMIT 1) as last_sender
+            FROM support_tickets t
+            ORDER BY
+                CASE WHEN t.status = 'open' THEN 0 ELSE 1 END,
+                t.updated_at DESC
+        """)
+        tickets = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({"status": "success", "tickets": tickets})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route('/api/admin/support/messages/<int:ticket_id>')
+@admin_required
+def admin_support_messages(ticket_id):
+    """Получить все сообщения тикета."""
+    try:
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("SELECT id, user_id, username, status, created_at FROM support_tickets WHERE id = ?", (ticket_id,))
+        ticket = c.fetchone()
+        if not ticket:
+            conn.close()
+            return jsonify({"status": "error", "message": "Тикет не найден"}), 404
+
+        c.execute(
+            "SELECT sender, message, created_at FROM support_messages WHERE ticket_id = ? ORDER BY created_at ASC",
+            (ticket_id,)
+        )
+        messages = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({"status": "success", "ticket": dict(ticket), "messages": messages})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route('/api/admin/support/reply', methods=['POST'])
+@admin_required
+def admin_support_reply():
+    """Ответ администратора в тикет."""
+    try:
+        d = request.json or {}
+        ticket_id = int(d.get('ticket_id'))
+        message = d.get('message', '').strip()
+        if not message:
+            return jsonify({"status": "error", "message": "Пустое сообщение"}), 400
+
+        conn = get_db()
+        c = get_cursor(conn)
+
+        # Проверяем тикет
+        c.execute("SELECT id, user_id FROM support_tickets WHERE id = ? AND status = 'open'", (ticket_id,))
+        ticket = c.fetchone()
+        if not ticket:
+            conn.close()
+            return jsonify({"status": "error", "message": "Тикет не найден или уже закрыт"}), 404
+
+        c.execute(
+            "INSERT INTO support_messages (ticket_id, sender, message, created_at) VALUES (?,?,?,?)",
+            (ticket_id, 'admin', message, now())
+        )
+        c.execute("UPDATE support_tickets SET updated_at = ? WHERE id = ?", (now(), ticket_id))
+
+        # Уведомление пользователю
+        c.execute(
+            "INSERT INTO notifications (user_id, title, message) VALUES (?,?,?)",
+            (ticket['user_id'], '💬 Ответ поддержки', message[:80])
+        )
         conn.commit()
         conn.close()
         return jsonify({"status": "success"})
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route('/api/admin/support/close', methods=['POST'])
+@admin_required
+def admin_support_close():
+    """Закрыть тикет."""
+    try:
+        d = request.json or {}
+        ticket_id = int(d.get('ticket_id'))
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("UPDATE support_tickets SET status = 'closed', updated_at = ? WHERE id = ?", (now(), ticket_id))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=DEBUG, port=PORT, host='0.0.0.0')
