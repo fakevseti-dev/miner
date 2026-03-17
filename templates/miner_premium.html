@@ -2221,31 +2221,65 @@ function scheduleWarnings() {
             }, 1500);
         }
 
-        // Запуск инициализации при загрузке страницы
-        loadProfile();
-        startNotificationPolling();
-        startPing();
-    </script>
     // Запуск инициализации при загрузке страницы
         loadProfile();
         startNotificationPolling();
         startPing();
     </script>
 
-    <div id="supportBtn" style="z-index: 999999;" class="fixed bottom-6 right-6 ...">
-        ... (код кнопки) ...
+    <div id="supportBtn" style="z-index: 999999;" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)] flex items-center justify-center cursor-pointer transition-transform hover:scale-105" onclick="toggleSupport()">
+        <i class="fas fa-headset text-white text-2xl"></i>
+        <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-900 animate-pulse"></span>
     </div>
 
-    <div id="supportChat" style="z-index: 999999;" class="fixed bottom-24 right-6 ...">
-        ... (код окна чата) ...
+    <div id="supportChat" style="z-index: 999999;" class="fixed bottom-24 right-6 w-80 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-2xl shadow-2xl flex-col hidden transition-all duration-300 overflow-hidden">
+        <div class="p-4 bg-gradient-to-r from-blue-600 to-cyan-600 flex justify-between items-center text-white">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"><i class="fas fa-robot"></i></div>
+                <div>
+                    <div class="font-bold text-sm">Служба поддержки</div>
+                    <div class="text-[10px] text-blue-100 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> В сети</div>
+                </div>
+            </div>
+            <button onclick="toggleSupport()" class="text-white/80 hover:text-white transition"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="h-64 p-4 overflow-y-auto flex flex-col gap-3 text-sm" id="supportMessages" style="scrollbar-width: thin;">
+            <div class="bg-slate-800 p-3 rounded-xl rounded-tl-none self-start max-w-[85%] text-slate-200 border border-slate-700 shadow-sm">
+                Здравствуйте! 👋 Я служба поддержки NEON. Возникли вопросы по выводу средств или работе системы? Пишите!
+            </div>
+        </div>
+        <div class="p-3 border-t border-slate-700/50 flex gap-2 bg-slate-900">
+            <input type="text" id="supportInput" placeholder="Ваше сообщение..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500 transition" onkeydown="if(event.key==='Enter') sendSupportMsg()">
+            <button onclick="sendSupportMsg()" class="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center justify-center text-white transition shadow-lg shadow-blue-500/30"><i class="fas fa-paper-plane"></i></button>
+        </div>
     </div>
 
     <script>
         function toggleSupport() {
-            ... (код функций чата) ...
+            const chat = document.getElementById('supportChat');
+            chat.classList.toggle('hidden');
+            if (!chat.classList.contains('hidden')) {
+                document.getElementById('supportInput').focus();
+            }
+        }
+
+        function sendSupportMsg() {
+            const input = document.getElementById('supportInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            
+            const msgs = document.getElementById('supportMessages');
+            msgs.innerHTML += `<div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-xl rounded-tr-none self-end max-w-[85%] text-white shadow-lg shadow-blue-500/20">${msg}</div>`;
+            input.value = '';
+            msgs.scrollTop = msgs.scrollHeight;
+            
+            setTimeout(() => {
+                msgs.innerHTML += `<div class="bg-slate-800 p-3 rounded-xl rounded-tl-none self-start max-w-[85%] text-slate-200 border border-slate-700 shadow-sm">
+                    Ваше сообщение отправлено оператору. Мы ответим вам в ближайшее время! Ожидайте ответа прямо здесь.
+                </div>`;
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 1500);
         }
     </script>
-    </body>
-</html>
 </body>
 </html>
