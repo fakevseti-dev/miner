@@ -860,27 +860,53 @@ def support_send_message():
 @app.route('/api/support/messages')
 @login_required
 def support_get_messages():
-    """Получить сообщения активного тикета пользователя."""
+    """Получить сообщения активного или последнего тикета пользователя."""
     try:
         conn = get_db()
         c = get_cursor(conn)
+        # Ищем любой тикет (открытый или закрытый) — последний
         c.execute(
-            "SELECT id, status FROM support_tickets WHERE user_id = ? AND status = 'open' ORDER BY created_at DESC LIMIT 1",
+            "SELECT id, status FROM support_tickets WHERE user_id = ? ORDER BY created_at DESC LIMIT 1",
             (session['user_id'],)
         )
         ticket = c.fetchone()
         if not ticket:
             conn.close()
-            return jsonify({"status": "ok", "messages": [], "ticket_id": None})
+            return jsonify({"status": "ok", "messages": [], "ticket_id": None, "ticket_status": None})
 
         ticket_id = ticket['id']
+        ticket_status = ticket['status']
         c.execute(
             "SELECT sender, message, created_at FROM support_messages WHERE ticket_id = ? ORDER BY created_at ASC",
             (ticket_id,)
         )
         messages = [dict(r) for r in c.fetchall()]
         conn.close()
-        return jsonify({"status": "ok", "messages": messages, "ticket_id": ticket_id})
+        return jsonify({"status": "ok", "messages": messages, "ticket_id": ticket_id, "ticket_status": ticket_status})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route('/api/support/rate', methods=['POST'])
+@login_required
+def support_rate():
+    """Пользователь ставит оценку закрытому тикету."""
+    try:
+        d = request.json or {}
+        ticket_id = d.get('ticket_id')
+        rating = int(d.get('rating', 0))
+        if not ticket_id or not (1 <= rating <= 5):
+            return jsonify({"status": "error"}), 400
+        conn = get_db()
+        c = get_cursor(conn)
+        # Сохраняем оценку в activity_log
+        c.execute(
+            "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
+            (session['user_id'], 'SUPPORT', f'RATING_{rating}_STARS ticket#{ticket_id}', 'OK', now())
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "detail": str(e)}), 500
 
