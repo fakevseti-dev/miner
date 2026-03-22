@@ -3,569 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация - Crypto Miner</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Register — CryptoEx</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0a0e27 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Animated background elements */
-        .bg-element {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 20s infinite ease-in-out;
-        }
-
-        .bg-element-1 {
-            width: 300px;
-            height: 300px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            top: -100px;
-            left: -100px;
-        }
-
-        .bg-element-2 {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, #06b6d4, #3b82f6);
-            bottom: -50px;
-            right: -50px;
-            animation-delay: 3s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) translateX(0px); }
-            50% { transform: translateY(30px) translateX(20px); }
-        }
-
-        .container {
-            width: 100%;
-            max-width: 420px;
-            padding: 20px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .form-wrapper {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.6s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .logo {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #3b82f6, #06b6d4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 12px;
-            letter-spacing: -1px;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            color: #fff;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 13px;
-            color: #94a3b8;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #cbd5e1;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(30, 41, 59, 0.6);
-            border: 1.5px solid rgba(59, 130, 246, 0.2);
-            border-radius: 10px;
-            color: #fff;
-            font-family: 'Outfit', sans-serif;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            background: rgba(30, 41, 59, 0.9);
-            border-color: #3b82f6;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-        }
-
-        .form-group input::placeholder {
-            color: #64748b;
-        }
-
-        .password-strength {
-            display: flex;
-            gap: 4px;
-            margin-top: 8px;
-            height: 3px;
-        }
-
-        .strength-bar {
-            flex: 1;
-            background: rgba(100, 116, 139, 0.3);
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .strength-bar.active-weak {
-            background: #ef4444;
-        }
-
-        .strength-bar.active-medium {
-            background: #f59e0b;
-        }
-
-        .strength-bar.active-strong {
-            background: #10b981;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .submit-btn:hover::before {
-            left: 100%;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
-        }
-
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .form-footer {
-            text-align: center;
-            margin-top: 24px;
-            padding-top: 24px;
-            border-top: 1px solid rgba(59, 130, 246, 0.1);
-        }
-
-        .form-footer p {
-            color: #94a3b8;
-            font-size: 13px;
-            margin-bottom: 10px;
-        }
-
-        .form-footer a {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .form-footer a:hover {
-            color: #60a5fa;
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            display: none;
-            animation: shake 0.4s ease;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .success-message {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #86efac;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .success-message.show {
-            display: block;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            color: #94a3b8;
-            font-size: 13px;
-            margin-top: 15px;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 20px 0;
-            color: #64748b;
-            font-size: 12px;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        .divider span {
-            padding: 0 10px;
-        }
-
-        .terms {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 16px;
-            line-height: 1.5;
-        }
-
-        .terms a {
-            color: #3b82f6;
-            text-decoration: none;
-        }
-
-        .terms a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 480px) {
-            .form-wrapper {
-                padding: 28px 18px;
-                border-radius: 16px;
-            }
-            .header h1 { font-size: 20px; }
-            .container { max-width: 100%; padding: 12px; }
-            .logo { font-size: 26px; }
-            .submit-btn { padding: 13px; font-size: 13px; }
-            input[type="text"],
-            input[type="password"],
-            input[type="email"] { font-size: 16px; /* предотвращает зум на iOS */ }
-            .form-group { margin-bottom: 14px; }
-        }
-
-        @media (max-width: 360px) {
-            .form-wrapper { padding: 22px 14px; }
-            .header { margin-bottom: 22px; }
-        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:#0d0d0d;min-height:100vh;display:flex;flex-direction:column;color:#e0e0e0;}
+        .topbar{height:56px;background:#141414;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;padding:0 24px;justify-content:space-between;}
+        .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+        .logo-icon{width:34px;height:34px;background:#f0b90b;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#000;}
+        .logo-text{font-size:17px;font-weight:800;color:#f0b90b;}
+        .topbar-links{display:flex;align-items:center;gap:8px;}
+        .topbar-links a{padding:7px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s;}
+        .btn-login{background:transparent;border:1px solid #2a2a2a;color:#ccc;}
+        .btn-login:hover{border-color:#f0b90b44;color:#f0b90b;}
+        .btn-register{background:#f0b90b;color:#000;}
+        .btn-register:hover{background:#e0a800;}
+        .main{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 16px;}
+        .card{width:100%;max-width:460px;background:#141414;border:1px solid #2a2a2a;border-radius:20px;padding:36px 32px;}
+        .card-title{font-size:24px;font-weight:800;color:#fff;margin-bottom:6px;}
+        .card-sub{font-size:13px;color:#666;margin-bottom:6px;}
+        .bonus-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.25);border-radius:20px;font-size:12px;font-weight:600;color:#f0b90b;margin-bottom:24px;}
+        .form-group{margin-bottom:16px;}
+        .form-group label{display:block;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;}
+        .form-group input{width:100%;padding:12px 16px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#fff;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border 0.2s;}
+        .form-group input:focus{border-color:#f0b90b44;}
+        .form-group input::placeholder{color:#555;}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .pwd-strength{margin-top:6px;height:3px;background:#2a2a2a;border-radius:2px;overflow:hidden;}
+        .pwd-strength-fill{height:100%;border-radius:2px;transition:all 0.3s;width:0%;}
+        .pwd-hint{font-size:10px;color:#666;margin-top:4px;}
+        .terms{display:flex;align-items:flex-start;gap:8px;margin:16px 0;font-size:12px;color:#888;}
+        .terms input{width:15px;height:15px;margin-top:1px;accent-color:#f0b90b;flex-shrink:0;}
+        .terms a{color:#f0b90b;text-decoration:none;}
+        .submit-btn{width:100%;padding:14px;background:#f0b90b;border:none;border-radius:10px;color:#000;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;}
+        .submit-btn:hover:not(:disabled){background:#e0a800;transform:translateY(-1px);box-shadow:0 6px 20px rgba(240,185,11,0.3);}
+        .submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .error-box{background:rgba(246,70,93,0.1);border:1px solid rgba(246,70,93,0.25);border-radius:8px;padding:10px 14px;font-size:13px;color:#f6465d;margin-bottom:16px;display:none;}
+        .error-box.show{display:block;}
+        .success-box{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:10px 14px;font-size:13px;color:#10b981;margin-bottom:16px;display:none;}
+        .success-box.show{display:block;}
+        .loading{display:none;text-align:center;font-size:13px;color:#888;margin-top:12px;}
+        .spinner{display:inline-block;width:14px;height:14px;border:2px solid #2a2a2a;border-top-color:#f0b90b;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:6px;vertical-align:middle;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .footer-link{text-align:center;margin-top:20px;font-size:13px;color:#666;}
+        .footer-link a{color:#f0b90b;text-decoration:none;font-weight:600;}
+        .features-row{display:flex;gap:12px;margin-bottom:24px;}
+        .feat{flex:1;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;padding:10px;text-align:center;}
+        .feat i{color:#f0b90b;font-size:16px;display:block;margin-bottom:4px;}
+        .feat span{font-size:10px;color:#666;}
+        @media(max-width:480px){.card{padding:24px 16px;}.form-row{grid-template-columns:1fr;}}
     </style>
 </head>
 <body>
-    <div class="bg-element bg-element-1"></div>
-    <div class="bg-element bg-element-2"></div>
-
-    <div class="container">
-        <div class="form-wrapper">
-            <div class="header">
-                <div class="logo">⚡ NEON</div>
-                <h1>Создайте аккаунт</h1>
-                <p>Присоединяйтесь к нашей сети майнеров</p>
-            </div>
-
-            <div class="error-message" id="errorMessage"></div>
-            <div class="success-message" id="successMessage"></div>
-
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="username">Имя пользователя</label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username" 
-                        placeholder="Введите ваше имя"
-                        minlength="3"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email адрес</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        placeholder="your@email.com"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Пароль</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder="Минимум 6 символов"
-                        minlength="6"
-                        required
-                    >
-                    <div class="password-strength">
-                        <div class="strength-bar"></div>
-                        <div class="strength-bar"></div>
-                        <div class="strength-bar"></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="confirmPassword">Подтвердите пароль</label>
-                    <input 
-                        type="password" 
-                        id="confirmPassword" 
-                        name="confirmPassword" 
-                        placeholder="Повторите пароль"
-                        minlength="6"
-                        required
-                    >
-                </div>
-
-                <button type="submit" class="submit-btn" id="submitBtn">Создать аккаунт</button>
-
-                <div class="loading" id="loading">
-                    <span class="spinner"></span>
-                    Регистрация...
-                </div>
-
-                <div class="terms">
-                    ✓ Я согласен с <a href="#">условиями использования</a> и <a href="#">политикой конфиденциальности</a>
-                </div>
-            </form>
-
-            <div class="form-footer">
-                <p>Уже есть аккаунт?</p>
-                <a href="/login">Перейти на вход</a>
-            </div>
-        </div>
+<div class="topbar">
+    <a href="/" class="logo"><div class="logo-icon">C</div><span class="logo-text">CryptoEx</span></a>
+    <div class="topbar-links">
+        <a href="/login" class="btn-login">Login</a>
+        <a href="/register" class="btn-register">Register</a>
     </div>
+</div>
 
-    <script>
-        const form = document.getElementById('registerForm');
-        const errorMessage = document.getElementById('errorMessage');
-        const successMessage = document.getElementById('successMessage');
-        const submitBtn = document.getElementById('submitBtn');
-        const loading = document.getElementById('loading');
-        const passwordInput = document.getElementById('password');
-        const strengthBars = document.querySelectorAll('.strength-bar');
+<div class="main">
+    <div class="card">
+        <div class="card-title">Create Account</div>
+        <div class="card-sub">Join 172K+ traders on CryptoEx</div>
+        <div class="bonus-badge"><i class="fas fa-gift"></i> Welcome Bonus Up to $100</div>
 
-        // Проверка силы пароля
-        passwordInput.addEventListener('input', () => {
-            const password = passwordInput.value;
-            let strength = 0;
+        <div class="features-row">
+            <div class="feat"><i class="fas fa-shield-halved"></i><span>Secure</span></div>
+            <div class="feat"><i class="fas fa-bolt"></i><span>Instant</span></div>
+            <div class="feat"><i class="fas fa-coins"></i><span>910+ Coins</span></div>
+        </div>
 
-            if (password.length >= 6) strength++;
-            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+        <div class="error-box" id="errorBox"></div>
+        <div class="success-box" id="successBox"></div>
 
-            strengthBars.forEach((bar, index) => {
-                bar.classList.remove('active-weak', 'active-medium', 'active-strong');
-                if (index < strength) {
-                    if (strength <= 2) {
-                        bar.classList.add('active-weak');
-                    } else if (strength === 3) {
-                        bar.classList.add('active-medium');
-                    } else {
-                        bar.classList.add('active-strong');
-                    }
-                }
-            });
-        });
+        <form id="registerForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="yourname" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="you@email.com" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Min. 6 characters" required minlength="6" oninput="checkPwd(this.value)">
+                <div class="pwd-strength"><div class="pwd-strength-fill" id="pwdFill"></div></div>
+                <div class="pwd-hint" id="pwdHint">Enter a strong password</div>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirm" placeholder="Repeat your password" required>
+            </div>
+            <div class="terms">
+                <input type="checkbox" id="agreeTerms" required>
+                <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I understand this is a <strong style="color:#f0b90b;">demo platform</strong> for learning purposes.</span>
+            </div>
+            <button type="submit" class="submit-btn" id="submitBtn">Create Account →</button>
+            <div class="loading" id="loading"><span class="spinner"></span>Creating your account...</div>
+        </form>
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            errorMessage.classList.remove('show');
-            successMessage.classList.remove('show');
+        <div class="footer-link" style="margin-top:16px;">Already have an account? <a href="/login">Sign in →</a></div>
+    </div>
+</div>
 
-            const username = document.getElementById('username').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+<script>
+function checkPwd(val) {
+    const fill = document.getElementById('pwdFill');
+    const hint = document.getElementById('pwdHint');
+    let score = 0;
+    if (val.length >= 6) score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const pcts = [0, 20, 40, 65, 85, 100];
+    const colors = ['#2a2a2a','#f6465d','#f59e0b','#f0b90b','#10b981','#10b981'];
+    const hints = ['','Weak','Fair','Good','Strong','Very Strong'];
+    fill.style.width = pcts[score] + '%';
+    fill.style.background = colors[score];
+    hint.textContent = hints[score];
+    hint.style.color = colors[score];
+}
 
-            // Валидация на клиенте
-            if (!username || !email || !password || !confirmPassword) {
-                showError('Заполните все поля');
-                return;
-            }
+document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const errBox = document.getElementById('errorBox');
+    const sucBox = document.getElementById('successBox');
+    const submitBtn = document.getElementById('submitBtn');
+    const loading = document.getElementById('loading');
+    errBox.classList.remove('show'); sucBox.classList.remove('show');
 
-            if (username.length < 3) {
-                showError('Имя пользователя должно быть минимум 3 символа');
-                return;
-            }
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm').value;
+    const agreed = document.getElementById('agreeTerms').checked;
 
-            if (password.length < 6) {
-                showError('Пароль должен быть минимум 6 символов');
-                return;
-            }
+    if (!username || !email || !password || !confirm) { errBox.textContent = 'All fields are required'; errBox.classList.add('show'); return; }
+    if (username.length < 3) { errBox.textContent = 'Username must be at least 3 characters'; errBox.classList.add('show'); return; }
+    if (password.length < 6) { errBox.textContent = 'Password must be at least 6 characters'; errBox.classList.add('show'); return; }
+    if (password !== confirm) { errBox.textContent = 'Passwords do not match'; errBox.classList.add('show'); return; }
+    if (!agreed) { errBox.textContent = 'Please agree to the Terms of Service'; errBox.classList.add('show'); return; }
 
-            if (password !== confirmPassword) {
-                showError('Пароли не совпадают');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            loading.style.display = 'block';
-
-            try {
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username,
-                        email,
-                        password,
-                        confirm_password: confirmPassword
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showSuccess(data.message || 'Регистрация успешна! Перейдите на вход.');
-                    form.reset();
-                    strengthBars.forEach(bar => bar.classList.remove('active-weak', 'active-medium', 'active-strong'));
-                    
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 2000);
-                } else {
-                    showError(data.message || 'Ошибка регистрации');
-                }
-            } catch (error) {
-                showError('Ошибка подключения к серверу');
-                console.error('Error:', error);
-            } finally {
-                submitBtn.disabled = false;
-                loading.style.display = 'none';
-            }
-        });
-
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.add('show');
+    submitBtn.disabled = true; loading.style.display = 'block';
+    try {
+        const r = await fetch('/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username, email, password, confirm_password: confirm}) });
+        const d = await r.json();
+        if (r.ok) {
+            sucBox.textContent = '✓ Account created! Redirecting to login...';
+            sucBox.classList.add('show');
+            setTimeout(() => window.location.href = '/login', 1500);
+        } else {
+            errBox.textContent = d.message || 'Registration failed';
+            errBox.classList.add('show');
+            submitBtn.disabled = false; loading.style.display = 'none';
         }
-
-        function showSuccess(message) {
-            successMessage.textContent = message;
-            successMessage.classList.add('show');
-        }
-    </script>
+    } catch(e) {
+        errBox.textContent = 'Connection error. Please try again.';
+        errBox.classList.add('show');
+        submitBtn.disabled = false; loading.style.display = 'none';
+    }
+});
+</script>
 </body>
 </html>
