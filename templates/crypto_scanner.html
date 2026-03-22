@@ -12,12 +12,12 @@
 
         html, body {
             overflow-x: hidden;
-            background-color: #0f172a;
+            background-color: #0d0d0d;
         }
 
         body {
             font-family: 'Sora', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #0d1f3c 50%, #0f172a 100%);
+            background: linear-gradient(135deg, #0d0d0d 0%, #0d1f3c 50%, #0d0d0d 100%);
             background-attachment: fixed;
             color: #e2e8f0;
             min-height: 100vh;
@@ -140,7 +140,7 @@
         }
 
         .line-sys {
-            border-left: 2px solid rgba(59,130,246,0.4);
+            border-left: 2px solid rgba(240,185,11,0.4);
         }
 
         .spread-green { color: #10b981; font-weight: 700; }
@@ -255,11 +255,11 @@
         .btn-clear:hover { background: rgba(71,85,105,0.35); color: #94a3b8; }
 
         .btn-settings {
-            background: rgba(59,130,246,0.1);
-            border: 1px solid rgba(59,130,246,0.25);
-            color: #3b82f6;
+            background: rgba(240,185,11,0.1);
+            border: 1px solid rgba(240,185,11,0.25);
+            color: #f0b90b;
         }
-        .btn-settings:hover { background: rgba(59,130,246,0.2); }
+        .btn-settings:hover { background: rgba(240,185,11,0.2); }
 
         /* ── MODAL ── */
         .modal-backdrop {
@@ -278,7 +278,7 @@
 
         .modal-box {
             background: #0a1020;
-            border: 1px solid rgba(59,130,246,0.2);
+            border: 1px solid rgba(240,185,11,0.2);
             border-radius: 20px;
             padding: 32px;
             width: 100%;
@@ -329,18 +329,18 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            border: 1px solid rgba(59,130,246,0.18);
+            border: 1px solid rgba(240,185,11,0.18);
             background: rgba(15,23,42,0.8);
             color: #475569;
             font-family: 'Sora', sans-serif;
         }
 
-        .opt-btn:hover { border-color: rgba(59,130,246,0.4); color: #94a3b8; }
+        .opt-btn:hover { border-color: rgba(240,185,11,0.4); color: #94a3b8; }
 
         .opt-btn.active {
-            background: rgba(59,130,246,0.15);
-            border-color: #3b82f6;
-            color: #60a5fa;
+            background: rgba(240,185,11,0.15);
+            border-color: #f0b90b;
+            color: #fcd535;
         }
 
         .opt-btn.active-green {
@@ -397,9 +397,9 @@
         }
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #0f172a; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.25); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.5); }
+        ::-webkit-scrollbar-track { background: #0d0d0d; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(240,185,11,0.25); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(240,185,11,0.5); }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(16px); }
@@ -455,15 +455,98 @@
             .stats-bar { grid-template-columns: 1fr !important; }
             .mb-8 .flex.items-center.gap-3.flex-wrap { grid-template-columns: 1fr !important; }
         }
-    </style>
+    
+/* ── GLOBAL YELLOW-BLACK OVERRIDES ── */
+:root {
+    --gold: #f0b90b !important;
+    --gold2: rgba(240,185,11,0.12) !important;
+    --blue: #f0b90b !important;
+    --blue2: rgba(240,185,11,0.12) !important;
+    --b2: rgba(240,185,11,0.12) !important;
+}
+.icon-gradient-gold {
+    background: linear-gradient(135deg, #f0b90b, #d4a007) !important;
+}
+/* Override any remaining blue inline elements */
+[style*="background:linear-gradient(135deg,#f0b90b"],
+[style*="background: linear-gradient(135deg, #f0b90b"],
+[style*="background:linear-gradient(135deg,#d4a007"],
+[style*="background:linear-gradient(135deg, #f59e0b"] {
+    background: linear-gradient(135deg, #f0b90b, #d4a007) !important;
+}
+a.btn-primary, .btn-primary {
+    background: #f0b90b !important;
+    color: #000 !important;
+    border-color: #f0b90b !important;
+}
+.btn-primary:hover { background: #d4a007 !important; }
+
+</style>
+
+<style id="theme-override">
+/* ═══ CRYPTOEX YELLOW-BLACK UNIVERSAL THEME ═══ */
+:root {
+  --gold: #f0b90b;
+  --gold-dark: #d4a007;
+  --gold-light: #fcd535;
+  --gold-dim: rgba(240,185,11,0.12);
+  --black: #0a0a0a;
+  --black2: #111111;
+  --black3: #141414;
+  --black4: #1a1a1a;
+  --black5: #1e1e1e;
+  --border-gold: rgba(240,185,11,0.2);
+}
+
+/* Force all blue/purple accents → gold */
+.text-blue-400, .text-blue-500, .text-blue-600,
+.text-cyan-400, .text-cyan-500,
+.text-purple-400, .text-purple-500 {
+  color: #f0b90b !important;
+}
+.bg-blue-500, .bg-blue-600, .bg-blue-700,
+.bg-cyan-500, .bg-purple-500, .bg-purple-600 {
+  background-color: #f0b90b !important;
+  color: #000 !important;
+}
+.border-blue-500, .border-blue-400,
+.border-cyan-400, .border-cyan-500 {
+  border-color: rgba(240,185,11,0.4) !important;
+}
+.from-blue-400, .from-blue-500, .from-blue-600 { --tw-gradient-from: #f0b90b !important; }
+.to-cyan-400, .to-cyan-500 { --tw-gradient-to: #f59e0b !important; }
+
+/* Global button accent */
+button[style*="background:#3b82f6"],
+button[style*="background: #3b82f6"],
+button[style*="background-color:#3b82f6"] {
+  background: #f0b90b !important;
+  color: #000 !important;
+}
+
+/* Focus rings */
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(240,185,11,0.5) !important;
+  box-shadow: 0 0 0 2px rgba(240,185,11,0.12) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #f0b90b44; }
+
+/* Selection */
+::selection { background: rgba(240,185,11,0.25); color: #fff; }
+</style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav class="glass border-b border-slate-700/50 sticky top-0" style="z-index:1000;">
+<nav class="glass border-b border-neutral-700/50 sticky top-0" style="z-index:1000;">
     <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <span style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">⚡ NEON</span>
+            <span style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#10b981,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">⚡ NEON</span>
             <span style="font-size:11px;color:#334155;letter-spacing:2px;text-transform:uppercase;font-family:monospace;">/ Crypto Scanner</span>
         </div>
         <div class="flex items-center gap-4">
@@ -483,7 +566,7 @@
     <div class="mb-8 flex items-start justify-between flex-wrap gap-4">
         <div>
             <h1 style="font-size:32px;font-weight:800;color:#f1f5f9;margin-bottom:6px;">
-                <span style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Crypto</span> Scanner
+                <span style="background:linear-gradient(135deg,#10b981,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Crypto</span> Scanner
             </h1>
             <p style="color:#475569;font-size:13px;font-family:monospace;">Поиск арбитражных связок в реальном времени</p>
         </div>
@@ -507,7 +590,7 @@
     <div class="stats-bar mb-6">
         <div class="stat-card">
             <div class="stat-label">Всего проверено</div>
-            <div class="stat-val" id="statTotal" style="color:#60a5fa;">0</div>
+            <div class="stat-val" id="statTotal" style="color:#fcd535;">0</div>
             <div class="stat-sub">пар</div>
         </div>
         <div class="stat-card">
@@ -593,7 +676,7 @@
 <div class="modal-backdrop" id="settingsModal">
     <div class="modal-box">
         <div class="modal-title">
-            <i class="fas fa-sliders-h" style="color:#3b82f6;"></i>
+            <i class="fas fa-sliders-h" style="color:#f0b90b;"></i>
             Настройки сканера
         </div>
 
@@ -950,7 +1033,7 @@ function addSysLine(text) {
     const body = document.getElementById('consoleBody');
     const el = document.createElement('div');
     el.className = 'scan-line line-sys';
-    el.style.color = '#3b82f6';
+    el.style.color = '#f0b90b';
     el.style.fontFamily = 'monospace';
     el.style.fontSize = '11px';
     el.textContent = text;
@@ -1034,9 +1117,9 @@ function updateSavedTable() {
             <td style="color:#334155;font-size:10px;">${b.auto ? 'AUTO' : 'MANUAL'}</td>
             <td style="text-align: right;">
                 <button onclick="copyBundle(this, '${textToCopy}')" 
-                        style="font-size:11px; padding:4px 10px; border-radius:6px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); color:#3b82f6; cursor:pointer; transition:all 0.2s;"
-                        onmouseover="this.style.background='rgba(59,130,246,0.2)'" 
-                        onmouseout="this.style.background='rgba(59,130,246,0.1)'"
+                        style="font-size:11px; padding:4px 10px; border-radius:6px; background:rgba(240,185,11,0.1); border:1px solid rgba(240,185,11,0.3); color:#f0b90b; cursor:pointer; transition:all 0.2s;"
+                        onmouseover="this.style.background='rgba(240,185,11,0.2)'" 
+                        onmouseout="this.style.background='rgba(240,185,11,0.1)'"
                         title="Копировать связку">
                     <i class="fas fa-copy"></i>
                 </button>
@@ -1070,11 +1153,11 @@ function copyBundle(btn, text) {
         // Возвращаем кнопку в исходное состояние через 2 секунды
         setTimeout(() => {
             btn.innerHTML = originalHtml;
-            btn.style.color = '#3b82f6';
-            btn.style.borderColor = 'rgba(59,130,246,0.3)';
-            btn.style.background = 'rgba(59,130,246,0.1)';
-            btn.onmouseout = () => { btn.style.background = 'rgba(59,130,246,0.1)' };
-            btn.onmouseover = () => { btn.style.background = 'rgba(59,130,246,0.2)' };
+            btn.style.color = '#f0b90b';
+            btn.style.borderColor = 'rgba(240,185,11,0.3)';
+            btn.style.background = 'rgba(240,185,11,0.1)';
+            btn.onmouseout = () => { btn.style.background = 'rgba(240,185,11,0.1)' };
+            btn.onmouseover = () => { btn.style.background = 'rgba(240,185,11,0.2)' };
         }, 2000);
     }).catch(err => {
         console.error('Ошибка копирования:', err);

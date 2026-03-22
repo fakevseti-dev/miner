@@ -52,8 +52,91 @@
         .trust-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#666;}
         .trust-item i{color:#f0b90b;font-size:12px;}
         @media(max-width:480px){.card{padding:28px 20px;border-radius:16px;}.main{padding:20px 12px;}}
-    </style>
+    
+/* ── GLOBAL YELLOW-BLACK OVERRIDES ── */
+:root {
+    --gold: #f0b90b !important;
+    --gold2: rgba(240,185,11,0.12) !important;
+    --blue: #f0b90b !important;
+    --blue2: rgba(240,185,11,0.12) !important;
+    --b2: rgba(240,185,11,0.12) !important;
+}
+.icon-gradient-gold {
+    background: linear-gradient(135deg, #f0b90b, #d4a007) !important;
+}
+/* Override any remaining blue inline elements */
+[style*="background:linear-gradient(135deg,#3b82f6"],
+[style*="background: linear-gradient(135deg, #3b82f6"],
+[style*="background:linear-gradient(135deg,#2563eb"],
+[style*="background:linear-gradient(135deg, #06b6d4"] {
+    background: linear-gradient(135deg, #f0b90b, #d4a007) !important;
+}
+a.btn-primary, .btn-primary {
+    background: #f0b90b !important;
+    color: #000 !important;
+    border-color: #f0b90b !important;
+}
+.btn-primary:hover { background: #d4a007 !important; }
+
+</style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style id="theme-override">
+/* ═══ CRYPTOEX YELLOW-BLACK UNIVERSAL THEME ═══ */
+:root {
+  --gold: #f0b90b;
+  --gold-dark: #d4a007;
+  --gold-light: #fcd535;
+  --gold-dim: rgba(240,185,11,0.12);
+  --black: #0a0a0a;
+  --black2: #111111;
+  --black3: #141414;
+  --black4: #1a1a1a;
+  --black5: #1e1e1e;
+  --border-gold: rgba(240,185,11,0.2);
+}
+
+/* Force all blue/purple accents → gold */
+.text-blue-400, .text-blue-500, .text-blue-600,
+.text-cyan-400, .text-cyan-500,
+.text-purple-400, .text-purple-500 {
+  color: #f0b90b !important;
+}
+.bg-blue-500, .bg-blue-600, .bg-blue-700,
+.bg-cyan-500, .bg-purple-500, .bg-purple-600 {
+  background-color: #f0b90b !important;
+  color: #000 !important;
+}
+.border-blue-500, .border-blue-400,
+.border-cyan-400, .border-cyan-500 {
+  border-color: rgba(240,185,11,0.4) !important;
+}
+.from-blue-400, .from-blue-500, .from-blue-600 { --tw-gradient-from: #f0b90b !important; }
+.to-cyan-400, .to-cyan-500 { --tw-gradient-to: #f59e0b !important; }
+
+/* Global button accent */
+button[style*="background:#3b82f6"],
+button[style*="background: #3b82f6"],
+button[style*="background-color:#3b82f6"] {
+  background: #f0b90b !important;
+  color: #000 !important;
+}
+
+/* Focus rings */
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(240,185,11,0.5) !important;
+  box-shadow: 0 0 0 2px rgba(240,185,11,0.12) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #f0b90b44; }
+
+/* Selection */
+::selection { background: rgba(240,185,11,0.25); color: #fff; }
+</style>
 </head>
 <body>
 <div class="topbar">

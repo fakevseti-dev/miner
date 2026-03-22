@@ -8,22 +8,22 @@
     <style>
         :root {
             --bg-primary: #050914;
-            --bg-secondary: #0a0e27;
+            --bg-secondary: #0d0d0d;
             --bg-card: rgba(10, 16, 42, 0.85);
             --bg-card-hover: rgba(15, 24, 58, 0.9);
-            --border: rgba(59, 130, 246, 0.15);
-            --border-bright: rgba(59, 130, 246, 0.4);
-            --blue: #3b82f6;
-            --blue-dim: rgba(59, 130, 246, 0.12);
-            --cyan: #06b6d4;
-            --cyan-dim: rgba(6, 182, 212, 0.12);
+            --border: rgba(240,185,11, 0.15);
+            --border-bright: rgba(240,185,11, 0.4);
+            --blue: #f0b90b;
+            --blue-dim: rgba(240,185,11,0.12);
+            --cyan: #f59e0b;
+            --cyan-dim: rgba(245,158,11,0.12);
             --green: #10b981;
             --green-dim: rgba(16, 185, 129, 0.12);
             --amber: #f59e0b;
             --amber-dim: rgba(245, 158, 11, 0.12);
             --red: #ef4444;
             --red-dim: rgba(239, 68, 68, 0.12);
-            --purple: #8b5cf6;
+            --purple: #f0b90b;
             --purple-dim: rgba(139, 92, 246, 0.12);
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
@@ -49,8 +49,8 @@
             position: fixed;
             inset: 0;
             background-image:
-                linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+                linear-gradient(rgba(240,185,11,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(240,185,11,0.04) 1px, transparent 1px);
             background-size: 40px 40px;
             pointer-events: none;
             z-index: 0;
@@ -78,7 +78,7 @@
         .logo-mark {
             font-size: 22px;
             font-weight: 800;
-            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            background: linear-gradient(135deg, #f0b90b, #f59e0b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -144,15 +144,15 @@
         }
 
         .nav-item:hover {
-            background: var(--blue-dim);
+            background: rgba(240,185,11,0.08);
             color: var(--text-primary);
             border-color: var(--border);
         }
 
         .nav-item.active {
-            background: var(--blue-dim);
-            color: var(--blue);
-            border-color: rgba(59,130,246,0.25);
+            background: rgba(240,185,11,0.08);
+            color: var(--gold);
+            border-color: rgba(240,185,11,0.25);
         }
 
         .nav-icon {
@@ -318,7 +318,7 @@
         }
 
         .stat-card:hover {
-            border-color: var(--border-bright);
+            border-color: rgba(240,185,11,0.35);
             transform: translateY(-2px);
             box-shadow: 0 12px 40px rgba(0,0,0,0.3);
         }
@@ -331,7 +331,7 @@
             border-radius: 14px 14px 0 0;
         }
 
-        .stat-card.blue::after { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+        .stat-card.blue::after { background: linear-gradient(90deg, var(--gold), var(--cyan)); }
         .stat-card.green::after { background: linear-gradient(90deg, var(--green), #34d399); }
         .stat-card.amber::after { background: linear-gradient(90deg, var(--amber), #fcd34d); }
         .stat-card.purple::after { background: linear-gradient(90deg, var(--purple), #a78bfa); }
@@ -391,7 +391,7 @@
         .section-title::before {
             content: '';
             width: 3px; height: 16px;
-            background: linear-gradient(to bottom, var(--blue), var(--cyan));
+            background: linear-gradient(to bottom, var(--gold), var(--cyan));
             border-radius: 2px;
         }
 
@@ -410,14 +410,11 @@
             letter-spacing: 0.3px;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--blue), #2563eb);
-            color: white;
-        }
+        .btn-primary { background: #f0b90b; color: #000; border: none; border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--sans); }
 
-        .btn-primary:hover {
+        .btn-primary:hover { background: #d4a007; }  .btn-primary-x:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(59,130,246,0.35);
+            box-shadow: 0 6px 20px rgba(240,185,11,0.35);
         }
 
         .btn-ghost {
@@ -427,9 +424,9 @@
         }
 
         .btn-ghost:hover {
-            background: var(--blue-dim);
+            background: rgba(240,185,11,0.08);
             color: var(--text-primary);
-            border-color: var(--border-bright);
+            border-color: rgba(240,185,11,0.35);
         }
 
         .btn-success {
@@ -474,7 +471,7 @@
         }
 
         .search-input:focus {
-            border-color: var(--border-bright);
+            border-color: rgba(240,185,11,0.35);
             background: rgba(15, 23, 42, 0.9);
         }
 
@@ -502,14 +499,14 @@
             padding: 14px 20px;
             font-size: 13px;
             color: var(--text-secondary);
-            border-bottom: 1px solid rgba(59,130,246,0.05);
+            border-bottom: 1px solid rgba(240,185,11,0.05);
             vertical-align: middle;
         }
 
         tr:last-child td { border-bottom: none; }
 
         tr:hover td {
-            background: rgba(59,130,246,0.03);
+            background: rgba(240,185,11,0.03);
             color: var(--text-primary);
         }
 
@@ -565,8 +562,8 @@
         .badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
         .badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
         .badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
-        .badge-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
-        .badge-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(6,182,212,0.2); }
+        .badge-blue { background: rgba(240,185,11,0.08); color: var(--gold); border: 1px solid rgba(240,185,11,0.2); }
+        .badge-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(245,158,11,0.2); }
         .badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
 
         .balance-cell {
@@ -625,12 +622,12 @@
 
         .modal {
             background: rgba(10, 16, 42, 0.98);
-            border: 1px solid var(--border-bright);
+            border: 1px solid rgba(240,185,11,0.35);
             border-radius: 18px;
             padding: 32px;
             width: 420px;
             max-width: 90vw;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.1);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(240,185,11,0.1);
             animation: slideUp 0.3s ease;
         }
 
@@ -653,7 +650,7 @@
         }
 
         .modal-user-info {
-            background: rgba(59,130,246,0.06);
+            background: rgba(240,185,11,0.06);
             border: 1px solid var(--border);
             border-radius: 10px;
             padding: 12px 14px;
@@ -689,8 +686,8 @@
         }
 
         .form-input:focus {
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(240,185,11,0.12);
         }
 
         .form-input::placeholder { color: var(--text-dim); }
@@ -710,7 +707,7 @@
             right: 20px;
             z-index: 200;
             background: rgba(10, 16, 42, 0.98);
-            border: 1px solid var(--border-bright);
+            border: 1px solid rgba(240,185,11,0.35);
             border-radius: 12px;
             padding: 14px 18px;
             display: flex;
@@ -769,7 +766,7 @@
             transition: height 0.3s ease;
         }
 
-        .spark-bar.blue { background: linear-gradient(to top, rgba(59,130,246,0.2), var(--blue)); }
+        .spark-bar.blue { background: linear-gradient(to top, rgba(240,185,11,0.2), var(--gold)); }
         .spark-bar.green { background: linear-gradient(to top, rgba(16,185,129,0.2), var(--green)); }
 
         /* ── ACTIVITY TIMELINE ── */
@@ -782,12 +779,12 @@
             display: flex;
             gap: 14px;
             padding: 14px 20px;
-            border-bottom: 1px solid rgba(59,130,246,0.05);
+            border-bottom: 1px solid rgba(240,185,11,0.05);
             transition: background 0.2s;
         }
 
         .activity-item:last-child { border-bottom: none; }
-        .activity-item:hover { background: rgba(59,130,246,0.03); }
+        .activity-item:hover { background: rgba(240,185,11,0.03); }
 
         .activity-dot {
             width: 8px; height: 8px;
@@ -796,8 +793,8 @@
             margin-top: 5px;
         }
 
-        .activity-dot.mining { background: var(--blue); box-shadow: 0 0 6px rgba(59,130,246,0.5); }
-        .activity-dot.scanner { background: var(--cyan); box-shadow: 0 0 6px rgba(6,182,212,0.5); }
+        .activity-dot.mining { background: var(--gold); box-shadow: 0 0 6px rgba(240,185,11,0.5); }
+        .activity-dot.scanner { background: var(--cyan); box-shadow: 0 0 6px rgba(245,158,11,0.5); }
         .activity-dot.deposit { background: var(--green); box-shadow: 0 0 6px rgba(16,185,129,0.5); }
         .activity-dot.withdraw { background: var(--amber); box-shadow: 0 0 6px rgba(245,158,11,0.5); }
 
@@ -827,7 +824,7 @@
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(240,185,11,0.35); }
 
         .loading-row td {
             text-align: center;
@@ -868,8 +865,8 @@
             transition: background 0.15s;
             position: relative;
         }
-        .ticket-item:hover { background: var(--blue-dim); }
-        .ticket-item.active { background: rgba(59,130,246,0.12); border-left: 3px solid var(--blue); }
+        .ticket-item:hover { background: rgba(240,185,11,0.08); }
+        .ticket-item.active { background: rgba(240,185,11,0.12); border-left: 3px solid var(--gold); }
         .ticket-item:last-child { border-bottom: none; }
 
         .ticket-user-row {
@@ -900,7 +897,7 @@
             top: 14px; right: 14px;
             width: 8px; height: 8px;
             border-radius: 50%;
-            background: var(--blue);
+            background: var(--gold);
             animation: blink 1.5s ease-in-out infinite;
         }
 
@@ -921,14 +918,14 @@
             word-break: break-word;
         }
         .chat-msg-wrap.user .chat-bubble {
-            background: rgba(59,130,246,0.1);
-            border: 1px solid rgba(59,130,246,0.18);
+            background: rgba(240,185,11,0.1);
+            border: 1px solid rgba(240,185,11,0.18);
             color: var(--text-secondary);
             border-bottom-left-radius: 4px;
         }
         .chat-msg-wrap.admin .chat-bubble {
-            background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(6,182,212,0.2));
-            border: 1px solid rgba(59,130,246,0.3);
+            background: linear-gradient(135deg, rgba(240,185,11,0.25), rgba(245,158,11,0.2));
+            border: 1px solid rgba(240,185,11,0.3);
             color: var(--text-primary);
             border-bottom-right-radius: 4px;
         }
@@ -1045,7 +1042,86 @@
             .stats-grid { grid-template-columns: 1fr !important; }
             .topbar { padding: 0 10px 0 56px !important; }
         }
-    </style>
+    
+/* ── GLOBAL YELLOW-BLACK OVERRIDES ── */
+:root {
+    --gold: #f0b90b !important;
+    --gold2: rgba(240,185,11,0.12) !important;
+    --blue: #f0b90b !important;
+    --blue2: rgba(240,185,11,0.12) !important;
+    --b2: rgba(240,185,11,0.12) !important;
+}
+.icon-gradient-gold {
+    background: linear-gradient(135deg, #f0b90b, #d4a007) !important;
+}
+/* Override any remaining blue inline elements */
+[style*="background:linear-gradient(135deg,#3b82f6"],
+[style*="background: linear-gradient(135deg, #3b82f6"],
+[style*="background:linear-gradient(135deg,#2563eb"],
+[style*="background:linear-gradient(135deg, #06b6d4"] {
+    background: linear-gradient(135deg, #f0b90b, #d4a007) !important;
+}
+a.btn-primary, .btn-primary { background: #f0b90b; color: #000; border: none; border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--sans); }
+.btn-primary:hover { background: #d4a007; }  .btn-primary-x:hover { background: #d4a007 !important; }
+
+</style>
+
+<style id="theme-override">
+/* ═══ CRYPTOEX YELLOW-BLACK UNIVERSAL THEME ═══ */
+:root {
+  --gold: #f0b90b;
+  --gold-dark: #d4a007;
+  --gold-light: #fcd535;
+  --gold-dim: rgba(240,185,11,0.12);
+  --black: #0a0a0a;
+  --black2: #111111;
+  --black3: #141414;
+  --black4: #1a1a1a;
+  --black5: #1e1e1e;
+  --border-gold: rgba(240,185,11,0.2);
+}
+
+/* Force all blue/purple accents → gold */
+.text-blue-400, .text-blue-500, .text-blue-600,
+.text-cyan-400, .text-cyan-500,
+.text-purple-400, .text-purple-500 {
+  color: #f0b90b !important;
+}
+.bg-blue-500, .bg-blue-600, .bg-blue-700,
+.bg-cyan-500, .bg-purple-500, .bg-purple-600 {
+  background-color: #f0b90b !important;
+  color: #000 !important;
+}
+.border-blue-500, .border-blue-400,
+.border-cyan-400, .border-cyan-500 {
+  border-color: rgba(240,185,11,0.4) !important;
+}
+.from-blue-400, .from-blue-500, .from-blue-600 { --tw-gradient-from: #f0b90b !important; }
+.to-cyan-400, .to-cyan-500 { --tw-gradient-to: #f59e0b !important; }
+
+/* Global button accent */
+button[style*="background:#3b82f6"],
+button[style*="background: #3b82f6"],
+button[style*="background-color:#3b82f6"] {
+  background: #f0b90b !important;
+  color: #000 !important;
+}
+
+/* Focus rings */
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(240,185,11,0.5) !important;
+  box-shadow: 0 0 0 2px rgba(240,185,11,0.12) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #f0b90b44; }
+
+/* Selection */
+::selection { background: rgba(240,185,11,0.25); color: #fff; }
+</style>
 </head>
 <body>
 
@@ -1253,7 +1329,7 @@
                     <!-- Header -->
                     <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(5,9,20,0.5);">
                         <div style="display:flex;align-items:center;gap:12px;">
-                            <div id="chatUserAvatar" style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;"></div>
+                            <div id="chatUserAvatar" style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#f0b90b,#f59e0b);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;"></div>
                             <div>
                                 <div style="font-size:14px;font-weight:700;color:var(--text-primary);" id="chatUsername">—</div>
                                 <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);" id="chatTicketMeta">Тикет #—</div>
@@ -1274,7 +1350,7 @@
                     <div id="chatInputArea" style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;background:rgba(5,9,20,0.4);">
                         <input id="adminReplyInput" placeholder="Написать ответ пользователю..."
                                style="flex:1;padding:10px 14px;background:rgba(15,23,42,0.8);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-family:var(--sans);font-size:13px;outline:none;transition:border-color 0.2s;"
-                               onfocus="this.style.borderColor='var(--border-bright)'" onblur="this.style.borderColor='var(--border)'"
+                               onfocus="this.style.borderColor='rgba(240,185,11,0.35)'" onblur="this.style.borderColor='var(--border)'"
                                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminReply();}">
                         <button onclick="sendAdminReply()" class="btn btn-primary" style="padding:10px 18px;flex-shrink:0;">
                             ➤ Отправить
@@ -1301,7 +1377,7 @@
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;" id="promoStats">
             <div class="stat-card"><div class="stat-value" id="ps-total">—</div><div class="stat-label">Всего кодов</div></div>
             <div class="stat-card"><div class="stat-value" id="ps-active" style="color:var(--green);">—</div><div class="stat-label">Активных</div></div>
-            <div class="stat-card"><div class="stat-value" id="ps-used" style="color:var(--blue);">—</div><div class="stat-label">Использований</div></div>
+            <div class="stat-card"><div class="stat-value" id="ps-used" style="color:var(--gold);">—</div><div class="stat-label">Использований</div></div>
             <div class="stat-card"><div class="stat-value" id="ps-bonus" style="color:var(--amber);">$0</div><div class="stat-label">Выдано бонусов</div></div>
         </div>
 
@@ -1332,7 +1408,7 @@
         <div class="modal-title">💰 Начисление баланса</div>
         <div class="modal-subtitle">Введите сумму для начисления пользователю</div>
         <div class="modal-user-info" id="fund-user-info">
-            <div class="user-avatar" id="fund-avatar" style="background: linear-gradient(135deg, #3b82f6, #06b6d4); width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;"></div>
+            <div class="user-avatar" id="fund-avatar" style="background: linear-gradient(135deg, #f0b90b, #f59e0b); width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;"></div>
             <div>
                 <div style="font-weight:700;font-size:13px;color:var(--text-primary)" id="fund-username">—</div>
                 <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim)" id="fund-balance-info">Текущий баланс: —</div>
@@ -1355,7 +1431,7 @@
 
 <div class="modal-overlay" id="userLogsModal">
     <div class="modal" style="width: 600px; max-width: 95vw;">
-        <div class="modal-title">Логи пользователя <span id="log-username" style="color: var(--blue);"></span></div>
+        <div class="modal-title">Логи пользователя <span id="log-username" style="color: var(--gold);"></span></div>
         <div class="modal-subtitle">Последние 200 действий (клики, работа сессии)</div>
         <div class="table-card" style="max-height: 400px; overflow-y: auto;">
             <table>
@@ -1391,7 +1467,7 @@ let allUsers = [];
 let allTransactions = [];
 let currentFundUserId = null;
 
-const COLORS = ['#3b82f6','#06b6d4','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899'];
+const COLORS = ['#f0b90b','#f59e0b','#10b981','#f0b90b','#f59e0b','#ef4444','#ec4899'];
 function userColor(name) { return COLORS[name.charCodeAt(0) % COLORS.length]; }
 function userInitial(name) { return (name || '?')[0].toUpperCase(); }
 function fmt(n) { return '$' + parseFloat(n || 0).toFixed(2); }
@@ -1571,7 +1647,7 @@ function formatLogAction(action) {
     if (action === 'SESSION_START') return '<b style="color:var(--green)">🚀 Запуск (Start)</b>';
     if (action === 'SESSION_TICK') return '<span style="color:var(--text-dim)">↻ В процессе (Sync)</span>';
     if (action === 'SESSION_PAUSE') return '<b style="color:var(--amber)">⏸ Пауза (Pause)</b>';
-    if (action === 'SESSION_RESUME') return '<b style="color:var(--blue)">▶ Возобновлен (Resume)</b>';
+    if (action === 'SESSION_RESUME') return '<b style="color:var(--gold)">▶ Возобновлен (Resume)</b>';
     
     if (action.startsWith('SESSION_END')) {
         let text = action.replace('SESSION_END', '<b style="color:var(--red)">⏹ Остановлен (Stop)</b><br>');
@@ -1641,7 +1717,7 @@ async function loadTransactions() {
             <tr>
                 <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">#${t.id}</td>
                 <td><div class="user-cell">
-                    <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(t.username||'?')},#06b6d4);width:26px;height:26px;border-radius:6px;font-size:11px">${userInitial(t.username||'?')}</div>
+                    <div class="user-avatar" style="background:linear-gradient(135deg,${userColor(t.username||'?')},#f59e0b);width:26px;height:26px;border-radius:6px;font-size:11px">${userInitial(t.username||'?')}</div>
                     <span style="font-size:12px;color:var(--text-primary)">${t.username||'—'}</span>
                 </div></td>
                 <td><span class="badge ${typeBadge[t.type]||'badge-blue'}">${typeLabel[t.type]||t.type}</span></td>
@@ -2008,7 +2084,7 @@ async function loadPromos() {
             const typeLabel = p.promo_type === 'percent' ? p.bonus_amount + '%' : '$' + parseFloat(p.bonus_amount).toFixed(2);
             const typeIcon = p.promo_type === 'percent' ? '📊' : '💵';
             return `<tr>
-                <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue);background:var(--blue-dim);padding:3px 10px;border-radius:6px;letter-spacing:1px;">${p.code}</span></td>
+                <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--gold);background:rgba(240,185,11,0.08);padding:3px 10px;border-radius:6px;letter-spacing:1px;">${p.code}</span></td>
                 <td><span style="font-weight:700;color:var(--amber);">${typeIcon} ${typeLabel}</span></td>
                 <td style="color:var(--text-secondary);font-size:12px;">${p.promo_type === 'percent' ? '% от баланса' : 'Фиксированная'}</td>
                 <td style="color:var(--text-secondary);">${p.max_uses > 0 ? p.max_uses : '∞'}</td>

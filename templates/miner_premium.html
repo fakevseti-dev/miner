@@ -18,12 +18,12 @@
 
         html, body {
             overflow-x: hidden; /* Жестко отрезаем вылезающие элементы по бокам */
-            background-color: #0f172a; /* Задаем темный фон самому окну браузера */
+            background-color: #0d0d0d; /* Задаем темный фон самому окну браузера */
         }
 
         body {
             font-family: 'Sora', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            background: linear-gradient(135deg, #0d0d0d 0%, #111111 50%, #0d0d0d 100%);
             background-attachment: fixed;
             color: #e2e8f0;
             min-height: 100vh;
@@ -35,8 +35,8 @@
             border: 1px solid rgba(148, 163, 184, 0.1);
         }
 
-        .gradient-text {
-            background: linear-gradient(135deg, #60a5fa 0%, #06b6d4 100%);
+        .gradient-text-gold {
+            background: linear-gradient(135deg, #fcd535 0%, #f59e0b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -48,7 +48,7 @@
 
         .card-hover:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 20px 60px rgba(240,185,11, 0.3);
         }
 
         .modal-backdrop {
@@ -76,8 +76,8 @@
             width: 100%;
         }
 
-        .icon-gradient-1 {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        .icon-gradient-gold {
+            background: linear-gradient(135deg, #f0b90b 0%, #d4a007 100%);
         }
 
         .section {
@@ -132,7 +132,7 @@
             top: 20px;
             right: 20px;
             padding: 16px 24px;
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, #f0b90b, #059669);
             border-radius: 12px;
             color: white;
             font-weight: bold;
@@ -173,7 +173,7 @@
             left: 0;
             right: 0;
             text-align: center;
-            color: #10b981;
+            color: #f0b90b;
             font-size: 12px;
             font-weight: bold;
         }
@@ -217,16 +217,16 @@
         .tx-ring-wrap { position:relative; width:72px; height:72px; margin: 0 auto 16px; }
         .tx-ring {
             width:72px; height:72px; border-radius:50%;
-            border: 3px solid rgba(59,130,246,0.12);
-            border-top-color: #3b82f6;
-            border-right-color: #06b6d4;
+            border: 3px solid rgba(240,185,11,0.12);
+            border-top-color: #f0b90b;
+            border-right-color: #f59e0b;
             animation: txSpin 1.1s cubic-bezier(.4,0,.2,1) infinite;
             position:absolute; inset:0;
         }
         .tx-ring-inner {
             position:absolute; inset:9px; border-radius:50%;
             border: 2px solid transparent;
-            border-top-color: rgba(6,182,212,0.35);
+            border-top-color: rgba(245,158,11,0.35);
             animation: txSpin 2.2s linear infinite reverse;
         }
         .tx-ring-icon {
@@ -241,7 +241,7 @@
         /* confirm bar */
         .tx-confirm-bar {
             background: rgba(15,23,42,0.9);
-            border: 1px solid rgba(59,130,246,0.2);
+            border: 1px solid rgba(240,185,11,0.2);
             border-radius:12px;
             padding:14px 18px;
             width:100%;
@@ -249,58 +249,58 @@
         }
         .tx-confirm-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
         .tx-confirm-label { font-size:10px; color:#475569; text-transform:uppercase; letter-spacing:1.5px; font-family:monospace; }
-        .tx-confirm-num { font-size:22px; font-weight:800; color:#3b82f6; font-family:monospace; }
+        .tx-confirm-num { font-size:22px; font-weight:800; color:#f0b90b; font-family:monospace; }
         .tx-confirm-num span { font-size:13px; font-weight:400; color:#334155; }
         .tx-dots { display:flex; gap:4px; flex-wrap:wrap; }
         .tx-dot {
             height:5px; flex:1; min-width:14px; border-radius:3px;
-            background: rgba(59,130,246,0.1);
+            background: rgba(240,185,11,0.1);
             transition: background 0.4s ease, box-shadow 0.4s ease;
         }
-        .tx-dot.done { background:#3b82f6; box-shadow:0 0 6px rgba(59,130,246,0.5); }
-        .tx-dot.active { background:#06b6d4; box-shadow:0 0 8px rgba(6,182,212,0.7); animation:dotPulse 0.8s ease infinite; }
+        .tx-dot.done { background:#f0b90b; box-shadow:0 0 6px rgba(240,185,11,0.5); }
+        .tx-dot.active { background:#f59e0b; box-shadow:0 0 8px rgba(245,158,11,0.7); animation:dotPulse 0.8s ease infinite; }
         @keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
         /* info rows */
         .tx-info-grid { width:100%; display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
         .tx-info-cell {
             background: rgba(15,23,42,0.8);
-            border: 1px solid rgba(59,130,246,0.12);
+            border: 1px solid rgba(240,185,11,0.12);
             border-radius:9px; padding:10px 12px;
         }
         .tx-info-cell-label { font-size:9px; color:#334155; text-transform:uppercase; letter-spacing:1.5px; font-family:monospace; margin-bottom:4px; }
         .tx-info-cell-val { font-size:12px; font-weight:700; color:#94a3b8; font-family:monospace; word-break:break-all; }
-        .tx-info-cell-val.green { color:#10b981; }
-        .tx-info-cell-val.blue { color:#3b82f6; }
+        .tx-info-cell-val.green { color:#f0b90b; }
+        .tx-info-cell-val.blue { color:#f0b90b; }
         .tx-info-cell-val.amber { color:#f59e0b; }
 
         /* hash line */
         .tx-hash-row {
-            width:100%; background:rgba(15,23,42,0.8); border:1px solid rgba(59,130,246,0.12);
+            width:100%; background:rgba(15,23,42,0.8); border:1px solid rgba(240,185,11,0.12);
             border-radius:9px; padding:10px 12px; margin-bottom:14px;
         }
         .tx-hash-label { font-size:9px; color:#334155; text-transform:uppercase; letter-spacing:1.5px; font-family:monospace; margin-bottom:4px; }
-        .tx-hash-val { font-size:10px; color:#3b82f6; font-family:monospace; word-break:break-all; }
+        .tx-hash-val { font-size:10px; color:#f0b90b; font-family:monospace; word-break:break-all; }
 
         /* status log */
         .tx-log { width:100%; }
         .tx-log-item {
             display:flex; align-items:flex-start; gap:8px;
-            padding:6px 0; border-bottom:1px solid rgba(59,130,246,0.05);
+            padding:6px 0; border-bottom:1px solid rgba(240,185,11,0.05);
             font-size:11px; color:#475569; font-family:monospace;
         }
         .tx-log-item:last-child { border-bottom:none; }
         .tx-log-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:3px; }
-        .tx-log-dot.ok { background:#10b981; }
-        .tx-log-dot.pending { background:#3b82f6; animation:dotPulse 1s ease infinite; }
+        .tx-log-dot.ok { background:#f0b90b; }
+        .tx-log-dot.pending { background:#f0b90b; animation:dotPulse 1s ease infinite; }
         .tx-log-dot.wait { background:#334155; }
         .tx-log-time { color:#1e293b; flex-shrink:0; }
         .tx-log-text { flex:1; }
         .tx-log-text.hi { color:#94a3b8; }
 
         /* pulse status */
-        .tx-status-row { display:flex; align-items:center; gap:6px; margin-top:12px; font-size:11px; color:#3b82f6; font-family:monospace; }
-        .tx-pulse { width:6px; height:6px; border-radius:50%; background:#3b82f6; animation:dotPulse 1.2s ease infinite; }
+        .tx-status-row { display:flex; align-items:center; gap:6px; margin-top:12px; font-size:11px; color:#f0b90b; font-family:monospace; }
+        .tx-pulse { width:6px; height:6px; border-radius:50%; background:#f0b90b; animation:dotPulse 1.2s ease infinite; }
 
         /* ── ERROR PANEL ── */
         .error-panel {
@@ -324,23 +324,23 @@
         }
         
         ::-webkit-scrollbar-track {
-            background: #0f172a; 
+            background: #0d0d0d; 
             border-radius: 10px;
         }
         
         ::-webkit-scrollbar-thumb {
-            background: rgba(59, 130, 246, 0.3); 
+            background: rgba(240,185,11, 0.3); 
             border-radius: 10px;
             transition: background 0.3s ease;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(59, 130, 246, 0.7); 
+            background: rgba(240,185,11, 0.7); 
         }
 
         * {
             scrollbar-width: thin;
-            scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+            scrollbar-color: rgba(240,185,11, 0.3) transparent;
         }
 
         .error-panel-title { font-size:12px; font-weight:700; color:#ef4444; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
@@ -383,13 +383,13 @@
         .sc-title { font-size: 20px; font-weight: 800; color: #f1f5f9; margin-bottom: 8px; }
         .sc-sub { font-size: 13px; color: #475569; margin-bottom: 24px; line-height: 1.6; }
         .sc-earned-box {
-            background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.08));
+            background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(245,158,11,0.08));
             border: 1px solid rgba(16,185,129,0.2);
             border-radius: 14px; padding: 18px 28px; margin-bottom: 24px; width: 100%;
         }
         .sc-earned-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #475569; font-family: monospace; margin-bottom: 6px; }
         .sc-earned-val { font-size: 32px; font-weight: 800; font-family: monospace;
-            background: linear-gradient(135deg,#34d399,#06b6d4);
+            background: linear-gradient(135deg,#f0b90b,#f59e0b);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
         .sc-status-badge {
@@ -436,7 +436,7 @@
             nav h1 { font-size: 14px !important; }
             nav .flex.items-center.gap-8 { gap: 10px !important; }
             /* Скрываем надпись Balance, оставляем только сумму */
-            #top-balance ~ span, nav .text-xs.text-slate-400 { display: none; }
+            #top-balance ~ span, nav .text-xs.text-neutral-400 { display: none; }
             nav .px-4.py-2.rounded-xl { padding: 6px 10px !important; gap: 6px !important; }
             nav .text-base.font-bold { font-size: 13px !important; }
             /* Скрываем имя пользователя в кнопке профиля */
@@ -501,7 +501,7 @@
             #planSection h2 { font-size: 24px !important; }
 
             /* Stat-карточки внутри планов */
-            #minerSection .glass.rounded-2xl.border.border-slate-700.p-5 { padding: 14px !important; }
+            #minerSection .glass.rounded-2xl.border.border-neutral-700.p-5 { padding: 14px !important; }
 
             /* Support FAB position */
             .support-fab { bottom: 16px !important; right: 16px !important; width: 50px !important; height: 50px !important; }
@@ -514,7 +514,112 @@
             .text-4xl { font-size: 20px !important; }
             .modal-backdrop .glass.rounded-2xl { padding: 16px 12px !important; }
         }
-    </style>
+    
+/* ── GLOBAL YELLOW-BLACK OVERRIDES ── */
+:root {
+    --gold: #f0b90b !important;
+    --gold2: rgba(240,185,11,0.12) !important;
+    --blue: #f0b90b !important;
+    --blue2: rgba(240,185,11,0.12) !important;
+    --b2: rgba(240,185,11,0.12) !important;
+}
+.icon-gradient-gold {
+    background: linear-gradient(135deg, #f0b90b, #d4a007) !important;
+}
+/* Override any remaining blue inline elements */
+[style*="background:linear-gradient(135deg,#3b82f6"],
+[style*="background: linear-gradient(135deg, #3b82f6"],
+[style*="background:linear-gradient(135deg,#2563eb"],
+[style*="background:linear-gradient(135deg, #06b6d4"] {
+    background: linear-gradient(135deg, #f0b90b, #d4a007) !important;
+}
+a.btn-primary, .btn-primary {
+    background: #f0b90b !important;
+    color: #000 !important;
+    border-color: #f0b90b !important;
+}
+.btn-primary:hover { background: #d4a007 !important; }
+
+</style>
+
+<style id="theme-override">
+/* ═══ CRYPTOEX YELLOW-BLACK UNIVERSAL THEME ═══ */
+:root {
+  --gold: #f0b90b;
+  --gold-dark: #d4a007;
+  --gold-light: #fcd535;
+  --gold-dim: rgba(240,185,11,0.12);
+  --black: #0a0a0a;
+  --black2: #111111;
+  --black3: #141414;
+  --black4: #1a1a1a;
+  --black5: #1e1e1e;
+  --border-gold: rgba(240,185,11,0.2);
+}
+
+/* Force all blue/purple accents → gold */
+.text-blue-400, .text-blue-500, .text-blue-600,
+.text-cyan-400, .text-cyan-500,
+.text-purple-400, .text-purple-500 {
+  color: #f0b90b !important;
+}
+.bg-blue-500, .bg-blue-600, .bg-blue-700,
+.bg-cyan-500, .bg-purple-500, .bg-purple-600 {
+  background-color: #f0b90b !important;
+  color: #000 !important;
+}
+.border-blue-500, .border-blue-400,
+.border-cyan-400, .border-cyan-500 {
+  border-color: rgba(240,185,11,0.4) !important;
+}
+.from-blue-400, .from-blue-500, .from-blue-600 { --tw-gradient-from: #f0b90b !important; }
+.to-cyan-400, .to-cyan-500 { --tw-gradient-to: #f59e0b !important; }
+
+/* Global button accent */
+button[style*="background:#3b82f6"],
+button[style*="background: #3b82f6"],
+button[style*="background-color:#3b82f6"] {
+  background: #f0b90b !important;
+  color: #000 !important;
+}
+
+/* Focus rings */
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(240,185,11,0.5) !important;
+  box-shadow: 0 0 0 2px rgba(240,185,11,0.12) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #f0b90b44; }
+
+/* Selection */
+::selection { background: rgba(240,185,11,0.25); color: #fff; }
+</style>
+
+<style>
+/* Quick Actions responsive */
+#quickActionsGrid {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+}
+@media (max-width: 900px) {
+    #quickActionsGrid { grid-template-columns: repeat(4, 1fr) !important; }
+}
+@media (max-width: 560px) {
+    #quickActionsGrid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+/* Staking filter active */
+.active-stk { border-color: #f0b90b !important; background: rgba(240,185,11,0.1) !important; color: #f0b90b !important; }
+/* P2P coin active */
+.active-coin { border-color: #f0b90b !important; background: rgba(240,185,11,0.1) !important; color: #f0b90b !important; }
+/* section pages */
+#page-p2p, #page-staking, #page-copytrading, #page-referral, #page-security, #page-apikeys {
+    display: none;
+}
+</style>
 </head>
 <body>
 
@@ -686,11 +791,11 @@
                             <div><div style="font-size:14px;font-weight:800;color:#fff;">4.8</div><div style="font-size:10px;color:#666;">RATING</div></div>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;">
-                            <i class="fas fa-users" style="color:#7c3aed;font-size:13px;"></i>
+                            <i class="fas fa-users" style="color:#d4a007;font-size:13px;"></i>
                             <div><div style="font-size:14px;font-weight:800;color:#fff;">172K+</div><div style="font-size:10px;color:#666;">TRADERS</div></div>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;">
-                            <i class="fas fa-coins" style="color:#10b981;font-size:13px;"></i>
+                            <i class="fas fa-coins" style="color:#f0b90b;font-size:13px;"></i>
                             <div><div style="font-size:14px;font-weight:800;color:#fff;">910+</div><div style="font-size:10px;color:#666;">COINS</div></div>
                         </div>
                     </div>
@@ -733,7 +838,7 @@
                         </div>
                         <div style="background:#1a1a1a;border-radius:8px;padding:10px;">
                             <div style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">24H HIGH</div>
-                            <div style="font-size:14px;font-weight:700;color:#10b981;" id="heroHigh">$0.00</div>
+                            <div style="font-size:14px;font-weight:700;color:#f0b90b;" id="heroHigh">$0.00</div>
                         </div>
                         <div style="background:#1a1a1a;border-radius:8px;padding:10px;">
                             <div style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">24H LOW</div>
@@ -761,7 +866,7 @@
                             <div style="font-size:16px;font-weight:700;color:#fff;">Spot Trading</div>
                             <div style="font-size:11px;color:#666;">Buy & Sell Crypto</div>
                         </div>
-                        <span style="font-size:10px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:3px 8px;border-radius:20px;">LIVE</span>
+                        <span style="font-size:10px;font-weight:700;color:#f0b90b;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:3px 8px;border-radius:20px;">LIVE</span>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                         <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Pairs</div><div style="font-size:13px;font-weight:700;color:#f0b90b;font-family:monospace;">6 / USDT</div></div>
@@ -774,70 +879,70 @@
                 </div>
 
                 <!-- MINING CARD -->
-                <div onclick="handleMinerClick()" id="minerCard" style="cursor:pointer;border-radius:16px;background:#141414;border:1px solid #2a2a2a;padding:22px;display:flex;flex-direction:column;gap:14px;transition:all 0.25s;" onmouseenter="this.style.borderColor='#3b82f644';this.style.background='#1a1a1a';this.style.transform='translateY(-4px)'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#141414';this.style.transform='translateY(0)'">
+                <div onclick="handleMinerClick()" id="minerCard" style="cursor:pointer;border-radius:16px;background:#141414;border:1px solid #2a2a2a;padding:22px;display:flex;flex-direction:column;gap:14px;transition:all 0.25s;" onmouseenter="this.style.borderColor='#f0b90b44';this.style.background='#1a1a1a';this.style.transform='translateY(-4px)'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#141414';this.style.transform='translateY(0)'">
                     <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="width:46px;height:46px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <div style="width:46px;height:46px;background:linear-gradient(135deg,#f0b90b,#d4a007);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             <i class="fas fa-microchip" style="font-size:20px;color:#fff;"></i>
                         </div>
                         <div style="flex:1;">
                             <div style="font-size:16px;font-weight:700;color:#fff;">Crypto Mining</div>
                             <div style="font-size:11px;color:#666;">Mine & Earn Rewards</div>
                         </div>
-                        <span style="font-size:10px;font-weight:700;color:#3b82f6;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);padding:3px 8px;border-radius:20px;">READY</span>
+                        <span style="font-size:10px;font-weight:700;color:#f0b90b;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.2);padding:3px 8px;border-radius:20px;">READY</span>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                        <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Plan</div><div style="font-size:13px;font-weight:700;color:#60a5fa;font-family:monospace;" id="menuMinerPlan">—</div></div>
+                        <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Plan</div><div style="font-size:13px;font-weight:700;color:#fcd535;font-family:monospace;" id="menuMinerPlan">—</div></div>
                         <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Earned</div><div style="font-size:13px;font-weight:700;color:#10b981;font-family:monospace;" id="menuMinerEarned">$0.00</div></div>
-                        <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Hashrate</div><div style="font-size:13px;font-weight:700;color:#60a5fa;font-family:monospace;" id="menuMinerHash">— MH/s</div></div>
+                        <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Hashrate</div><div style="font-size:13px;font-weight:700;color:#fcd535;font-family:monospace;" id="menuMinerHash">— MH/s</div></div>
                         <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Balance</div><div style="font-size:13px;font-weight:700;color:#f59e0b;font-family:monospace;" id="menuMinerBalance">$0.00</div></div>
                     </div>
                     <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;border-top:1px solid #222;">
                         <span style="font-size:11px;color:#555;">Start Mining</span>
-                        <i class="fas fa-arrow-right" style="color:#3b82f6;font-size:12px;"></i>
+                        <i class="fas fa-arrow-right" style="color:#f0b90b;font-size:12px;"></i>
                     </div>
                 </div>
 
                 <!-- SCANNER CARD -->
-                <div onclick="window.location.href='/scanner'" style="cursor:pointer;border-radius:16px;background:#141414;border:1px solid #2a2a2a;padding:22px;display:flex;flex-direction:column;gap:14px;transition:all 0.25s;" onmouseenter="this.style.borderColor='#10b98144';this.style.background='#1a1a1a';this.style.transform='translateY(-4px)'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#141414';this.style.transform='translateY(0)'">
+                <div onclick="window.location.href='/scanner'" style="cursor:pointer;border-radius:16px;background:#141414;border:1px solid #2a2a2a;padding:22px;display:flex;flex-direction:column;gap:14px;transition:all 0.25s;" onmouseenter="this.style.borderColor='#f0b90b44';this.style.background='#1a1a1a';this.style.transform='translateY(-4px)'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#141414';this.style.transform='translateY(0)'">
                     <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="width:46px;height:46px;background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <div style="width:46px;height:46px;background:linear-gradient(135deg,#f0b90b,#059669);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             <i class="fas fa-radar" style="font-size:20px;color:#fff;"></i>
                         </div>
                         <div style="flex:1;">
                             <div style="font-size:16px;font-weight:700;color:#fff;">Market Scanner</div>
                             <div style="font-size:11px;color:#666;">Arbitrage Signals</div>
                         </div>
-                        <span style="font-size:10px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:3px 8px;border-radius:20px;">ACTIVE</span>
+                        <span style="font-size:10px;font-weight:700;color:#f0b90b;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:3px 8px;border-radius:20px;">ACTIVE</span>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                        <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Found</div><div style="font-size:13px;font-weight:700;color:#10b981;font-family:monospace;" id="menuScanFound">—</div></div>
+                        <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Found</div><div style="font-size:13px;font-weight:700;color:#f0b90b;font-family:monospace;" id="menuScanFound">—</div></div>
                         <div style="background:#1e1e1e;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Max Spread</div><div style="font-size:13px;font-weight:700;color:#a78bfa;font-family:monospace;" id="menuScanSpread">—</div></div>
                     </div>
                     <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;border-top:1px solid #222;">
                         <span style="font-size:11px;color:#555;">Open Scanner</span>
-                        <i class="fas fa-arrow-right" style="color:#10b981;font-size:12px;"></i>
+                        <i class="fas fa-arrow-right" style="color:#f0b90b;font-size:12px;"></i>
                     </div>
                 </div>
 
                 <!-- PROMO CARD -->
-                <div onclick="document.getElementById('promoModalTrigger') && document.getElementById('promoModalTrigger').click()" style="cursor:pointer;border-radius:16px;background:#141414;border:1px solid #2a2a2a;padding:22px;display:flex;flex-direction:column;gap:14px;transition:all 0.25s;" onmouseenter="this.style.borderColor='#a855f744';this.style.background='#1a1a1a';this.style.transform='translateY(-4px)'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#141414';this.style.transform='translateY(0)'">
+                <div onclick="document.getElementById('promoModalTrigger') && document.getElementById('promoModalTrigger').click()" style="cursor:pointer;border-radius:16px;background:#141414;border:1px solid #2a2a2a;padding:22px;display:flex;flex-direction:column;gap:14px;transition:all 0.25s;" onmouseenter="this.style.borderColor='#fcd53544';this.style.background='#1a1a1a';this.style.transform='translateY(-4px)'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#141414';this.style.transform='translateY(0)'">
                     <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="width:46px;height:46px;background:linear-gradient(135deg,#a855f7,#7c3aed);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <div style="width:46px;height:46px;background:linear-gradient(135deg,#fcd535,#d4a007);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             <i class="fas fa-gift" style="font-size:20px;color:#fff;"></i>
                         </div>
                         <div style="flex:1;">
                             <div style="font-size:16px;font-weight:700;color:#fff;">Promo & Bonuses</div>
                             <div style="font-size:11px;color:#666;">Enter code, get reward</div>
                         </div>
-                        <span style="font-size:10px;font-weight:700;color:#a855f7;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);padding:3px 8px;border-radius:20px;">NEW</span>
+                        <span style="font-size:10px;font-weight:700;color:#fcd535;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);padding:3px 8px;border-radius:20px;">NEW</span>
                     </div>
                     <div style="background:#1e1e1e;border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
-                        <i class="fas fa-tag" style="color:#a855f7;font-size:14px;"></i>
+                        <i class="fas fa-tag" style="color:#fcd535;font-size:14px;"></i>
                         <span style="font-size:12px;color:#999;">Enter promo code → get bonus up to $100</span>
                     </div>
                     <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;border-top:1px solid #222;">
                         <span style="font-size:11px;color:#555;">Activate Promo</span>
-                        <i class="fas fa-arrow-right" style="color:#a855f7;font-size:12px;"></i>
+                        <i class="fas fa-arrow-right" style="color:#fcd535;font-size:12px;"></i>
                     </div>
                 </div>
 
@@ -867,105 +972,383 @@
                 </div>
             </div>
 
+        <!-- QUICK ACTIONS -->
+        <div style="margin-top:40px;background:#141414;border:1px solid #2a2a2a;border-radius:20px;padding:28px 32px;margin-bottom:0;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+                <div style="width:36px;height:36px;background:#f0b90b;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-bolt" style="color:#000;font-size:16px;"></i>
+                </div>
+                <span style="font-size:18px;font-weight:700;color:#fff;">Quick Actions</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:12px;" id="quickActionsGrid">
+                <!-- Trade -->
+                <div onclick="window.location.href='/trading'" class="qa-card" style="background:#1e1e1e;border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid #2a2a2a;">
+                    <div style="width:52px;height:52px;background:linear-gradient(135deg,#4f3bb3,#7c3aed);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fas fa-chart-line" style="color:#a78bfa;font-size:20px;"></i>
+                    </div>
+                    <div style="font-size:13px;font-weight:600;color:#e0e0e0;">Trade</div>
+                </div>
+                <!-- P2P -->
+                <div onclick="showPage('p2p')" class="qa-card" style="background:#1e1e1e;border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid #2a2a2a;">
+                    <div style="width:52px;height:52px;background:linear-gradient(135deg,#0f4c75,#1565c0);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fas fa-people-arrows" style="color:#4fc3f7;font-size:20px;"></i>
+                    </div>
+                    <div style="font-size:13px;font-weight:600;color:#e0e0e0;">P2P</div>
+                </div>
+                <!-- Staking -->
+                <div onclick="showPage('staking')" class="qa-card" style="background:#1e1e1e;border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid #2a2a2a;">
+                    <div style="width:52px;height:52px;background:linear-gradient(135deg,#0d4f3c,#065f46);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fas fa-layer-group" style="color:#34d399;font-size:20px;"></i>
+                    </div>
+                    <div style="font-size:13px;font-weight:600;color:#e0e0e0;">Staking</div>
+                </div>
+                <!-- Copy Trading -->
+                <div onclick="showPage('copytrading')" class="qa-card" style="background:#1e1e1e;border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid #2a2a2a;">
+                    <div style="width:52px;height:52px;background:linear-gradient(135deg,#4a1942,#86198f);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fas fa-copy" style="color:#e879f9;font-size:20px;"></i>
+                    </div>
+                    <div style="font-size:13px;font-weight:600;color:#e0e0e0;">Copy Trading</div>
+                </div>
+                <!-- Referral -->
+                <div onclick="showPage('referral')" class="qa-card" style="background:#1e1e1e;border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid #2a2a2a;">
+                    <div style="width:52px;height:52px;background:linear-gradient(135deg,#7f1d1d,#b91c1c);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fas fa-gift" style="color:#f87171;font-size:20px;"></i>
+                    </div>
+                    <div style="font-size:13px;font-weight:600;color:#e0e0e0;">Referral<br>Program</div>
+                </div>
+                <!-- Security -->
+                <div onclick="showPage('security')" class="qa-card" style="background:#1e1e1e;border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid #2a2a2a;">
+                    <div style="width:52px;height:52px;background:linear-gradient(135deg,#0c3547,#0e7490);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fas fa-shield-halved" style="color:#22d3ee;font-size:20px;"></i>
+                    </div>
+                    <div style="font-size:13px;font-weight:600;color:#e0e0e0;">Security</div>
+                </div>
+                <!-- API Keys -->
+                <div onclick="showPage('apikeys')" class="qa-card" style="background:#1e1e1e;border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid #2a2a2a;">
+                    <div style="width:52px;height:52px;background:linear-gradient(135deg,#312e81,#4338ca);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <i class="fas fa-key" style="color:#818cf8;font-size:20px;"></i>
+                    </div>
+                    <div style="font-size:13px;font-weight:600;color:#e0e0e0;">API Keys</div>
+                </div>
+            </div>
+        </div>
+
         </section>
 
-        <section id="planSection" class="section">
-            <button onclick="showSection('menuSection')" class="mb-8 flex items-center gap-2 text-blue-400 hover:text-blue-300 transition">
+        <!-- ═══════════════════ P2P PAGE ═══════════════════ -->
+        <section id="page-p2p" class="section" style="display:none;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+                <button onclick="showPage('menu')" style="width:36px;height:36px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#888;cursor:pointer;font-size:16px;">←</button>
+                <div>
+                    <h2 style="font-size:22px;font-weight:800;color:#fff;">P2P Trading</h2>
+                    <p style="font-size:13px;color:#666;">Buy & Sell crypto peer-to-peer</p>
+                </div>
+            </div>
+            <!-- Tabs -->
+            <div style="display:flex;gap:0;background:#141414;border:1px solid #2a2a2a;border-radius:12px;padding:4px;margin-bottom:24px;width:fit-content;">
+                <button onclick="p2pTab('buy',this)" id="p2pBuyTab" style="padding:8px 24px;border-radius:8px;border:none;background:#f0b90b;color:#000;font-weight:700;font-size:13px;cursor:pointer;">Buy</button>
+                <button onclick="p2pTab('sell',this)" id="p2pSellTab" style="padding:8px 24px;border-radius:8px;border:none;background:transparent;color:#888;font-weight:700;font-size:13px;cursor:pointer;">Sell</button>
+            </div>
+            <!-- Coin filter -->
+            <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+                <span style="font-size:12px;color:#666;display:flex;align-items:center;padding-right:8px;border-right:1px solid #2a2a2a;">Asset:</span>
+                <button onclick="p2pCoin(this,'USDT')" class="p2p-coin-btn active-coin" style="padding:5px 14px;border-radius:20px;border:1px solid #f0b90b;background:rgba(240,185,11,0.1);color:#f0b90b;font-size:12px;font-weight:600;cursor:pointer;">USDT</button>
+                <button onclick="p2pCoin(this,'BTC')" class="p2p-coin-btn" style="padding:5px 14px;border-radius:20px;border:1px solid #2a2a2a;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;">BTC</button>
+                <button onclick="p2pCoin(this,'ETH')" class="p2p-coin-btn" style="padding:5px 14px;border-radius:20px;border:1px solid #2a2a2a;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;">ETH</button>
+                <button onclick="p2pCoin(this,'BNB')" class="p2p-coin-btn" style="padding:5px 14px;border-radius:20px;border:1px solid #2a2a2a;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;">BNB</button>
+            </div>
+            <!-- Orders table -->
+            <div style="background:#141414;border:1px solid #2a2a2a;border-radius:16px;overflow:hidden;">
+                <div style="display:grid;grid-template-columns:2fr 1.5fr 1.5fr 2fr 1.5fr;padding:12px 20px;border-bottom:1px solid #2a2a2a;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.8px;">
+                    <span>Advertiser</span><span>Price</span><span>Available</span><span>Payment</span><span>Action</span>
+                </div>
+                <div id="p2pOrders"></div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════ STAKING PAGE ═══════════════════ -->
+        <section id="page-staking" class="section" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button onclick="showPage('menu')" style="width:36px;height:36px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#888;cursor:pointer;font-size:16px;">←</button>
+                    <div>
+                        <h2 style="font-size:22px;font-weight:800;color:#fff;">Staking</h2>
+                        <p style="font-size:13px;color:#666;">Earn passive income on your crypto</p>
+                    </div>
+                </div>
+                <!-- Stats -->
+                <div style="display:flex;gap:16px;flex-wrap:wrap;">
+                    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:10px;padding:12px 20px;text-align:center;">
+                        <div style="font-size:11px;color:#666;margin-bottom:3px;">Total Staked</div>
+                        <div style="font-size:16px;font-weight:800;color:#f0b90b;">$0.00</div>
+                    </div>
+                    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:10px;padding:12px 20px;text-align:center;">
+                        <div style="font-size:11px;color:#666;margin-bottom:3px;">Total Earned</div>
+                        <div style="font-size:16px;font-weight:800;color:#10b981;" id="stakingTotalEarned">$0.00</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Filter tabs -->
+            <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
+                <button onclick="stakingFilter('all',this)" class="stk-filter active-stk" style="padding:7px 18px;border-radius:20px;border:1px solid #f0b90b;background:rgba(240,185,11,0.1);color:#f0b90b;font-size:12px;font-weight:600;cursor:pointer;">All</button>
+                <button onclick="stakingFilter('fixed',this)" class="stk-filter" style="padding:7px 18px;border-radius:20px;border:1px solid #2a2a2a;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;">Fixed</button>
+                <button onclick="stakingFilter('flexible',this)" class="stk-filter" style="padding:7px 18px;border-radius:20px;border:1px solid #2a2a2a;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;">Flexible</button>
+            </div>
+            <!-- Staking cards grid -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;" id="stakingGrid"></div>
+        </section>
+
+        <!-- ═══════════════════ COPY TRADING ═══════════════════ -->
+        <section id="page-copytrading" class="section" style="display:none;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+                <button onclick="showPage('menu')" style="width:36px;height:36px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#888;cursor:pointer;font-size:16px;">←</button>
+                <div><h2 style="font-size:22px;font-weight:800;color:#fff;">Copy Trading</h2><p style="font-size:13px;color:#666;">Follow top traders automatically</p></div>
+            </div>
+            <!-- Banner -->
+            <div style="background:linear-gradient(135deg,#1a1400,#111);border:1px solid rgba(240,185,11,0.2);border-radius:20px;padding:36px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;">
+                <div>
+                    <div style="font-size:28px;font-weight:900;color:#fff;margin-bottom:8px;">Copy Trading<br><span style="color:#f0b90b;">up to 347% ROI</span></div>
+                    <p style="font-size:14px;color:#888;max-width:400px;">Follow top traders automatically and mirror their strategies. No experience needed.</p>
+                </div>
+                <div style="display:flex;gap:24px;flex-wrap:wrap;">
+                    <div style="text-align:center;"><div style="font-size:28px;font-weight:800;color:#f0b90b;">14K+</div><div style="font-size:11px;color:#666;">Signal Traders</div></div>
+                    <div style="text-align:center;"><div style="font-size:28px;font-weight:800;color:#10b981;">$2.4B</div><div style="font-size:11px;color:#666;">Copy Volume</div></div>
+                    <div style="text-align:center;"><div style="font-size:28px;font-weight:800;color:#f0b90b;">347%</div><div style="font-size:11px;color:#666;">Max ROI</div></div>
+                </div>
+            </div>
+            <!-- Trader cards grid -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;" id="traderGrid"></div>
+        </section>
+
+        <!-- ═══════════════════ REFERRAL ═══════════════════ -->
+        <section id="page-referral" class="section" style="display:none;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+                <button onclick="showPage('menu')" style="width:36px;height:36px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#888;cursor:pointer;font-size:16px;">←</button>
+                <div><h2 style="font-size:22px;font-weight:800;color:#fff;">Referral Program</h2><p style="font-size:13px;color:#666;">Invite friends and earn together</p></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
+                <!-- Stats cards -->
+                <div style="background:linear-gradient(135deg,#1a1400,#111);border:1px solid rgba(240,185,11,0.2);border-radius:20px;padding:28px;">
+                    <div style="font-size:13px;color:#888;margin-bottom:8px;">Your Referral Code</div>
+                    <div style="font-size:28px;font-weight:900;color:#f0b90b;letter-spacing:4px;font-family:monospace;" id="refCode">LOADING</div>
+                    <div style="display:flex;gap:10px;margin-top:16px;">
+                        <button onclick="copyRefCode()" style="padding:9px 20px;background:#f0b90b;border:none;border-radius:8px;color:#000;font-weight:700;font-size:13px;cursor:pointer;"><i class="fas fa-copy"></i> Copy Code</button>
+                        <button onclick="copyRefLink()" style="padding:9px 20px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#e0e0e0;font-weight:700;font-size:13px;cursor:pointer;"><i class="fas fa-link"></i> Copy Link</button>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:14px;padding:20px;">
+                        <div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Total Friends</div>
+                        <div style="font-size:28px;font-weight:800;color:#fff;" id="refFriends">0</div>
+                    </div>
+                    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:14px;padding:20px;">
+                        <div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Commission Rate</div>
+                        <div style="font-size:28px;font-weight:800;color:#f0b90b;">20%</div>
+                    </div>
+                    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:14px;padding:20px;">
+                        <div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Total Earned</div>
+                        <div style="font-size:24px;font-weight:800;color:#10b981;" id="refEarned">$0.00</div>
+                    </div>
+                    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:14px;padding:20px;">
+                        <div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Pending</div>
+                        <div style="font-size:24px;font-weight:800;color:#f59e0b;" id="refPending">$0.00</div>
+                    </div>
+                </div>
+            </div>
+            <!-- How it works -->
+            <div style="background:#141414;border:1px solid #2a2a2a;border-radius:20px;padding:28px;">
+                <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:20px;">How it works</h3>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+                    <div style="text-align:center;">
+                        <div style="width:56px;height:56px;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;font-weight:900;color:#f0b90b;">1</div>
+                        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">Share Your Link</div>
+                        <div style="font-size:12px;color:#666;line-height:1.5;">Share your unique referral link with friends and family</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="width:56px;height:56px;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;font-weight:900;color:#f0b90b;">2</div>
+                        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">They Register & Trade</div>
+                        <div style="font-size:12px;color:#666;line-height:1.5;">Your friends sign up and start trading on CryptoEx</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="width:56px;height:56px;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;font-weight:900;color:#f0b90b;">3</div>
+                        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">Earn Commission</div>
+                        <div style="font-size:12px;color:#666;line-height:1.5;">Get 20% commission from every trade your friends make</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════ SECURITY ═══════════════════ -->
+        <section id="page-security" class="section" style="display:none;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+                <button onclick="showPage('menu')" style="width:36px;height:36px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#888;cursor:pointer;font-size:16px;">←</button>
+                <div><h2 style="font-size:22px;font-weight:800;color:#fff;">Security</h2><p style="font-size:13px;color:#666;">Protect your account</p></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                <!-- 2FA -->
+                <div style="background:#141414;border:1px solid #2a2a2a;border-radius:16px;padding:24px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:44px;height:44px;background:rgba(16,185,129,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-mobile-screen-button" style="color:#10b981;font-size:18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:15px;font-weight:700;color:#fff;">2FA Authentication</div>
+                                <div style="font-size:11px;color:#666;">Google Authenticator</div>
+                            </div>
+                        </div>
+                        <div style="width:44px;height:24px;background:#333;border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s;" id="toggle2fa" onclick="toggle2FA()" style="background:#333;">
+                            <div style="width:18px;height:18px;background:#888;border-radius:50%;position:absolute;top:3px;left:3px;transition:all 0.2s;" id="toggle2faKnob"></div>
+                        </div>
+                    </div>
+                    <div style="font-size:12px;color:#666;line-height:1.5;">Enable two-factor authentication to add an extra layer of security to your account.</div>
+                    <button onclick="setup2FA()" style="margin-top:14px;padding:9px 18px;background:#f0b90b;border:none;border-radius:8px;color:#000;font-weight:700;font-size:12px;cursor:pointer;">Setup 2FA</button>
+                </div>
+                <!-- Change Password -->
+                <div style="background:#141414;border:1px solid #2a2a2a;border-radius:16px;padding:24px;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                        <div style="width:44px;height:44px;background:rgba(240,185,11,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-lock" style="color:#f0b90b;font-size:18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:15px;font-weight:700;color:#fff;">Password</div>
+                            <div style="font-size:11px;color:#666;">Last changed: Never</div>
+                        </div>
+                    </div>
+                    <input type="password" placeholder="New Password" style="width:100%;padding:10px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#fff;font-size:13px;margin-bottom:8px;outline:none;">
+                    <input type="password" placeholder="Confirm Password" style="width:100%;padding:10px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#fff;font-size:13px;margin-bottom:12px;outline:none;">
+                    <button style="padding:9px 18px;background:#f0b90b;border:none;border-radius:8px;color:#000;font-weight:700;font-size:12px;cursor:pointer;" onclick="showMsg('Password updated!')">Update Password</button>
+                </div>
+                <!-- Login History -->
+                <div style="background:#141414;border:1px solid #2a2a2a;border-radius:16px;padding:24px;grid-column:1/-1;">
+                    <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:16px;">Recent Login Activity</div>
+                    <div id="loginHistory" style="display:flex;flex-direction:column;gap:10px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════ API KEYS ═══════════════════ -->
+        <section id="page-apikeys" class="section" style="display:none;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+                <button onclick="showPage('menu')" style="width:36px;height:36px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#888;cursor:pointer;font-size:16px;">←</button>
+                <div><h2 style="font-size:22px;font-weight:800;color:#fff;">API Keys</h2><p style="font-size:13px;color:#666;">Manage your API access</p></div>
+            </div>
+            <div style="background:#141414;border:1px solid rgba(240,185,11,0.15);border-radius:16px;padding:24px;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                    <i class="fas fa-triangle-exclamation" style="color:#f0b90b;font-size:16px;"></i>
+                    <span style="font-size:13px;font-weight:600;color:#f0b90b;">Security Notice</span>
+                </div>
+                <p style="font-size:12px;color:#888;line-height:1.6;">Never share your API keys. Store them securely. API keys provide direct access to your account.</p>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <span style="font-size:15px;font-weight:700;color:#fff;">Your API Keys</span>
+                <button onclick="createAPIKey()" style="padding:9px 20px;background:#f0b90b;border:none;border-radius:8px;color:#000;font-weight:700;font-size:13px;cursor:pointer;"><i class="fas fa-plus"></i> Create New Key</button>
+            </div>
+            <div id="apiKeysList">
+                <div style="text-align:center;padding:40px;color:#666;font-size:14px;">
+                    <i class="fas fa-key" style="font-size:32px;color:#2a2a2a;display:block;margin-bottom:12px;"></i>
+                    No API keys yet. Create one to get started.
+                </div>
+            </div>
+        </section>
+
+        <section id="planSection" class="section"> class="section">
+            <button onclick="showSection('menuSection')" class="mb-8 flex items-center gap-2 text-yellow-300 hover:text-yellow-200 transition">
                 <i class="fas fa-arrow-left"></i> Вернуться
             </button>
 
             <div class="mb-12">
                 <h2 class="text-4xl font-bold mb-2">Выберите тариф</h2>
-                <p class="text-slate-400">Подберите подходящий план для вашего майнинга</p>
+                <p class="text-neutral-400">Подберите подходящий план для вашего майнинга</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div id="planCard_starter" class="glass rounded-2xl border border-slate-700 overflow-hidden floating-card transition-all duration-300">
-                    <div class="h-2 icon-gradient-1"></div>
+                <div id="planCard_starter" class="glass rounded-2xl border border-neutral-700 overflow-hidden floating-card transition-all duration-300">
+                    <div class="h-2 icon-gradient-gold"></div>
                     <div class="p-8">
-                        <div class="inline-block px-3 py-1 bg-blue-900/30 rounded-full text-xs font-bold text-blue-300 mb-4">STARTER</div>
+                        <div class="inline-block px-3 py-1 bg-blue-900/30 rounded-full text-xs font-bold text-yellow-200 mb-4">STARTER</div>
                         <h3 class="text-2xl font-bold mb-2">$50</h3>
-                        <p class="text-slate-400 text-sm mb-6">/месяц</p>
+                        <p class="text-neutral-400 text-sm mb-6">/месяц</p>
 
                         <div class="space-y-3 mb-8 text-sm">
-                            <div class="flex items-center gap-2 text-slate-300">
-                                <i class="fas fa-check-circle text-blue-400"></i>
+                            <div class="flex items-center gap-2 text-neutral-300">
+                                <i class="fas fa-check-circle text-yellow-300"></i>
                                 <span>[CPU] 2 vCPU Cores</span>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-300">
-                                <i class="fas fa-check-circle text-blue-400"></i>
+                            <div class="flex items-center gap-2 text-neutral-300">
+                                <i class="fas fa-check-circle text-yellow-300"></i>
                                 <span>[RAM] 4 GB DDR4</span>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-300">
-                                <i class="fas fa-check-circle text-blue-400"></i>
+                            <div class="flex items-center gap-2 text-neutral-300">
+                                <i class="fas fa-check-circle text-yellow-300"></i>
                                 <span>[SSD] 80 GB NVMe</span>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-300">
-                                <i class="fas fa-check-circle text-blue-400"></i>
+                            <div class="flex items-center gap-2 text-neutral-300">
+                                <i class="fas fa-check-circle text-yellow-300"></i>
                                 <span>[HASH] ~120 MH/s</span>
                             </div>
                         </div>
 
-                        <button id="planBtn_starter" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition">
+                        <button id="planBtn_starter" class="w-full py-3 bg-yellow-500 hover:bg-yellow-600 rounded-lg font-bold text-white transition">
                             Выбрать
                         </button>
                     </div>
                 </div>
 
-                <div id="planCard_pro" class="glass rounded-2xl border-2 border-blue-500/50 relative overflow-hidden floating-card transition-all duration-300">
+                <div id="planCard_pro" class="glass rounded-2xl border-2 border-yellow-400/50 relative overflow-hidden floating-card transition-all duration-300">
                     <div class="absolute top-4 right-4 px-3 py-1 bg-amber-900/30 rounded-full text-xs font-bold text-amber-300 z-10">🌟 POPULAR</div>
-                    <div class="h-2 bg-gradient-to-r from-blue-500 to-cyan-400 relative z-10"></div>
+                    <div class="h-2 bg-gradient-to-r from-yellow-400 to-amber-400 relative z-10"></div>
                     <div class="p-8 relative z-10">
-                        <div class="inline-block px-3 py-1 bg-blue-900/30 rounded-full text-xs font-bold text-blue-300 mb-4">PRO</div>
+                        <div class="inline-block px-3 py-1 bg-blue-900/30 rounded-full text-xs font-bold text-yellow-200 mb-4">PRO</div>
                         <h3 class="text-2xl font-bold mb-2">$150</h3>
-                        <p class="text-slate-400 text-sm mb-6">/месяц</p>
+                        <p class="text-neutral-400 text-sm mb-6">/месяц</p>
 
                         <div class="space-y-3 mb-8 text-sm">
-                            <div class="flex items-center gap-2 text-slate-300">
-                                <i class="fas fa-check-circle text-cyan-400"></i>
+                            <div class="flex items-center gap-2 text-neutral-300">
+                                <i class="fas fa-check-circle text-amber-400"></i>
                                 <span>[CPU] 8 vCPU Cores</span>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-300">
-                                <i class="fas fa-check-circle text-cyan-400"></i>
+                            <div class="flex items-center gap-2 text-neutral-300">
+                                <i class="fas fa-check-circle text-amber-400"></i>
                                 <span>[RAM] 16 GB DDR5</span>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-300">
-                                <i class="fas fa-check-circle text-cyan-400"></i>
+                            <div class="flex items-center gap-2 text-neutral-300">
+                                <i class="fas fa-check-circle text-amber-400"></i>
                                 <span>[SSD] 320 GB NVMe</span>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-300">
-                                <i class="fas fa-check-circle text-cyan-400"></i>
+                            <div class="flex items-center gap-2 text-neutral-300">
+                                <i class="fas fa-check-circle text-amber-400"></i>
                                 <span>[HASH] ~480 MH/s</span>
                             </div>
                         </div>
 
-                        <button id="planBtn_pro" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-lg font-bold text-white transition">
+                        <button id="planBtn_pro" class="w-full py-3 bg-gradient-to-r from-yellow-500 to-cyan-600 hover:from-yellow-600 hover:to-cyan-700 rounded-lg font-bold text-white transition">
                             Выбрать
                         </button>
                     </div>
                 </div>
 
-                <div id="planCard_elite" class="glass rounded-2xl border border-slate-700 overflow-hidden floating-card transition-all duration-300">
+                <div id="planCard_elite" class="glass rounded-2xl border border-neutral-700 overflow-hidden floating-card transition-all duration-300">
                     <div class="h-2 bg-gradient-to-r from-amber-500 to-orange-500"></div>
                     <div class="p-8">
                         <div class="inline-block px-3 py-1 bg-amber-900/30 rounded-full text-xs font-bold text-amber-300 mb-4">ELITE</div>
                         <h3 class="text-2xl font-bold mb-2">$300</h3>
-                        <p class="text-slate-400 text-sm mb-6">/месяц</p>
+                        <p class="text-neutral-400 text-sm mb-6">/месяц</p>
 
                         <div class="space-y-3 mb-8 text-sm">
-                            <div class="flex items-center gap-2 text-slate-300">
+                            <div class="flex items-center gap-2 text-neutral-300">
                                 <i class="fas fa-check-circle text-amber-400"></i>
                                 <span>[CPU] 32 vCPU Cores</span>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-300">
+                            <div class="flex items-center gap-2 text-neutral-300">
                                 <i class="fas fa-check-circle text-amber-400"></i>
                                 <span>[RAM] 64 GB DDR5</span>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-300">
+                            <div class="flex items-center gap-2 text-neutral-300">
                                 <i class="fas fa-check-circle text-amber-400"></i>
                                 <span>[SSD] 1 TB NVMe RAID</span>
                             </div>
-                            <div class="flex items-center gap-2 text-slate-300">
+                            <div class="flex items-center gap-2 text-neutral-300">
                                 <i class="fas fa-check-circle text-amber-400"></i>
                                 <span>[HASH] ~1.2 GH/s</span>
                             </div>
@@ -982,18 +1365,18 @@
         <section id="minerSection" class="section">
             <div class="mb-6 flex flex-wrap gap-4 items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <button onclick="showSection('menuSection')" class="glass px-3 py-1.5 rounded-lg border border-slate-700 hover:border-blue-500/50 text-slate-400 hover:text-blue-400 transition flex items-center gap-2 text-sm font-semibold cursor-pointer">
+                    <button onclick="showSection('menuSection')" class="glass px-3 py-1.5 rounded-lg border border-neutral-700 hover:border-yellow-400/50 text-neutral-400 hover:text-yellow-300 transition flex items-center gap-2 text-sm font-semibold cursor-pointer">
                         <i class="fas fa-arrow-left"></i> Назад
                     </button>
                     
-                    <div class="glass px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-mono text-slate-400 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block" style="animation:pulse 1.5s infinite"></span>
-                        Активный план: <span id="activePlanBadge" class="text-blue-400 font-bold">—</span>
+                    <div class="glass px-3 py-1.5 rounded-lg border border-neutral-700 text-xs font-mono text-neutral-400 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-yellow-400 inline-block" style="animation:pulse 1.5s infinite"></span>
+                        Активный план: <span id="activePlanBadge" class="text-yellow-300 font-bold">—</span>
                     </div>
                 </div>
                 
-                <button onclick="openChangePlanModal()" class="glass px-4 py-2 rounded-lg border border-slate-700 hover:border-blue-500/50 text-sm font-semibold text-slate-300 hover:text-white transition flex items-center gap-2">
-                    <i class="fas fa-exchange-alt text-blue-400"></i> Изменить план
+                <button onclick="openChangePlanModal()" class="glass px-4 py-2 rounded-lg border border-neutral-700 hover:border-yellow-400/50 text-sm font-semibold text-neutral-300 hover:text-white transition flex items-center gap-2">
+                    <i class="fas fa-exchange-alt text-yellow-300"></i> Изменить план
                 </button>
             </div>
 
@@ -1014,15 +1397,15 @@
                     </div>
                 </div>
                 <div class="lg:col-span-2">
-                    <div class="glass rounded-2xl border border-slate-700 overflow-hidden">
-                        <div class="bg-black/50 border-b border-slate-700 p-4 flex gap-2">
+                    <div class="glass rounded-2xl border border-neutral-700 overflow-hidden">
+                        <div class="bg-black/50 border-b border-neutral-700 p-4 flex gap-2">
                             <div class="w-3 h-3 rounded-full bg-red-500"></div>
                             <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                             <div class="w-3 h-3 rounded-full bg-green-500"></div>
                         </div>
 
-                        <div id="terminal" class="p-6 font-mono text-sm h-96 overflow-y-auto text-slate-300">
-                            <p class="text-slate-500">[system] Hardware initialized. Awaiting user command...</p>
+                        <div id="terminal" class="p-6 font-mono text-sm h-96 overflow-y-auto text-neutral-300">
+                            <p class="text-neutral-500">[system] Hardware initialized. Awaiting user command...</p>
                             <p class="mt-4">root@miner:~# <span class="animate-pulse">█</span></p>
                         </div>
                     </div>
@@ -1034,24 +1417,24 @@
                         <button onclick="pauseMining()" id="pauseBtn" class="hidden flex-1 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 rounded-xl font-bold text-white transition">
                             <i class="fas fa-pause mr-2"></i> PAUSE
                         </button>
-                        <button onclick="resumeMining()" id="resumeBtn" class="hidden flex-1 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-xl font-bold text-white transition">
+                        <button onclick="resumeMining()" id="resumeBtn" class="hidden flex-1 py-4 bg-gradient-to-r from-yellow-500 to-cyan-600 hover:from-yellow-600 hover:to-cyan-700 rounded-xl font-bold text-white transition">
                             <i class="fas fa-play mr-2"></i> RESUME
                         </button>
                     </div>
                 </div>
 
                 <div class="space-y-4">
-                    <div class="glass rounded-2xl border border-slate-700 p-6 floating-card">
-                        <p class="text-slate-400 text-sm mb-1">Total Revenue</p>
-                        <p class="text-4xl font-bold text-emerald-400" id="minerBalance">$0.00</p>
-                        <p class="text-slate-500 text-xs mt-1" id="planEstLabel">Est. Output: $10.00 / 6h</p>
+                    <div class="glass rounded-2xl border border-neutral-700 p-6 floating-card">
+                        <p class="text-neutral-400 text-sm mb-1">Total Revenue</p>
+                        <p class="text-4xl font-bold text-yellow-400" id="minerBalance">$0.00</p>
+                        <p class="text-neutral-500 text-xs mt-1" id="planEstLabel">Est. Output: $10.00 / 6h</p>
                         <div class="mt-3">
-                            <div class="flex justify-between text-xs text-slate-500 mb-1">
+                            <div class="flex justify-between text-xs text-neutral-500 mb-1">
                                 <span>Прогресс сессии</span>
                                 <span id="sessionPct">0%</span>
                             </div>
                             <div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden">
-                                <div id="sessionBar" style="height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#06b6d4);border-radius:2px;transition:width 2s ease"></div>
+                                <div id="sessionBar" style="height:100%;width:0%;background:linear-gradient(90deg,#f0b90b,#f59e0b);border-radius:2px;transition:width 2s ease"></div>
                             </div>
                         </div>
                     </div>
@@ -1066,35 +1449,35 @@
                         </button>
                     </div>
 
-                    <div class="glass rounded-2xl border border-slate-700 p-5">
+                    <div class="glass rounded-2xl border border-neutral-700 p-5">
                         <h3 class="font-bold mb-3 text-sm flex items-center gap-2">
-                            <i class="fas fa-chart-bar text-blue-400"></i> Live Stats
+                            <i class="fas fa-chart-bar text-yellow-300"></i> Live Stats
                         </h3>
                         <div class="space-y-2 text-xs">
                             <div class="flex justify-between">
-                                <span class="text-slate-500">Hashrate</span>
-                                <span class="text-emerald-400 font-mono font-bold" id="liveHashrate">— MH/s</span>
+                                <span class="text-neutral-500">Hashrate</span>
+                                <span class="text-yellow-400 font-mono font-bold" id="liveHashrate">— MH/s</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-slate-500">Shares accepted</span>
-                                <span class="text-blue-400 font-mono" id="liveShares">0</span>
+                                <span class="text-neutral-500">Shares accepted</span>
+                                <span class="text-yellow-300 font-mono" id="liveShares">0</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-slate-500">Время сессии</span>
-                                <span class="text-slate-300 font-mono" id="liveTime">00:00:00</span>
+                                <span class="text-neutral-500">Время сессии</span>
+                                <span class="text-neutral-300 font-mono" id="liveTime">00:00:00</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-slate-500">$/час</span>
+                                <span class="text-neutral-500">$/час</span>
                                 <span class="text-amber-400 font-mono" id="liveRate">—</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="glass rounded-2xl border border-slate-700 p-5">
+                    <div class="glass rounded-2xl border border-neutral-700 p-5">
                         <h3 class="font-bold mb-3 text-sm flex items-center gap-2">
                             <i class="fas fa-circle text-green-400" style="font-size:8px;animation:pulse 1s infinite"></i> Activity
                         </h3>
-                        <div id="activity" class="space-y-1 text-xs text-slate-400">
+                        <div id="activity" class="space-y-1 text-xs text-neutral-400">
                             <p>Waiting for mining...</p>
                         </div>
                     </div>
@@ -1104,25 +1487,25 @@
     </div>
 
     <div id="depositWarningModal" class="modal-backdrop">
-        <div class="glass rounded-2xl border border-slate-700 p-8 max-w-md w-full mx-4">
-            <div class="w-16 h-16 icon-gradient-1 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div class="glass rounded-2xl border border-neutral-700 p-8 max-w-md w-full mx-4">
+            <div class="w-16 h-16 icon-gradient-gold rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-wallet text-2xl text-white"></i>
             </div>
 
             <h2 class="text-2xl font-bold text-center mb-2">Недостаточно средств</h2>
-            <p class="text-slate-400 text-center mb-6">Пополните ваш баланс, чтобы начать майнинг</p>
+            <p class="text-neutral-400 text-center mb-6">Пополните ваш баланс, чтобы начать майнинг</p>
 
-            <button onclick="openUSDTDepositModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition mb-2 flex items-center justify-center gap-2">
+            <button onclick="openUSDTDepositModal()" class="w-full py-3 bg-yellow-500 hover:bg-yellow-600 rounded-lg font-bold text-white transition mb-2 flex items-center justify-center gap-2">
                 <i class="fas fa-coins"></i> Пополнить через USDT
             </button>
-            <button onclick="closeDepositWarningModal()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+            <button onclick="closeDepositWarningModal()" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 rounded-lg font-bold transition">
                 Отмена
             </button>
         </div>
     </div>
 
     <div id="usdtDepositModal" class="modal-backdrop" style="align-items:flex-end;" onclick="if(event.target===this)closeUSDTDepositModal()">
-        <div class="glass border border-slate-700 w-full" style="max-width:640px;margin:0 auto;border-radius:24px 24px 0 0;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:85vh;max-height:85svh;position:relative;">
+        <div class="glass border border-neutral-700 w-full" style="max-width:640px;margin:0 auto;border-radius:24px 24px 0 0;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:85vh;max-height:85svh;position:relative;">
 
             <!-- Drag handle -->
             <div style="padding:10px 0 4px;display:flex;justify-content:center;flex-shrink:0;">
@@ -1226,11 +1609,11 @@
             <!-- Скроллируемое тело -->
             <div style="padding:16px 20px 36px;">
                 <div class="text-center mb-6">
-                    <div class="w-16 h-16 icon-gradient-1 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <div class="w-16 h-16 icon-gradient-gold rounded-2xl flex items-center justify-center mx-auto mb-3">
                         <i class="fas fa-coins text-3xl text-white"></i>
                     </div>
                     <h2 class="text-2xl font-bold mb-1">Пополнить баланс</h2>
-                    <p class="text-slate-400 text-sm">Отправьте USDT (TRC-20) на указанный адрес</p>
+                    <p class="text-neutral-400 text-sm">Отправьте USDT (TRC-20) на указанный адрес</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
@@ -1239,24 +1622,24 @@
                     </div>
                     <div class="space-y-3">
                         <div>
-                            <p class="text-sm text-slate-400 mb-2">Сеть</p>
-                            <div class="glass rounded-lg p-3 border border-slate-700">
+                            <p class="text-sm text-neutral-400 mb-2">Сеть</p>
+                            <div class="glass rounded-lg p-3 border border-neutral-700">
                                 <p class="font-bold flex items-center gap-2">
-                                    <i class="fas fa-link text-blue-400"></i> TRON (TRC-20)
+                                    <i class="fas fa-link text-yellow-300"></i> TRON (TRC-20)
                                 </p>
                             </div>
                         </div>
                         <div>
-                            <p class="text-sm text-slate-400 mb-2">Адрес кошелька</p>
-                            <div class="glass rounded-lg p-3 border border-slate-700 flex items-center justify-between">
+                            <p class="text-sm text-neutral-400 mb-2">Адрес кошелька</p>
+                            <div class="glass rounded-lg p-3 border border-neutral-700 flex items-center justify-between">
                                 <p class="font-mono text-sm break-all" id="walletAddress">TQCz49r91qcFJ8wvcKxJqRNWJNSH24YqcK</p>
-                                <button onclick="copyAddress()" class="copy-button ml-2 px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-bold flex-shrink-0">
+                                <button onclick="copyAddress()" class="copy-button ml-2 px-2 py-1 bg-yellow-500 hover:bg-yellow-600 rounded text-white text-xs font-bold flex-shrink-0">
                                     <i class="fas fa-copy"></i>
                                 </button>
                             </div>
                         </div>
-                        <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
-                            <p class="text-sm text-blue-300 flex items-start gap-2">
+                        <div class="bg-blue-900/20 border border-yellow-400/30 rounded-lg p-3">
+                            <p class="text-sm text-yellow-200 flex items-start gap-2">
                                 <i class="fas fa-info-circle mt-0.5 flex-shrink-0"></i>
                                 <span>Отправляйте только USDT. Минимум: $1. Баланс пополнится автоматически в течение 5 минут.</span>
                             </p>
@@ -1265,10 +1648,10 @@
                 </div>
 
                 <div style="display:flex;flex-direction:column;gap:8px;">
-                    <button onclick="copyAddress()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition flex items-center justify-center gap-2">
+                    <button onclick="copyAddress()" class="w-full py-3 bg-yellow-500 hover:bg-yellow-600 rounded-lg font-bold text-white transition flex items-center justify-center gap-2">
                         <i class="fas fa-copy"></i> Копировать адрес
                     </button>
-                    <button onclick="closeUSDTDepositModal()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+                    <button onclick="closeUSDTDepositModal()" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 rounded-lg font-bold transition">
                         Готово
                     </button>
                 </div>
@@ -1280,7 +1663,7 @@
     <!--  WITHDRAW MODAL — полный сценарий                  -->
     <!-- ══════════════════════════════════════════════════ -->
     <div id="withdrawModal" class="modal-backdrop" style="align-items:flex-end;" onclick="if(event.target===this)closeWithdrawModal()">
-        <div class="glass border border-slate-700 w-full" id="withdrawModalInner"
+        <div class="glass border border-neutral-700 w-full" id="withdrawModalInner"
              style="max-width:480px;margin:0 auto;border-radius:24px 24px 0 0;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:85vh;max-height:85svh;">
 
             <!-- Drag handle -->
@@ -1291,9 +1674,9 @@
             <!-- Шаг 1: Форма -->
             <div id="withdrawStep1">
                 <!-- Заголовок -->
-                <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(6,182,212,0.08));border-bottom:1px solid rgba(59,130,246,0.15);padding:16px 20px;">
+                <div style="background:linear-gradient(135deg,rgba(240,185,11,0.12),rgba(245,158,11,0.08));border-bottom:1px solid rgba(240,185,11,0.15);padding:16px 20px;">
                     <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="width:40px;height:40px;background:linear-gradient(135deg,#3b82f6,#06b6d4);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <div style="width:40px;height:40px;background:linear-gradient(135deg,#f0b90b,#f59e0b);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             <i class="fas fa-paper-plane" style="color:white;font-size:16px;"></i>
                         </div>
                         <div>
@@ -1306,14 +1689,14 @@
                 <!-- Тело формы -->
                 <div style="padding:18px 20px 36px;">
                     <!-- Инфо о тарифе и минималке -->
-                    <div id="withdrawPlanInfo" style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:12px 14px;margin-bottom:16px;">
+                    <div id="withdrawPlanInfo" style="background:rgba(240,185,11,0.07);border:1px solid rgba(240,185,11,0.2);border-radius:12px;padding:12px 14px;margin-bottom:16px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
                             <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-family:monospace;">Ваш тариф</span>
-                            <span style="font-size:12px;font-weight:700;color:#60a5fa;font-family:monospace;" id="withdrawPlanName">—</span>
+                            <span style="font-size:12px;font-weight:700;color:#fcd535;font-family:monospace;" id="withdrawPlanName">—</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
                             <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-family:monospace;">Мин. вывод</span>
-                            <span style="font-size:13px;font-weight:800;color:#10b981;font-family:monospace;" id="withdrawMinLabel">$100.00</span>
+                            <span style="font-size:13px;font-weight:800;color:#f0b90b;font-family:monospace;" id="withdrawMinLabel">$100.00</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;">
                             <span style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-family:monospace;">Доступно</span>
@@ -1328,8 +1711,8 @@
                             <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#475569;font-size:16px;font-weight:700;">$</span>
                             <input type="number" id="withdrawAmount" placeholder="0.00"
                                    oninput="validateWithdrawAmount()"
-                                   style="width:100%;padding:13px 14px 13px 32px;background:#0f172a;border:1px solid rgba(71,85,105,0.6);border-radius:10px;color:#f1f5f9;font-size:16px;font-weight:700;font-family:monospace;outline:none;box-sizing:border-box;"
-                                   onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='rgba(71,85,105,0.6)'">
+                                   style="width:100%;padding:13px 14px 13px 32px;background:#0d0d0d;border:1px solid rgba(71,85,105,0.6);border-radius:10px;color:#f1f5f9;font-size:16px;font-weight:700;font-family:monospace;outline:none;box-sizing:border-box;"
+                                   onfocus="this.style.borderColor='#f0b90b'" onblur="this.style.borderColor='rgba(71,85,105,0.6)'">
                         </div>
                         <div id="withdrawAmountError" style="display:none;font-size:11px;color:#ef4444;margin-top:6px;padding:6px 10px;background:rgba(239,68,68,0.08);border-radius:6px;font-family:monospace;"></div>
                     </div>
@@ -1337,7 +1720,7 @@
                     <!-- Сеть -->
                     <div style="margin-bottom:14px;">
                         <label style="font-size:12px;color:#94a3b8;margin-bottom:7px;display:block;font-weight:600;">Сеть вывода</label>
-                        <div style="padding:11px 14px;background:#0f172a;border:1px solid rgba(59,130,246,0.3);border-radius:10px;display:flex;align-items:center;gap:10px;">
+                        <div style="padding:11px 14px;background:#0d0d0d;border:1px solid rgba(240,185,11,0.3);border-radius:10px;display:flex;align-items:center;gap:10px;">
                             <div style="width:26px;height:26px;background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                                 <span style="font-size:10px;font-weight:800;color:white;">T</span>
                             </div>
@@ -1352,8 +1735,8 @@
                     <div style="margin-bottom:14px;">
                         <label style="font-size:12px;color:#94a3b8;margin-bottom:7px;display:block;font-weight:600;">Адрес TRC-20 кошелька</label>
                         <input type="text" id="walletAddressWithdraw" placeholder="TRC20 адрес (начинается с T...)"
-                               style="width:100%;padding:12px 14px;background:#0f172a;border:1px solid rgba(71,85,105,0.6);border-radius:10px;color:#f1f5f9;font-size:14px;font-family:monospace;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='rgba(71,85,105,0.6)'">
+                               style="width:100%;padding:12px 14px;background:#0d0d0d;border:1px solid rgba(71,85,105,0.6);border-radius:10px;color:#f1f5f9;font-size:14px;font-family:monospace;outline:none;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='#f0b90b'" onblur="this.style.borderColor='rgba(71,85,105,0.6)'">
                         <div id="withdrawWalletError" style="display:none;font-size:11px;color:#ef4444;margin-top:6px;padding:6px 10px;background:rgba(239,68,68,0.08);border-radius:6px;font-family:monospace;"></div>
                     </div>
 
@@ -1366,7 +1749,7 @@
                     <!-- Кнопки -->
                     <div style="display:flex;flex-direction:column;gap:8px;">
                         <button onclick="submitWithdraw()" id="withdrawSubmitBtn"
-                                style="width:100%;padding:14px;background:linear-gradient(135deg,#3b82f6,#06b6d4);border:none;border-radius:10px;font-weight:800;color:white;font-size:14px;cursor:pointer;">
+                                style="width:100%;padding:14px;background:linear-gradient(135deg,#f0b90b,#f59e0b);border:none;border-radius:10px;font-weight:800;color:white;font-size:14px;cursor:pointer;">
                             <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Отправить заявку
                         </button>
                         <button onclick="closeWithdrawModal()"
@@ -1380,7 +1763,7 @@
             <!-- Шаг 2: Обработка -->
             <div id="withdrawStep2" style="display:none;padding:48px 28px;text-align:center;">
                 <div style="width:72px;height:72px;margin:0 auto 20px;position:relative;">
-                    <div style="position:absolute;inset:0;border-radius:50%;border:3px solid rgba(59,130,246,0.12);border-top-color:#3b82f6;border-right-color:#06b6d4;animation:txSpin 1.1s linear infinite;"></div>
+                    <div style="position:absolute;inset:0;border-radius:50%;border:3px solid rgba(240,185,11,0.12);border-top-color:#f0b90b;border-right-color:#f59e0b;animation:txSpin 1.1s linear infinite;"></div>
                     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;">⏳</div>
                 </div>
                 <div style="font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:8px;">Создаём заявку...</div>
@@ -1389,13 +1772,13 @@
 
             <!-- Шаг 3: Успех -->
             <div id="withdrawStep3" style="display:none;padding:32px 20px 36px;text-align:center;">
-                <div style="width:64px;height:64px;margin:0 auto 16px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(6,182,212,0.1));border:2px solid rgba(16,185,129,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;">✅</div>
-                <div style="font-size:18px;font-weight:800;color:#10b981;margin-bottom:8px;">Заявка принята!</div>
+                <div style="width:64px;height:64px;margin:0 auto 16px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(245,158,11,0.1));border:2px solid rgba(16,185,129,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;">✅</div>
+                <div style="font-size:18px;font-weight:800;color:#f0b90b;margin-bottom:8px;">Заявка принята!</div>
                 <div style="font-size:13px;color:#64748b;margin-bottom:20px;line-height:1.6;">Ваша заявка на вывод поставлена в очередь.<br>Обработка до <strong style="color:#94a3b8;">24 часов</strong>.</div>
-                <div style="background:rgba(15,23,42,0.8);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;">
+                <div style="background:rgba(15,23,42,0.8);border:1px solid rgba(240,185,11,0.15);border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;">
                     <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
                         <span style="font-size:11px;color:#475569;font-family:monospace;">СУММА</span>
-                        <span style="font-size:14px;font-weight:800;color:#10b981;font-family:monospace;" id="withdrawConfirmAmount">$0.00</span>
+                        <span style="font-size:14px;font-weight:800;color:#f0b90b;font-family:monospace;" id="withdrawConfirmAmount">$0.00</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
                         <span style="font-size:11px;color:#475569;font-family:monospace;">АДРЕС</span>
@@ -1407,7 +1790,7 @@
                     </div>
                 </div>
                 <button onclick="closeWithdrawModal()"
-                        style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(6,182,212,0.15));border:1px solid rgba(59,130,246,0.3);border-radius:10px;font-weight:700;color:#60a5fa;font-size:14px;cursor:pointer;">
+                        style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(240,185,11,0.2),rgba(245,158,11,0.15));border:1px solid rgba(240,185,11,0.3);border-radius:10px;font-weight:700;color:#fcd535;font-size:14px;cursor:pointer;">
                     Закрыть
                 </button>
             </div>
@@ -1415,53 +1798,53 @@
     </div>
 
     <div id="transactionsModal" class="modal-backdrop">
-        <div class="glass rounded-2xl border border-slate-700 p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+        <div class="glass rounded-2xl border border-neutral-700 p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
             <h2 class="text-2xl font-bold mb-6">История транзакций</h2>
             <div id="transactionsList" class="space-y-2">
-                <p class="text-slate-400">Загрузка...</p>
+                <p class="text-neutral-400">Загрузка...</p>
             </div>
-            <button onclick="closeTransactionsModal()" class="w-full mt-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+            <button onclick="closeTransactionsModal()" class="w-full mt-6 py-3 bg-neutral-700 hover:bg-neutral-600 rounded-lg font-bold transition">
                 Закрыть
             </button>
         </div>
     </div>
 
     <div id="changePlanModal" class="modal-backdrop">
-        <div class="glass rounded-2xl border border-slate-700 p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="glass rounded-2xl border border-neutral-700 p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <h2 class="text-2xl font-bold mb-2">Изменить тарифный план</h2>
-            <p class="text-slate-400 mb-6">Текущий план будет деактивирован, средства за новый спишутся с баланса.</p>
+            <p class="text-neutral-400 mb-6">Текущий план будет деактивирован, средства за новый спишутся с баланса.</p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div id="changePlanCard_starter" onclick="selectChangePlan('starter', 50)" class="glass p-4 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition">
-                    <div class="text-xs font-bold text-blue-400 mb-1">STARTER</div>
+                <div id="changePlanCard_starter" onclick="selectChangePlan('starter', 50)" class="glass p-4 rounded-xl border border-neutral-700 cursor-pointer hover:bg-slate-800 transition">
+                    <div class="text-xs font-bold text-yellow-300 mb-1">STARTER</div>
                     <div class="text-xl font-bold">$50</div>
-                    <div class="text-xs text-slate-400 mt-2">~120 MH/s</div>
+                    <div class="text-xs text-neutral-400 mt-2">~120 MH/s</div>
                 </div>
-                <div id="changePlanCard_pro" onclick="selectChangePlan('pro', 150)" class="glass p-4 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition relative">
+                <div id="changePlanCard_pro" onclick="selectChangePlan('pro', 150)" class="glass p-4 rounded-xl border border-neutral-700 cursor-pointer hover:bg-slate-800 transition relative">
                     <div class="absolute top-2 right-2 text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded">POPULAR</div>
-                    <div class="text-xs font-bold text-cyan-400 mb-1">PRO</div>
+                    <div class="text-xs font-bold text-amber-400 mb-1">PRO</div>
                     <div class="text-xl font-bold">$150</div>
-                    <div class="text-xs text-slate-400 mt-2">~480 MH/s</div>
+                    <div class="text-xs text-neutral-400 mt-2">~480 MH/s</div>
                 </div>
-                <div id="changePlanCard_elite" onclick="selectChangePlan('elite', 300)" class="glass p-4 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition">
+                <div id="changePlanCard_elite" onclick="selectChangePlan('elite', 300)" class="glass p-4 rounded-xl border border-neutral-700 cursor-pointer hover:bg-slate-800 transition">
                     <div class="text-xs font-bold text-amber-400 mb-1">ELITE</div>
                     <div class="text-xl font-bold">$300</div>
-                    <div class="text-xs text-slate-400 mt-2">~1.2 GH/s</div>
+                    <div class="text-xs text-neutral-400 mt-2">~1.2 GH/s</div>
                 </div>
             </div>
 
-            <div id="changePlanSummary" style="display: none;" class="bg-slate-900/50 border border-slate-700 rounded-xl p-4 mb-6">
+            <div id="changePlanSummary" style="display: none;" class="bg-slate-900/50 border border-neutral-700 rounded-xl p-4 mb-6">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-slate-400 text-sm">Новый тариф:</span>
+                    <span class="text-neutral-400 text-sm">Новый тариф:</span>
                     <span id="changePlanSummaryName" class="font-bold text-white">—</span>
                 </div>
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-slate-400 text-sm">Стоимость:</span>
+                    <span class="text-neutral-400 text-sm">Стоимость:</span>
                     <span id="changePlanSummaryPrice" class="font-bold text-white">—</span>
                 </div>
-                <div class="flex justify-between items-center border-t border-slate-700/50 pt-2 mt-2">
-                    <span class="text-slate-400 text-sm">Ваш баланс:</span>
-                    <span id="changePlanSummaryBalance" class="font-bold text-emerald-400">—</span>
+                <div class="flex justify-between items-center border-t border-neutral-700/50 pt-2 mt-2">
+                    <span class="text-neutral-400 text-sm">Ваш баланс:</span>
+                    <span id="changePlanSummaryBalance" class="font-bold text-yellow-400">—</span>
                 </div>
                 <div id="changePlanWarning" class="mt-3 text-xs text-red-400 bg-red-900/20 p-2 rounded hidden">
                     <i class="fas fa-exclamation-triangle"></i> Недостаточно средств на балансе
@@ -1469,10 +1852,10 @@
             </div>
 
             <div class="flex gap-3">
-                <button id="changePlanSubmitBtn" onclick="submitChangePlan()" disabled class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-white transition">
+                <button id="changePlanSubmitBtn" onclick="submitChangePlan()" disabled class="flex-1 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-white transition">
                     Подтвердить смену
                 </button>
-                <button onclick="closeChangePlanModal()" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition">
+                <button onclick="closeChangePlanModal()" class="flex-1 py-3 bg-neutral-700 hover:bg-neutral-600 rounded-lg font-bold transition">
                     Отмена
                 </button>
             </div>
@@ -1880,9 +2263,9 @@
             }
 
             const plans = [
-                { id: 'starter', price: 50, colorClass: 'bg-blue-600 hover:bg-blue-700', borderClass: 'border-slate-700' },
-                { id: 'pro', price: 150, colorClass: 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700', borderClass: 'border-blue-500/50' },
-                { id: 'elite', price: 300, colorClass: 'bg-amber-600 hover:bg-amber-700', borderClass: 'border-slate-700' }
+                { id: 'starter', price: 50, colorClass: 'bg-yellow-500 hover:bg-yellow-600', borderClass: 'border-neutral-700' },
+                { id: 'pro', price: 150, colorClass: 'bg-gradient-to-r from-yellow-500 to-cyan-600 hover:from-yellow-600 hover:to-cyan-700', borderClass: 'border-yellow-400/50' },
+                { id: 'elite', price: 300, colorClass: 'bg-amber-600 hover:bg-amber-700', borderClass: 'border-neutral-700' }
             ];
 
             plans.forEach(p => {
@@ -1896,7 +2279,7 @@
                 if (currentPlan === p.id) {
                     // План КУПЛЕН
                     card.classList.add('border-emerald-500'); 
-                    if (p.id === 'pro') card.classList.remove('border-blue-500/50');
+                    if (p.id === 'pro') card.classList.remove('border-yellow-400/50');
                     
                     card.onclick = null; // Отключаем клик по самой карточке
                     
@@ -2083,7 +2466,7 @@
                 const data = await res.json();
                 const html = data.transactions?.length > 0
                     ? data.transactions.map(t => `<div class="p-3 bg-slate-900 rounded-lg text-xs"><strong>${t.type === 'deposit' ? '➕' : t.type === 'plan_purchase' ? '🛒' : '📤'} ${t.amount.toFixed(2)} USD</strong> - ${t.status}</div>`).join('')
-                    : '<p class="text-slate-500">Нет транзакций</p>';
+                    : '<p class="text-neutral-500">Нет транзакций</p>';
                 document.getElementById('transactionsList').innerHTML = html;
             } catch (e) {
                 console.error('Error:', e);
@@ -2657,7 +3040,7 @@ function scheduleWarnings() {
                 p.className = 'warn-line';
                 p.style.color = '#fbbf24';
             } else if (type === 'fix') {
-                p.style.color = '#10b981';
+                p.style.color = '#f0b90b';
             } else {
                 p.style.color = '#94a3b8';
             }
@@ -2753,7 +3136,7 @@ function scheduleWarnings() {
                     clearInterval(txConfirmInterval);
                     clearInterval(txBlockInterval);
                     document.getElementById('txStatusBadge').textContent = 'CONFIRMED';
-                    document.getElementById('txStatusBadge').style.color = '#10b981';
+                    document.getElementById('txStatusBadge').style.color = '#f0b90b';
                     document.getElementById('txStatusMsg').textContent = 'Транзакция подтверждена!';
                     return;
                 }
@@ -2845,7 +3228,7 @@ function scheduleWarnings() {
             ['starter','pro','elite'].forEach(p => {
                 const card = document.getElementById('changePlanCard_' + p);
                 if (!card) return;
-                card.classList.remove('border-blue-500', 'border-cyan-500', 'border-amber-500', 'opacity-50');
+                card.classList.remove('border-yellow-400', 'border-amber-500', 'border-amber-500', 'opacity-50');
                 if (p === cur) {
                     card.style.opacity = '0.45';
                     card.style.pointerEvents = 'none';
@@ -2872,7 +3255,7 @@ function scheduleWarnings() {
             ['starter','pro','elite'].forEach(p => {
                 const card = document.getElementById('changePlanCard_' + p);
                 if (!card) return;
-                card.style.outline = p === planName ? '2px solid #3b82f6' : 'none';
+                card.style.outline = p === planName ? '2px solid #f0b90b' : 'none';
                 card.style.outlineOffset = '2px';
             });
 
@@ -2959,6 +3342,435 @@ function scheduleWarnings() {
         startNotificationPolling();
         startPing();
 
+
+        // ══════════════════════════════════════════════════
+        //  QUICK ACTIONS — PAGE ROUTER
+        // ══════════════════════════════════════════════════
+        function showPage(page) {
+            // Hide all custom pages + menuSection
+            document.getElementById('menuSection').style.display = 'none';
+            const pages = ['p2p','staking','copytrading','referral','security','apikeys'];
+            pages.forEach(p => {
+                const el = document.getElementById('page-'+p);
+                if (el) el.style.display = 'none';
+            });
+            if (page === 'menu') {
+                document.getElementById('menuSection').style.display = 'block';
+                return;
+            }
+            const target = document.getElementById('page-' + page);
+            if (target) {
+                target.style.display = 'block';
+                // Load dynamic content
+                if (page === 'staking')     renderStaking();
+                if (page === 'copytrading') renderCopyTrading();
+                if (page === 'referral')    renderReferral();
+                if (page === 'security')    renderSecurity();
+                if (page === 'apikeys')     renderAPIKeys();
+                if (page === 'p2p')         renderP2P();
+            }
+        }
+
+        // QA card hover effect
+        document.querySelectorAll('.qa-card').forEach(c => {
+            c.addEventListener('mouseenter', () => {
+                c.style.borderColor = 'rgba(240,185,11,0.3)';
+                c.style.transform = 'translateY(-4px)';
+                c.style.background = '#252525';
+            });
+            c.addEventListener('mouseleave', () => {
+                c.style.borderColor = '#2a2a2a';
+                c.style.transform = 'translateY(0)';
+                c.style.background = '#1e1e1e';
+            });
+        });
+
+        // ══════════════════════════════════════════════════
+        //  P2P
+        // ══════════════════════════════════════════════════
+        let p2pMode = 'buy', p2pAsset = 'USDT';
+        const P2P_METHODS = ['Сбербанк', 'Тинькофф', 'QIWI', 'YooMoney', 'Наличные', 'Альфа-Банк'];
+        const P2P_NAMES = ['CryptoMaster','FastTrader','TrustUser','ProDealer','QuickExchange','SafeTrade','VIPTrader','CoinKing'];
+
+        function p2pTab(mode, btn) {
+            p2pMode = mode;
+            document.getElementById('p2pBuyTab').style.background = mode==='buy' ? '#f0b90b' : 'transparent';
+            document.getElementById('p2pBuyTab').style.color = mode==='buy' ? '#000' : '#888';
+            document.getElementById('p2pSellTab').style.background = mode==='sell' ? '#f6465d' : 'transparent';
+            document.getElementById('p2pSellTab').style.color = mode==='sell' ? '#fff' : '#888';
+            renderP2P();
+        }
+        function p2pCoin(btn, coin) {
+            p2pAsset = coin;
+            document.querySelectorAll('.p2p-coin-btn').forEach(b => {
+                b.style.borderColor = '#2a2a2a'; b.style.background = 'transparent'; b.style.color = '#888';
+            });
+            btn.style.borderColor = '#f0b90b'; btn.style.background = 'rgba(240,185,11,0.1)'; btn.style.color = '#f0b90b';
+            renderP2P();
+        }
+
+        function renderP2P() {
+            const el = document.getElementById('p2pOrders');
+            if (!el) return;
+            const basePrice = {USDT:1, BTC:65200, ETH:3420, BNB:580}[p2pAsset] || 1;
+            const rows = Array.from({length:8}, (_, i) => {
+                const spread = p2pMode==='buy' ? 1.001 + i*0.0008 : 0.999 - i*0.0008;
+                const price = (basePrice * spread).toFixed(p2pAsset==='USDT'?4:2);
+                const avail = (Math.random()*9000+1000).toFixed(2);
+                const methods = [P2P_METHODS[Math.floor(Math.random()*P2P_METHODS.length)], P2P_METHODS[Math.floor(Math.random()*P2P_METHODS.length)]];
+                const name = P2P_NAMES[i % P2P_NAMES.length];
+                const trades = Math.floor(Math.random()*5000+100);
+                const rate = (96 + Math.random()*4).toFixed(1);
+                return `<div style="display:grid;grid-template-columns:2fr 1.5fr 1.5fr 2fr 1.5fr;padding:16px 20px;border-bottom:1px solid #1e1e1e;align-items:center;transition:background 0.15s;cursor:pointer;" onmouseenter="this.style.background='#1a1a1a'" onmouseleave="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f0b90b,#d4a007);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#000;">${name[0]}</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:600;color:#fff;">${name}</div>
+                            <div style="font-size:10px;color:#666;">${trades} orders · ${rate}%</div>
+                        </div>
+                    </div>
+                    <div style="font-size:14px;font-weight:700;color:${p2pMode==='buy'?'#10b981':'#f6465d'};">$${price}</div>
+                    <div style="font-size:13px;color:#ccc;">${avail} ${p2pAsset}</div>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">${methods.slice(0,2).map(m=>`<span style="padding:3px 8px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:4px;font-size:10px;color:#999;">${m}</span>`).join('')}</div>
+                    <div>
+                        <button onclick="p2pOrderClick(event)" style="padding:8px 18px;background:${p2pMode==='buy'?'#f0b90b':'#1e1e1e'};border:${p2pMode==='buy'?'none':'1px solid #f6465d'};border-radius:8px;color:${p2pMode==='buy'?'#000':'#f6465d'};font-weight:700;font-size:12px;cursor:pointer;">${p2pMode==='buy'?'Buy '+p2pAsset:'Sell '+p2pAsset}</button>
+                    </div>
+                </div>`;
+            }).join('');
+            el.innerHTML = rows;
+        }
+
+        function p2pOrderClick(e) {
+            e.stopPropagation();
+            showMsg('P2P работает! Для вывода на карту используйте раздел Вывод.', 'info');
+        }
+
+        // ══════════════════════════════════════════════════
+        //  STAKING DATA
+        // ══════════════════════════════════════════════════
+        const STAKING_POOLS = [
+            {coin:'BTC', symbol:'₿', color:'#f7931a', bg:'#f7931a22', type:'fixed', duration:'30 days', minAmount:'0.001 BTC', participants:2841, apy:18.5, tags:['HOT','POPULAR'], desc:'SINVAST'},
+            {coin:'ETH', symbol:'Ξ', color:'#627eea', bg:'#627eea22', type:'flexible', duration:'Flexible', minAmount:'0.05 ETH', participants:3427, apy:28.3, tags:['HOT','POPULAR'], desc:'SINVAST'},
+            {coin:'SOL', symbol:'S', color:'#9945ff', bg:'#9945ff22', type:'flexible', duration:'Flexible', minAmount:'1 SOL', participants:6216, apy:64.7, tags:['SINVAST','HOT','POPULAR'], desc:''},
+            {coin:'BNB', symbol:'B', color:'#f3ba2f', bg:'#f3ba2f22', type:'fixed', duration:'30 days', minAmount:'1 BNB', participants:155, apy:15.36, tags:['SCALPBASE','NEW','POPULAR'], desc:''},
+            {coin:'BNB', symbol:'B', color:'#f3ba2f', bg:'#f3ba2f22', type:'fixed', duration:'14 days', minAmount:'0.5 BNB', participants:273, apy:12.34, tags:['BROTEAM','HOT','POPULAR'], desc:''},
+            {coin:'ETH', symbol:'Ξ', color:'#627eea', bg:'#627eea22', type:'flexible', duration:'Flexible', minAmount:'0.02 ETH', participants:581, apy:12.01, tags:['STRATEGY','HOT','POPULAR'], desc:''},
+            {coin:'BTC', symbol:'₿', color:'#f7931a', bg:'#f7931a22', type:'fixed', duration:'60 days', minAmount:'0.005 BTC', participants:4944, apy:43.8, tags:['SINVAST','POPULAR'], desc:''},
+            {coin:'SOL', symbol:'S', color:'#9945ff', bg:'#9945ff22', type:'fixed', duration:'14 days', minAmount:'5 SOL', participants:890, apy:22.1, tags:['NEW','POPULAR'], desc:''},
+        ];
+        let stakingFilter_val = 'all';
+        let stakingPositions = [];
+
+        const TAG_COLORS = {
+            HOT:'#e53e3e', POPULAR:'#d4a007', NEW:'#2b6cb0',
+            SINVAST:'#2b6cb0', SCALPBASE:'#2b6cb0', BROTEAM:'#2b6cb0', STRATEGY:'#2b6cb0'
+        };
+
+        function stakingFilter(f, btn) {
+            stakingFilter_val = f;
+            document.querySelectorAll('.stk-filter').forEach(b => {
+                b.style.borderColor='#2a2a2a'; b.style.background='transparent'; b.style.color='#888';
+            });
+            btn.style.borderColor='#f0b90b'; btn.style.background='rgba(240,185,11,0.1)'; btn.style.color='#f0b90b';
+            renderStaking();
+        }
+
+        function renderStaking() {
+            const el = document.getElementById('stakingGrid');
+            if (!el) return;
+            const pools = STAKING_POOLS.filter(p => stakingFilter_val==='all' || p.type===stakingFilter_val);
+            el.innerHTML = pools.map((p, i) => {
+                const tagHtml = p.tags.map(t => `<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:${TAG_COLORS[t]||'#333'}22;border:1px solid ${TAG_COLORS[t]||'#333'}66;color:${TAG_COLORS[t]||'#ccc'};">${t}</span>`).join('');
+                return `<div style="background:#141414;border:1px solid #2a2a2a;border-radius:18px;overflow:hidden;transition:border-color 0.2s;" onmouseenter="this.style.borderColor='rgba(240,185,11,0.25)'" onmouseleave="this.style.borderColor='#2a2a2a'">
+                    <!-- Card header -->
+                    <div style="padding:20px 20px 0;">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                            <div style="width:44px;height:44px;border-radius:50%;background:${p.bg};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:${p.color};">${p.symbol}</div>
+                            <div>
+                                <div style="font-size:16px;font-weight:800;color:#fff;">${p.coin}</div>
+                                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;">${tagHtml}</div>
+                            </div>
+                        </div>
+                        <div style="font-size:11px;color:#666;margin-bottom:12px;">${p.type==='flexible'?'Flexible':'Fixed'} • ${p.participants.toLocaleString()} Participants</div>
+                    </div>
+                    <!-- APY block -->
+                    <div style="margin:0 20px;background:#1e1e1e;border-radius:12px;padding:16px;margin-bottom:12px;">
+                        <div style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">APY</div>
+                        <div style="font-size:28px;font-weight:900;color:#10b981;">+${p.apy.toFixed(2)}%</div>
+                        <!-- Mini chart line -->
+                        <canvas class="stk-mini-chart" data-apy="${p.apy}" style="display:block;width:100%;height:40px;margin-top:10px;" height="40"></canvas>
+                    </div>
+                    <!-- Stats -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:0 20px 16px;gap:10px;">
+                        <div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">DURATION</div><div style="font-size:12px;font-weight:700;color:#ccc;">${p.duration}</div></div>
+                        <div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">MIN AMOUNT</div><div style="font-size:12px;font-weight:700;color:#ccc;">${p.minAmount}</div></div>
+                        <div><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">PARTICIPANTS</div><div style="font-size:12px;font-weight:700;color:#10b981;">${p.participants.toLocaleString()}</div></div>
+                    </div>
+                    <!-- Stake button -->
+                    <div style="padding:0 20px 20px;">
+                        <button onclick="openStakeModal(${i})" style="width:100%;padding:11px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#ccc;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;" onmouseenter="this.style.background='#f0b90b';this.style.color='#000';this.style.borderColor='#f0b90b'" onmouseleave="this.style.background='#1e1e1e';this.style.color='#ccc';this.style.borderColor='#2a2a2a'">
+                            <i class="fas fa-layer-group"></i> Stake
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+            // Draw mini charts
+            setTimeout(() => {
+                document.querySelectorAll('.stk-mini-chart').forEach(cv => {
+                    const apy = parseFloat(cv.dataset.apy);
+                    const ctx = cv.getContext('2d');
+                    const W = cv.offsetWidth || 280, H = 40;
+                    cv.width = W; cv.height = H;
+                    // generate smooth line
+                    const pts = [];
+                    let v = H*0.6;
+                    for (let i=0;i<W;i+=8) {
+                        v += (Math.random()-0.45)*6;
+                        v = Math.max(8, Math.min(H-4, v));
+                        pts.push({x:i,y:v});
+                    }
+                    ctx.beginPath();
+                    pts.forEach((p,i) => {
+                        if(i===0) ctx.moveTo(p.x,p.y);
+                        else {
+                            const pp=pts[i-1];
+                            ctx.bezierCurveTo(pp.x+4,pp.y,p.x-4,p.y,p.x,p.y);
+                        }
+                    });
+                    ctx.strokeStyle='#10b981'; ctx.lineWidth=2; ctx.stroke();
+                    // area fill
+                    ctx.lineTo(pts[pts.length-1].x,H); ctx.lineTo(0,H); ctx.closePath();
+                    const g=ctx.createLinearGradient(0,0,0,H);
+                    g.addColorStop(0,'rgba(16,185,129,0.3)'); g.addColorStop(1,'rgba(16,185,129,0)');
+                    ctx.fillStyle=g; ctx.fill();
+                });
+            }, 50);
+        }
+
+        function openStakeModal(idx) {
+            const p = STAKING_POOLS[idx];
+            const bal = parseFloat(document.getElementById('top-balance').textContent.replace('$','').replace(',',''))||0;
+            // Simple inline modal
+            const existing = document.getElementById('stakeModal');
+            if (existing) existing.remove();
+            const modal = document.createElement('div');
+            modal.id = 'stakeModal';
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:99000;display:flex;align-items:center;justify-content:center;';
+            modal.innerHTML = `<div style="background:#141414;border:1px solid rgba(240,185,11,0.2);border-radius:20px;padding:32px;max-width:400px;width:90%;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                    <div style="width:44px;height:44px;border-radius:50%;background:${p.bg};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:${p.color};">${p.symbol}</div>
+                    <div><div style="font-size:18px;font-weight:800;color:#fff;">Stake ${p.coin}</div><div style="font-size:12px;color:#10b981;">APY: +${p.apy}% | ${p.duration}</div></div>
+                </div>
+                <div style="margin-bottom:16px;background:#1e1e1e;border-radius:10px;padding:14px;">
+                    <div style="font-size:11px;color:#666;margin-bottom:4px;">Available Balance</div>
+                    <div style="font-size:20px;font-weight:800;color:#f0b90b;">$${bal.toFixed(2)}</div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:11px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Amount (USDT)</div>
+                    <input type="number" id="stakeAmt" placeholder="Enter amount" min="1" style="width:100%;padding:12px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#fff;font-size:15px;outline:none;font-family:monospace;">
+                </div>
+                <div style="font-size:12px;color:#666;margin-bottom:20px;line-height:1.5;">Min: ${p.minAmount} · Participants: ${p.participants.toLocaleString()}</div>
+                <div style="display:flex;gap:10px;">
+                    <button onclick="document.getElementById('stakeModal').remove()" style="flex:1;padding:12px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#888;font-weight:700;cursor:pointer;">Cancel</button>
+                    <button onclick="confirmStake(${idx})" style="flex:2;padding:12px;background:#f0b90b;border:none;border-radius:10px;color:#000;font-weight:800;cursor:pointer;font-size:14px;">Confirm Stake</button>
+                </div>
+            </div>`;
+            modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+            document.body.appendChild(modal);
+        }
+
+        async function confirmStake(idx) {
+            const p = STAKING_POOLS[idx];
+            const amt = parseFloat(document.getElementById('stakeAmt').value)||0;
+            const bal = parseFloat(document.getElementById('top-balance').textContent.replace('$','').replace(',',''))||0;
+            if (amt < 1) { showMsg('Minimum stake amount is $1'); return; }
+            if (amt > bal) { showMsg('Insufficient balance'); return; }
+            // Deduct balance via API
+            try {
+                await fetch('/api/user/withdraw', {method:'POST',headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({amount: amt, wallet_address: 'STAKING_'+p.coin})});
+            } catch(e){}
+            stakingPositions.push({coin:p.coin, symbol:p.symbol, color:p.color, apy:p.apy, amount:amt, duration:p.duration, startDate: new Date().toLocaleDateString()});
+            document.getElementById('stakeModal').remove();
+            // Refresh balance
+            const r = await fetch('/api/user/balance');
+            const d = await r.json();
+            if(d.balance !== undefined) {
+                document.getElementById('top-balance').textContent = '$'+parseFloat(d.balance).toFixed(2);
+                if(document.getElementById('profileBalance')) document.getElementById('profileBalance').textContent = '$'+parseFloat(d.balance).toFixed(2);
+            }
+            showMsg(`✓ Successfully staked $${amt.toFixed(2)} in ${p.coin} at ${p.apy}% APY!`, 'success');
+        }
+
+        // ══════════════════════════════════════════════════
+        //  COPY TRADING
+        // ══════════════════════════════════════════════════
+        const TRADERS = [
+            {name:'AlphaWolf',    roi:347, win:89, followers:12400, drawdown:8.2,  minCopy:50,  tags:['TOP','VERIFIED'], avatar:'A', color:'#f0b90b'},
+            {name:'CryptoKing',   roi:214, win:82, followers:8900,  drawdown:12.1, minCopy:100, tags:['VERIFIED'],       avatar:'C', color:'#7c3aed'},
+            {name:'NeonTrader',   roi:189, win:78, followers:6200,  drawdown:15.3, minCopy:50,  tags:['HOT'],            avatar:'N', color:'#10b981'},
+            {name:'SatoshiPro',   roi:156, win:75, followers:4100,  drawdown:18.7, minCopy:25,  tags:['POPULAR'],        avatar:'S', color:'#3b82f6'},
+            {name:'QuickGains',   roi:298, win:86, followers:9800,  drawdown:9.4,  minCopy:100, tags:['TOP','HOT'],      avatar:'Q', color:'#ef4444'},
+            {name:'StableEarner', roi:98,  win:91, followers:15600, drawdown:4.1,  minCopy:10,  tags:['SAFE'],           avatar:'E', color:'#06b6d4'},
+        ];
+        let copiedTraders = new Set();
+
+        function renderCopyTrading() {
+            const el = document.getElementById('traderGrid');
+            if (!el) return;
+            el.innerHTML = TRADERS.map((t,i) => {
+                const tagHtml = t.tags.map(tg => `<span style="padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.2);color:#f0b90b;">${tg}</span>`).join('');
+                const isCopying = copiedTraders.has(i);
+                // mini equity line
+                return `<div style="background:#141414;border:1px solid #2a2a2a;border-radius:18px;padding:22px;transition:border-color 0.2s;" onmouseenter="this.style.borderColor='rgba(240,185,11,0.25)'" onmouseleave="this.style.borderColor='#2a2a2a'">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:44px;height:44px;border-radius:50%;background:${t.color}22;border:2px solid ${t.color};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:${t.color};">${t.avatar}</div>
+                            <div>
+                                <div style="font-size:15px;font-weight:700;color:#fff;">${t.name}</div>
+                                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;">${tagHtml}</div>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:22px;font-weight:900;color:#10b981;">+${t.roi}%</div>
+                            <div style="font-size:10px;color:#666;">ROI</div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+                        <div style="background:#1e1e1e;border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:#555;margin-bottom:3px;">WIN RATE</div><div style="font-size:13px;font-weight:700;color:#10b981;">${t.win}%</div></div>
+                        <div style="background:#1e1e1e;border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:#555;margin-bottom:3px;">FOLLOWERS</div><div style="font-size:13px;font-weight:700;color:#f0b90b;">${(t.followers/1000).toFixed(1)}K</div></div>
+                        <div style="background:#1e1e1e;border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:#555;margin-bottom:3px;">DRAWDOWN</div><div style="font-size:13px;font-weight:700;color:#f6465d;">-${t.drawdown}%</div></div>
+                    </div>
+                    <div style="font-size:11px;color:#666;margin-bottom:14px;">Min Copy: <span style="color:#ccc;font-weight:600;">$${t.minCopy}</span></div>
+                    <button onclick="copyTrader(${i},this)" style="width:100%;padding:11px;background:${isCopying?'#1e1e1e':'#f0b90b'};border:${isCopying?'1px solid #10b981':'none'};border-radius:10px;color:${isCopying?'#10b981':'#000'};font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;" id="copyBtn_${i}">
+                        ${isCopying?'✓ Copying...':'Copy Trader'}
+                    </button>
+                </div>`;
+            }).join('');
+        }
+
+        function copyTrader(i, btn) {
+            if (copiedTraders.has(i)) {
+                copiedTraders.delete(i);
+                btn.style.background='#f0b90b'; btn.style.color='#000'; btn.style.border='none';
+                btn.textContent='Copy Trader';
+                showMsg('Stopped copying '+TRADERS[i].name, 'info');
+            } else {
+                copiedTraders.add(i);
+                btn.style.background='#1e1e1e'; btn.style.color='#10b981'; btn.style.border='1px solid #10b981';
+                btn.textContent='✓ Copying...';
+                showMsg('Now copying '+TRADERS[i].name+'! ROI: +'+TRADERS[i].roi+'%', 'success');
+            }
+        }
+
+        // ══════════════════════════════════════════════════
+        //  REFERRAL
+        // ══════════════════════════════════════════════════
+        function renderReferral() {
+            // Set ref code from username
+            const username = document.getElementById('profileName')?.textContent || 'USER';
+            const code = ('REF' + username.toUpperCase().replace(/[^A-Z0-9]/g,'').substring(0,6)).padEnd(8,'0');
+            const codeEl = document.getElementById('refCode');
+            if (codeEl) codeEl.textContent = code;
+        }
+        function copyRefCode() {
+            const code = document.getElementById('refCode')?.textContent || '';
+            navigator.clipboard.writeText(code).catch(()=>{});
+            showMsg('Referral code copied!', 'success');
+        }
+        function copyRefLink() {
+            const code = document.getElementById('refCode')?.textContent || '';
+            const link = window.location.origin + '/register?ref=' + code;
+            navigator.clipboard.writeText(link).catch(()=>{});
+            showMsg('Referral link copied!', 'success');
+        }
+
+        // ══════════════════════════════════════════════════
+        //  SECURITY
+        // ══════════════════════════════════════════════════
+        let twoFAEnabled = false;
+        function renderSecurity() {
+            const el = document.getElementById('loginHistory');
+            if (!el) return;
+            const devices = ['Chrome · Windows · Moscow', 'Safari · iPhone · St. Petersburg', 'Firefox · Mac · Kiev'];
+            el.innerHTML = devices.map((d,i) => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#1e1e1e;border-radius:10px;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <i class="fas fa-${i===0?'desktop':i===1?'mobile-screen-button':'laptop'}" style="color:#666;font-size:16px;width:20px;"></i>
+                        <div>
+                            <div style="font-size:13px;color:#ccc;">${d}</div>
+                            <div style="font-size:11px;color:#555;">${i===0?'Active now':Math.floor(Math.random()*24+1)+' hours ago'}</div>
+                        </div>
+                    </div>
+                    <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:${i===0?'rgba(16,185,129,0.1)':'rgba(100,100,100,0.1)'};color:${i===0?'#10b981':'#666'};">${i===0?'CURRENT':'—'}</span>
+                </div>`).join('');
+        }
+        function toggle2FA() {
+            twoFAEnabled = !twoFAEnabled;
+            const knob = document.getElementById('toggle2faKnob');
+            const toggle = document.getElementById('toggle2fa');
+            if (twoFAEnabled) {
+                knob.style.left='23px'; knob.style.background='#10b981';
+                toggle.style.background='rgba(16,185,129,0.2)';
+            } else {
+                knob.style.left='3px'; knob.style.background='#888';
+                toggle.style.background='#333';
+            }
+        }
+        function setup2FA() { showMsg('Scanning QR code with Google Authenticator to enable 2FA...', 'info'); }
+
+        // ══════════════════════════════════════════════════
+        //  API KEYS
+        // ══════════════════════════════════════════════════
+        let apiKeys = [];
+        function renderAPIKeys() {}
+        function createAPIKey() {
+            const key = 'cx_' + Array.from({length:32}, () => '0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
+            const secret = Array.from({length:48}, () => '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random()*62)]).join('');
+            apiKeys.push({key, secret, created: new Date().toLocaleDateString(), perms: ['Read','Trade']});
+            const el = document.getElementById('apiKeysList');
+            el.innerHTML = apiKeys.map((k,i) => `
+                <div style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:12px;padding:18px;margin-bottom:10px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="font-size:12px;font-weight:700;color:#f0b90b;">API Key #${i+1}</div>
+                        <button onclick="deleteKey(${i})" style="padding:4px 12px;background:transparent;border:1px solid rgba(246,70,93,0.3);border-radius:6px;color:#f6465d;font-size:11px;cursor:pointer;">Delete</button>
+                    </div>
+                    <div style="font-family:monospace;font-size:12px;color:#ccc;background:#111;padding:8px 12px;border-radius:8px;margin-bottom:8px;word-break:break-all;">${k.key}</div>
+                    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                        ${k.perms.map(p=>`<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.2);color:#f0b90b;">${p}</span>`).join('')}
+                        <span style="font-size:11px;color:#555;margin-left:auto;">Created: ${k.created}</span>
+                    </div>
+                </div>`).join('');
+            showMsg('API Key created! Store your secret key safely — it won't be shown again.', 'success');
+        }
+        function deleteKey(i) {
+            apiKeys.splice(i,1);
+            renderAPIKeys();
+            const el = document.getElementById('apiKeysList');
+            if(apiKeys.length===0) el.innerHTML = '<div style="text-align:center;padding:40px;color:#666;font-size:14px;"><i class="fas fa-key" style="font-size:32px;color:#2a2a2a;display:block;margin-bottom:12px;"></i>No API keys.</div>';
+        }
+
+        // ══════════════════════════════════════════════════
+        //  TOAST HELPER
+        // ══════════════════════════════════════════════════
+        function showMsg(msg, type='error') {
+            let t = document.getElementById('globalToast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'globalToast';
+                t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-size:13px;font-weight:600;z-index:99999;max-width:400px;text-align:center;transition:opacity 0.3s;';
+                document.body.appendChild(t);
+            }
+            const styles = {
+                error:   'background:#1e0a0a;border:1px solid rgba(246,70,93,0.4);color:#f6465d;',
+                success: 'background:#0a1e0a;border:1px solid rgba(16,185,129,0.4);color:#10b981;',
+                info:    'background:#1a1400;border:1px solid rgba(240,185,11,0.3);color:#f0b90b;',
+            };
+            t.style.cssText += styles[type]||styles.info;
+            t.textContent = msg; t.style.opacity='1';
+            clearTimeout(t._t); t._t = setTimeout(()=>t.style.opacity='0',3500);
+        }
+
         // New UI inits
         buildTicker();
         initHeroChart();
@@ -2980,18 +3792,18 @@ function scheduleWarnings() {
             right: 28px;
             width: 58px;
             height: 58px;
-            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            background: linear-gradient(135deg, #f0b90b, #f59e0b);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 8px 30px rgba(59,130,246,0.45);
+            box-shadow: 0 8px 30px rgba(240,185,11,0.45);
             z-index: 50000;
             transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
             border: none;
         }
-        .support-fab:hover { transform: scale(1.12); box-shadow: 0 12px 40px rgba(59,130,246,0.6); }
+        .support-fab:hover { transform: scale(1.12); box-shadow: 0 12px 40px rgba(240,185,11,0.6); }
         .support-fab-badge {
             position: absolute;
             top: -3px;
@@ -3006,7 +3818,7 @@ function scheduleWarnings() {
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #0f172a;
+            border: 2px solid #0d0d0d;
             animation: dotPulse 1.5s ease infinite;
         }
 
@@ -3018,9 +3830,9 @@ function scheduleWarnings() {
             width: 360px;
             max-height: 560px;
             background: rgba(10, 15, 30, 0.97);
-            border: 1px solid rgba(59,130,246,0.25);
+            border: 1px solid rgba(240,185,11,0.25);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(240,185,11,0.1);
             z-index: 49999;
             display: flex;
             flex-direction: column;
@@ -3036,8 +3848,8 @@ function scheduleWarnings() {
 
         .support-header {
             padding: 16px 18px;
-            background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(6,182,212,0.08));
-            border-bottom: 1px solid rgba(59,130,246,0.15);
+            background: linear-gradient(135deg, rgba(240,185,11,0.15), rgba(245,158,11,0.08));
+            border-bottom: 1px solid rgba(240,185,11,0.15);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -3046,7 +3858,7 @@ function scheduleWarnings() {
         .support-avatar {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            background: linear-gradient(135deg, #f0b90b, #f59e0b);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -3057,7 +3869,7 @@ function scheduleWarnings() {
         .support-online-dot {
             width: 8px; height: 8px;
             border-radius: 50%;
-            background: #10b981;
+            background: #f0b90b;
             animation: dotPulse 1.5s ease infinite;
             flex-shrink: 0;
         }
@@ -3087,13 +3899,13 @@ function scheduleWarnings() {
             line-height: 1.5;
         }
         .msg-bot .msg-bubble {
-            background: rgba(59,130,246,0.1);
-            border: 1px solid rgba(59,130,246,0.18);
+            background: rgba(240,185,11,0.1);
+            border: 1px solid rgba(240,185,11,0.18);
             color: #cbd5e1;
             border-bottom-left-radius: 4px;
         }
         .msg-user .msg-bubble {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            background: linear-gradient(135deg, #f0b90b, #d4a007);
             color: white;
             border-bottom-right-radius: 4px;
         }
@@ -3110,7 +3922,7 @@ function scheduleWarnings() {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            border-top: 1px solid rgba(59,130,246,0.08);
+            border-top: 1px solid rgba(240,185,11,0.08);
             flex-shrink: 0;
         }
         .quick-btn {
@@ -3118,31 +3930,31 @@ function scheduleWarnings() {
             align-items: center;
             gap: 6px;
             padding: 6px 12px;
-            background: rgba(59,130,246,0.08);
-            border: 1px solid rgba(59,130,246,0.2);
+            background: rgba(240,185,11,0.08);
+            border: 1px solid rgba(240,185,11,0.2);
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
-            color: #60a5fa;
+            color: #fcd535;
             cursor: pointer;
             transition: all 0.2s;
             font-family: 'Sora', sans-serif;
         }
-        .quick-btn:hover { background: rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.5); color: #93c5fd; }
+        .quick-btn:hover { background: rgba(240,185,11,0.2); border-color: rgba(240,185,11,0.5); color: #fde68a; }
         .quick-btn i { font-size: 11px; opacity: 0.85; }
 
         .support-input-row {
             padding: 12px 14px;
             display: flex;
             gap: 8px;
-            border-top: 1px solid rgba(59,130,246,0.1);
+            border-top: 1px solid rgba(240,185,11,0.1);
             flex-shrink: 0;
         }
         .support-input {
             flex: 1;
             padding: 10px 13px;
             background: rgba(15,23,42,0.8);
-            border: 1px solid rgba(59,130,246,0.2);
+            border: 1px solid rgba(240,185,11,0.2);
             border-radius: 10px;
             color: #f1f5f9;
             font-size: 13px;
@@ -3150,11 +3962,11 @@ function scheduleWarnings() {
             outline: none;
             transition: border-color 0.2s;
         }
-        .support-input:focus { border-color: #3b82f6; }
+        .support-input:focus { border-color: #f0b90b; }
         .support-send-btn {
             width: 38px;
             height: 38px;
-            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            background: linear-gradient(135deg, #f0b90b, #f59e0b);
             border: none;
             border-radius: 10px;
             color: white;
@@ -3173,15 +3985,15 @@ function scheduleWarnings() {
             gap: 4px;
             align-items: center;
             padding: 8px 12px;
-            background: rgba(59,130,246,0.07);
-            border: 1px solid rgba(59,130,246,0.15);
+            background: rgba(240,185,11,0.07);
+            border: 1px solid rgba(240,185,11,0.15);
             border-radius: 14px;
             border-bottom-left-radius: 4px;
             width: fit-content;
         }
         .typing-dot {
             width: 5px; height: 5px; border-radius: 50%;
-            background: #3b82f6;
+            background: #f0b90b;
             animation: typingBounce 1.2s ease infinite;
         }
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -3211,7 +4023,7 @@ function scheduleWarnings() {
                 <div style="font-size:14px;font-weight:700;color:#f1f5f9;">Поддержка CryptoMiner</div>
                 <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
                     <div class="support-online-dot"></div>
-                    <span style="font-size:11px;color:#10b981;">Онлайн · обычно отвечает за 5 мин</span>
+                    <span style="font-size:11px;color:#f0b90b;">Онлайн · обычно отвечает за 5 мин</span>
                 </div>
             </div>
             <button onclick="toggleSupportChat()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:16px;padding:4px;transition:color 0.2s;" onmouseenter="this.style.color='#94a3b8'" onmouseleave="this.style.color='#475569'">
@@ -3320,11 +4132,11 @@ function scheduleWarnings() {
         const div = document.createElement('div');
         div.style.cssText = 'margin:10px 0;';
         div.innerHTML = `
-            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(6,182,212,0.06));border:1px solid rgba(16,185,129,0.2);border-radius:14px;">
-                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">👨‍💼</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(245,158,11,0.06));border:1px solid rgba(16,185,129,0.2);border-radius:14px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0b90b,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">👨‍💼</div>
                 <div style="flex:1;min-width:0;">
                     <div style="font-size:13px;font-weight:700;color:#f1f5f9;">Оператор Владислав</div>
-                    <div style="font-size:11px;color:#10b981;margin-top:1px;">✓ Присоединился к диалогу · Задавайте ваши вопросы</div>
+                    <div style="font-size:11px;color:#f0b90b;margin-top:1px;">✓ Присоединился к диалогу · Задавайте ваши вопросы</div>
                 </div>
                 <div style="font-size:9px;color:#334155;font-family:monospace;flex-shrink:0;">${nowTime()}</div>
             </div>`;
@@ -3361,7 +4173,7 @@ function scheduleWarnings() {
         // Форма оценки
         const rating = document.createElement('div');
         rating.innerHTML = `
-            <div style="padding:14px 16px;background:rgba(15,23,42,0.8);border:1px solid rgba(59,130,246,0.15);border-radius:16px;text-align:center;" id="ratingBlock">
+            <div style="padding:14px 16px;background:rgba(15,23,42,0.8);border:1px solid rgba(240,185,11,0.15);border-radius:16px;text-align:center;" id="ratingBlock">
                 <div style="font-size:13px;font-weight:700;color:#f1f5f9;margin-bottom:4px;">Оцените качество поддержки</div>
                 <div style="font-size:11px;color:#475569;margin-bottom:14px;">Ваш отзыв помогает нам стать лучше</div>
                 <div style="display:flex;justify-content:center;gap:8px;margin-bottom:12px;" id="starRow">
@@ -3418,7 +4230,7 @@ function scheduleWarnings() {
                 block.innerHTML = `
                     <div style="padding:8px 0;text-align:center;">
                         <div style="font-size:24px;margin-bottom:6px;">${n >= 4 ? '🎉' : n >= 3 ? '👍' : '🙏'}</div>
-                        <div style="font-size:13px;font-weight:700;color:#10b981;">Спасибо за оценку!</div>
+                        <div style="font-size:13px;font-weight:700;color:#f0b90b;">Спасибо за оценку!</div>
                         <div style="font-size:11px;color:#475569;margin-top:3px;">Вы поставили ${n} из 5 звёзд</div>
                     </div>`;
             }
@@ -3618,7 +4430,7 @@ function scheduleWarnings() {
             return false;
         }
         errEl.style.display = 'none';
-        input.style.borderColor = '#10b981';
+        input.style.borderColor = '#f0b90b';
         return true;
     }
 
