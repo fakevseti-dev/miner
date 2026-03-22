@@ -1095,5 +1095,165 @@ def trade_close():
         return jsonify({"status": "error", "detail": str(e)}), 500
 
 
+
+# ═══════════════════════════════════════════════════════════════
+#  PROMO ROUTES
+# ═══════════════════════════════════════════════════════════════
+
+def init_promo_table():
+    try:
+        conn = get_db()
+        c = get_cursor(conn)
+        id_col = "INTEGER PRIMARY KEY AUTOINCREMENT" if IS_SQLITE else "SERIAL PRIMARY KEY"
+        c.execute(f"""CREATE TABLE IF NOT EXISTS promo_codes (
+            id {id_col},
+            code TEXT UNIQUE NOT NULL,
+            bonus_amount REAL NOT NULL,
+            promo_type TEXT DEFAULT 'fixed',
+            max_uses INTEGER DEFAULT 0,
+            used_count INTEGER DEFAULT 0,
+            is_active BOOLEAN DEFAULT TRUE,
+            expires_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""")
+        c.execute(f"""CREATE TABLE IF NOT EXISTS promo_uses (
+            id {id_col},
+            promo_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""")
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
+init_promo_table()
+
+
+@app.route('/api/promo/apply', methods=['POST'])
+@login_required
+def promo_apply():
+    try:
+        d = request.json or {}
+        code = d.get('code', '').strip().upper()
+        if not code:
+            return jsonify({"status": "error", "message": "Введите промокод"}), 400
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("SELECT * FROM promo_codes WHERE code = ?", (code,))
+        promo = c.fetchone()
+        if not promo:
+            conn.close()
+            return jsonify({"status": "error", "message": "Промокод не найден"}), 404
+        promo = dict(promo)
+        if not promo['is_active']:
+            conn.close()
+            return jsonify({"status": "error", "message": "Промокод деактивирован"}), 400
+        if promo['expires_at']:
+            import datetime as dt2
+            exp = promo['expires_at']
+            if isinstance(exp, str):
+                try:
+                    if dt2.datetime.strptime(exp[:10], '%Y-%m-%d') < dt2.datetime.now():
+                        conn.close()
+                        return jsonify({"status": "error", "message": "Срок действия промокода истёк"}), 400
+                except Exception:
+                    pass
+        if promo['max_uses'] > 0 and promo['used_count'] >= promo['max_uses']:
+            conn.close()
+            return jsonify({"status": "error", "message": "Промокод уже исчерпан"}), 400
+        c.execute("SELECT id FROM promo_uses WHERE promo_id = ? AND user_id = ?", (promo['id'], session['user_id']))
+        if c.fetchone():
+            conn.close()
+            return jsonify({"status": "error", "message": "Вы уже использовали этот промокод"}), 400
+        user = get_user_by_id(session['user_id'])
+        if promo['promo_type'] == 'percent':
+            bonus = round(user['balance'] * (promo['bonus_amount'] / 100), 2)
+        else:
+            bonus = float(promo['bonus_amount'])
+        if bonus <= 0:
+            conn.close()
+            return jsonify({"status": "error", "message": "Бонус равен нулю"}), 400
+        c.execute("UPDATE users SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?", (bonus, bonus, session['user_id']))
+        c.execute("INSERT INTO promo_uses (promo_id, user_id) VALUES (?, ?)", (promo['id'], session['user_id']))
+        c.execute("UPDATE promo_codes SET used_count = used_count + 1 WHERE id = ?", (promo['id'],))
+        c.execute("INSERT INTO transactions (user_id, type, amount, status, description) VALUES (?,?,?,?,?)", (session['user_id'], 'promo_bonus', bonus, 'completed', f'Промокод: {code}'))
+        c.execute("INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)", (session['user_id'], 'PROMO', f'APPLY code={code} bonus=${bonus:.2f}', 'OK', now()))
+        conn.commit()
+        c.execute("SELECT balance FROM users WHERE id = ?", (session['user_id'],))
+        row = c.fetchone()
+        conn.close()
+        return jsonify({"status": "success", "bonus": bonus, "new_balance": row['balance'] if row else None})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/admin/promo/list')
+@admin_required
+def admin_promo_list():
+    try:
+        conn = get_db(); c = get_cursor(conn)
+        c.execute("SELECT * FROM promo_codes ORDER BY created_at DESC")
+        rows = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({"status": "success", "promos": rows})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route('/api/admin/promo/create', methods=['POST'])
+@admin_required
+def admin_promo_create():
+    try:
+        d = request.json or {}
+        code = d.get('code', '').strip().upper()
+        bonus_amount = float(d.get('bonus_amount', 0))
+        promo_type = d.get('promo_type', 'fixed')
+        max_uses = int(d.get('max_uses', 0))
+        expires_at = d.get('expires_at') or None
+        if not code or len(code) < 3:
+            return jsonify({"status": "error", "message": "Код минимум 3 символа"}), 400
+        if bonus_amount <= 0:
+            return jsonify({"status": "error", "message": "Бонус должен быть > 0"}), 400
+        conn = get_db(); c = get_cursor(conn)
+        c.execute("SELECT id FROM promo_codes WHERE code = ?", (code,))
+        if c.fetchone():
+            conn.close()
+            return jsonify({"status": "error", "message": "Такой промокод уже существует"}), 400
+        c.execute("INSERT INTO promo_codes (code, bonus_amount, promo_type, max_uses, expires_at) VALUES (?,?,?,?,?)", (code, bonus_amount, promo_type, max_uses, expires_at))
+        conn.commit(); conn.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route('/api/admin/promo/toggle', methods=['POST'])
+@admin_required
+def admin_promo_toggle():
+    try:
+        d = request.json or {}
+        promo_id = int(d.get('id')); is_active = bool(d.get('is_active', True))
+        conn = get_db(); c = get_cursor(conn)
+        c.execute("UPDATE promo_codes SET is_active = ? WHERE id = ?", (is_active, promo_id))
+        conn.commit(); conn.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route('/api/admin/promo/delete', methods=['POST'])
+@admin_required
+def admin_promo_delete():
+    try:
+        d = request.json or {}
+        promo_id = int(d.get('id'))
+        conn = get_db(); c = get_cursor(conn)
+        c.execute("DELETE FROM promo_codes WHERE id = ?", (promo_id,))
+        c.execute("DELETE FROM promo_uses WHERE promo_id = ?", (promo_id,))
+        conn.commit(); conn.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=DEBUG, port=PORT, host='0.0.0.0')
