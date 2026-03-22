@@ -1019,5 +1019,96 @@ def admin_support_close():
         return jsonify({"status": "error", "detail": str(e)}), 500
 
 
+# ═══════════════════════════════════════════════════════════════
+#  ROULETTE ROUTES
+# ═══════════════════════════════════════════════════════════════
+
+@app.route('/roulette')
+def roulette():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    user = get_user_by_id(session['user_id'])
+    if not user:
+        session.clear()
+        return redirect(url_for('login'))
+    return render_template('roulette.html', user=user)
+
+
+@app.route('/api/roulette/spin', methods=['POST'])
+@login_required
+def roulette_spin():
+    """Списать ставку перед вращением."""
+    try:
+        d = request.json or {}
+        bet = float(d.get('bet', 0))
+
+        if bet <= 0:
+            return jsonify({"status": "error", "message": "Ставка должна быть > 0"}), 400
+
+        user = get_user_by_id(session['user_id'])
+        if not user or user['balance'] < bet:
+            return jsonify({"status": "error", "message": "Недостаточно средств"}), 400
+
+        conn = get_db()
+        c = get_cursor(conn)
+        c.execute("UPDATE users SET balance = balance - ? WHERE id = ?", (bet, session['user_id']))
+        c.execute(
+            "INSERT INTO transactions (user_id, type, amount, status, description) VALUES (?,?,?,?,?)",
+            (session['user_id'], 'roulette_bet', bet, 'pending', f'Рулетка · ставка ${bet:.2f}')
+        )
+        c.execute(
+            "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
+            (session['user_id'], 'ROULETTE', f'SPIN bet=${bet:.2f}', 'OK', now())
+        )
+        conn.commit()
+        c.execute("SELECT balance FROM users WHERE id = ?", (session['user_id'],))
+        row = c.fetchone()
+        conn.close()
+        return jsonify({"status": "success", "new_balance": row['balance'] if row else None})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route('/api/roulette/result', methods=['POST'])
+@login_required
+def roulette_result():
+    """Зачислить выигрыш после вращения."""
+    try:
+        d = request.json or {}
+        bet   = float(d.get('bet', 0))
+        multi = float(d.get('multi', 0))
+        pnl   = float(d.get('pnl', 0))   # чистый P&L (может быть 0 или отрицательным)
+
+        win_amount = bet * multi  # сколько возвращаем пользователю
+
+        conn = get_db()
+        c = get_cursor(conn)
+
+        if win_amount > 0:
+            c.execute(
+                "UPDATE users SET balance = balance + ?, total_earned = total_earned + ? WHERE id = ?",
+                (win_amount, max(0, pnl), session['user_id'])
+            )
+
+        label = d.get('result_label', f'×{multi}')
+        tx_type = 'roulette_win' if pnl > 0 else ('roulette_return' if pnl == 0 else 'roulette_loss')
+        desc = f'Рулетка · {label} · {"+" if pnl>=0 else ""}${pnl:.2f}'
+
+        c.execute(
+            "INSERT INTO transactions (user_id, type, amount, status, description) VALUES (?,?,?,?,?)",
+            (session['user_id'], tx_type, abs(win_amount), 'completed', desc)
+        )
+        c.execute(
+            "INSERT INTO activity_log (user_id, module, action, status, timestamp) VALUES (?,?,?,?,?)",
+            (session['user_id'], 'ROULETTE', f'RESULT {label} pnl=${pnl:.2f}', 'OK', now())
+        )
+        conn.commit()
+        c.execute("SELECT balance FROM users WHERE id = ?", (session['user_id'],))
+        row = c.fetchone()
+        conn.close()
+        return jsonify({"status": "success", "pnl": pnl, "new_balance": row['balance'] if row else None})
+    except Exception as e:
+        return jsonify({"status": "error", "detail": str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=DEBUG, port=PORT, host='0.0.0.0')
