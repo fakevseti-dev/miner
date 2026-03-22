@@ -1080,6 +1080,11 @@
             <span class="nav-icon">💬</span> Поддержка
             <span class="nav-badge" id="supportBadgeNav" style="display:none">0</span>
         </div>
+
+        <div class="nav-section-label">Маркетинг</div>
+        <div class="nav-item" onclick="showPage('promo', this)">
+            <span class="nav-icon">🎁</span> Промокоды
+        </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -1282,6 +1287,42 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ══ PROMO PAGE ══ -->
+    <div class="page" id="page-promo">
+        <div class="section-header">
+            <div class="section-title">Промокоды</div>
+            <button class="btn btn-primary" onclick="openCreatePromo()">+ Создать промокод</button>
+        </div>
+
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;" id="promoStats">
+            <div class="stat-card"><div class="stat-value" id="ps-total">—</div><div class="stat-label">Всего кодов</div></div>
+            <div class="stat-card"><div class="stat-value" id="ps-active" style="color:var(--green);">—</div><div class="stat-label">Активных</div></div>
+            <div class="stat-card"><div class="stat-value" id="ps-used" style="color:var(--blue);">—</div><div class="stat-label">Использований</div></div>
+            <div class="stat-card"><div class="stat-value" id="ps-bonus" style="color:var(--amber);">$0</div><div class="stat-label">Выдано бонусов</div></div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Код</th>
+                        <th>Бонус</th>
+                        <th>Тип</th>
+                        <th>Лимит</th>
+                        <th>Использовано</th>
+                        <th>Истекает</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="promoTable">
+                    <tr class="loading-row"><td colspan="8">Загрузка...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </main>
@@ -1928,7 +1969,166 @@ document.querySelectorAll('.nav-item').forEach(item => {
 // ── INIT ──
 loadDashboard();
 setInterval(loadDashboard, 30000);
+
+// ══════════════════════════════════════════
+//  PROMO PAGE
+// ══════════════════════════════════════════
+function showPage_promo_extend() {
+    // called from showPage hook
+    loadPromos();
+}
+
+async function loadPromos() {
+    try {
+        const r = await fetch('/api/admin/promo/list');
+        const d = await r.json();
+        if (!d.promos) return;
+        const promos = d.promos;
+
+        // stats
+        const active = promos.filter(p => p.is_active && (!p.expires_at || new Date(p.expires_at) > new Date()));
+        const totalUsed = promos.reduce((s, p) => s + (p.used_count || 0), 0);
+        const totalBonus = promos.reduce((s, p) => s + (p.used_count || 0) * (p.bonus_amount || 0), 0);
+        document.getElementById('ps-total').textContent = promos.length;
+        document.getElementById('ps-active').textContent = active.length;
+        document.getElementById('ps-used').textContent = totalUsed;
+        document.getElementById('ps-bonus').textContent = '$' + totalBonus.toFixed(2);
+
+        const tbody = document.getElementById('promoTable');
+        if (!promos.length) {
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="8">Промокодов нет — создайте первый!</td></tr>';
+            return;
+        }
+        tbody.innerHTML = promos.map(p => {
+            const expired = p.expires_at && new Date(p.expires_at) < new Date();
+            const limitReached = p.max_uses > 0 && p.used_count >= p.max_uses;
+            const statusOk = p.is_active && !expired && !limitReached;
+            const statusText = !p.is_active ? 'Отключён' : expired ? 'Истёк' : limitReached ? 'Исчерпан' : 'Активен';
+            const statusColor = statusOk ? 'var(--green)' : 'var(--red)';
+            const typeLabel = p.promo_type === 'percent' ? p.bonus_amount + '%' : '$' + parseFloat(p.bonus_amount).toFixed(2);
+            const typeIcon = p.promo_type === 'percent' ? '📊' : '💵';
+            return `<tr>
+                <td><span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue);background:var(--blue-dim);padding:3px 10px;border-radius:6px;letter-spacing:1px;">${p.code}</span></td>
+                <td><span style="font-weight:700;color:var(--amber);">${typeIcon} ${typeLabel}</span></td>
+                <td style="color:var(--text-secondary);font-size:12px;">${p.promo_type === 'percent' ? '% от баланса' : 'Фиксированная'}</td>
+                <td style="color:var(--text-secondary);">${p.max_uses > 0 ? p.max_uses : '∞'}</td>
+                <td style="color:var(--text-secondary);">${p.used_count || 0}</td>
+                <td style="color:var(--text-secondary);font-size:12px;">${p.expires_at ? new Date(p.expires_at).toLocaleDateString('ru-RU') : '—'}</td>
+                <td><span style="color:${statusColor};font-size:12px;font-weight:600;">● ${statusText}</span></td>
+                <td style="display:flex;gap:6px;">
+                    <button onclick="togglePromo(${p.id}, ${p.is_active})" class="btn btn-ghost" style="padding:4px 10px;font-size:11px;">${p.is_active ? 'Откл.' : 'Вкл.'}</button>
+                    <button onclick="deletePromo(${p.id})" class="btn btn-ghost" style="padding:4px 10px;font-size:11px;color:var(--red);border-color:rgba(239,68,68,0.2);">✕</button>
+                </td>
+            </tr>`;
+        }).join('');
+    } catch(e) { console.error(e); }
+}
+
+function openCreatePromo() {
+    document.getElementById('promoModal').classList.add('open');
+    document.getElementById('pmCode').value = '';
+    document.getElementById('pmBonus').value = '';
+    document.getElementById('pmLimit').value = '';
+    document.getElementById('pmExpires').value = '';
+    document.getElementById('pmType').value = 'fixed';
+    document.getElementById('pmErr').textContent = '';
+}
+function closePromoModal() { document.getElementById('promoModal').classList.remove('open'); }
+
+async function createPromo() {
+    const code    = document.getElementById('pmCode').value.trim().toUpperCase();
+    const bonus   = parseFloat(document.getElementById('pmBonus').value);
+    const maxUses = parseInt(document.getElementById('pmLimit').value) || 0;
+    const expires = document.getElementById('pmExpires').value || null;
+    const type    = document.getElementById('pmType').value;
+    const errEl   = document.getElementById('pmErr');
+
+    if (!code || code.length < 3) { errEl.textContent = 'Код минимум 3 символа'; return; }
+    if (!bonus || bonus <= 0)     { errEl.textContent = 'Введите бонус > 0'; return; }
+
+    try {
+        const r = await fetch('/api/admin/promo/create', {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ code, bonus_amount: bonus, promo_type: type, max_uses: maxUses, expires_at: expires })
+        });
+        const d = await r.json();
+        if (d.status === 'success') { closePromoModal(); loadPromos(); }
+        else errEl.textContent = d.message || 'Ошибка';
+    } catch(e) { errEl.textContent = 'Ошибка сети'; }
+}
+
+async function togglePromo(id, isActive) {
+    await fetch('/api/admin/promo/toggle', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ id, is_active: !isActive })
+    });
+    loadPromos();
+}
+
+async function deletePromo(id) {
+    if (!confirm('Удалить промокод?')) return;
+    await fetch('/api/admin/promo/delete', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ id })
+    });
+    loadPromos();
+}
+
+// Extend showPage to handle promo
+const _origShowPage = showPage;
+window.showPage = function(id, el) {
+    _origShowPage(id, el);
+    // extend titles
+    const extra = { promo: ['Промокоды', 'Управление бонусными кодами'] };
+    if (extra[id]) {
+        document.getElementById('topbarTitle').textContent = extra[id][0];
+        document.getElementById('topbarSubtitle').textContent = extra[id][1];
+    }
+    if (id === 'promo') loadPromos();
+};
 </script>
+
+<!-- PROMO CREATE MODAL -->
+<div class="modal-overlay" id="promoModal" onclick="if(event.target===this)closePromoModal()">
+    <div class="modal" style="max-width:420px;">
+        <div class="modal-title">🎁 Создать промокод</div>
+        <div class="modal-subtitle">Пользователи введут код и получат бонус на баланс</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:20px;">
+            <div>
+                <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Промокод</div>
+                <input id="pmCode" type="text" placeholder="SUMMER2025" style="width:100%;padding:10px 14px;background:rgba(15,23,42,0.8);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:14px;font-family:var(--mono);letter-spacing:2px;outline:none;" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>
+                    <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Тип бонуса</div>
+                    <select id="pmType" style="width:100%;padding:10px 14px;background:rgba(15,23,42,0.8);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:13px;outline:none;">
+                        <option value="fixed">💵 Фиксированная сумма</option>
+                        <option value="percent">📊 % от баланса</option>
+                    </select>
+                </div>
+                <div>
+                    <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Размер бонуса</div>
+                    <input id="pmBonus" type="number" placeholder="50" min="0.01" step="0.01" style="width:100%;padding:10px 14px;background:rgba(15,23,42,0.8);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:14px;font-family:var(--mono);outline:none;">
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>
+                    <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Лимит использований (0 = ∞)</div>
+                    <input id="pmLimit" type="number" placeholder="0" min="0" style="width:100%;padding:10px 14px;background:rgba(15,23,42,0.8);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:14px;font-family:var(--mono);outline:none;">
+                </div>
+                <div>
+                    <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Истекает (необязательно)</div>
+                    <input id="pmExpires" type="date" style="width:100%;padding:10px 14px;background:rgba(15,23,42,0.8);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:13px;outline:none;color-scheme:dark;">
+                </div>
+            </div>
+            <div id="pmErr" style="color:var(--red);font-size:12px;min-height:16px;"></div>
+            <div style="display:flex;gap:10px;">
+                <button class="btn btn-ghost" onclick="closePromoModal()" style="flex:1;">Отмена</button>
+                <button class="btn btn-primary" onclick="createPromo()" style="flex:2;">✓ Создать промокод</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
