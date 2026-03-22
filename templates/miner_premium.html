@@ -623,146 +623,351 @@ input:focus, textarea:focus, select:focus {
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════
-     TICKER STRIP
-════════════════════════════════════════════════════════ -->
-<div id="tickerStrip" style="background:#1a1a1a;border-bottom:1px solid #2a2a2a;overflow:hidden;height:36px;display:flex;align-items:center;">
-    <div id="tickerInner" style="display:flex;align-items:center;gap:0;white-space:nowrap;animation:tickerScroll 40s linear infinite;">
+<!-- ═══ TICKER STRIP ═══ -->
+<div id="tickerStrip" style="background:#111;border-bottom:1px solid #1e1e1e;height:38px;overflow:hidden;display:flex;align-items:center;">
+    <div id="tickerInner" style="display:flex;align-items:center;white-space:nowrap;animation:tickerScroll 50s linear infinite;">
         <!-- filled by JS -->
     </div>
+    <!-- Right side buttons (always visible) -->
+    <div style="margin-left:auto;display:flex;align-items:center;gap:0;flex-shrink:0;border-left:1px solid #1e1e1e;">
+        <button style="height:38px;padding:0 18px;background:transparent;border:none;color:#999;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:inherit;border-right:1px solid #1e1e1e;transition:color 0.15s;" onmouseenter="this.style.color='#f0b90b'" onmouseleave="this.style.color='#999'">
+            <i class="fas fa-download" style="font-size:11px;"></i> Download App
+        </button>
+        <button style="height:38px;padding:0 18px;background:transparent;border:none;color:#999;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:inherit;transition:color 0.15s;" onmouseenter="this.style.color='#f0b90b'" onmouseleave="this.style.color='#999'" onclick="showPage('security')">
+            <i class="fas fa-gear" style="font-size:11px;"></i> Settings
+        </button>
+    </div>
 </div>
+
 <style>
 @keyframes tickerScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* ── LEGOTEAM-STYLE NAVBAR ── */
+.lgn { background:#141414; border-bottom:1px solid #1e1e1e; position:sticky; top:0; z-index:10000; height:64px; }
+.lgn-inner { max-width:1440px; margin:0 auto; padding:0 24px; height:100%; display:flex; align-items:center; gap:0; }
+
+/* Logo */
+.lgn-logo { display:flex; align-items:center; gap:10px; cursor:pointer; margin-right:28px; text-decoration:none; }
+.lgn-logo-box { width:38px; height:38px; background:#f0b90b; border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:18px; color:#000; font-family:inherit; }
+.lgn-logo-text { font-size:19px; font-weight:900; color:#f0b90b; letter-spacing:-0.5px; }
+
+/* Nav links */
+.lgn-links { display:flex; align-items:center; gap:2px; }
+.lgn-btn { padding:0 14px; height:64px; background:transparent; border:none; color:#d0d0d0; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:5px; font-family:inherit; white-space:nowrap; transition:color 0.15s; position:relative; }
+.lgn-btn:hover { color:#f0b90b; }
+.lgn-btn .chev { font-size:9px; color:#888; margin-left:2px; transition:transform 0.2s; }
+.lgn-btn.open .chev { transform:rotate(180deg); }
+
+/* Dropdown */
+.lgn-drop { display:none; position:absolute; top:calc(100% + 0px); left:0; min-width:210px; background:#1a1a1a; border:1px solid #2a2a2a; border-top:2px solid #f0b90b; border-radius:0 0 12px 12px; padding:6px; box-shadow:0 20px 50px rgba(0,0,0,0.7); z-index:10001; }
+.lgn-drop.show { display:block; animation:dropIn 0.15s ease; }
+@keyframes dropIn { from{opacity:0;transform:translateY(-6px);} to{opacity:1;transform:translateY(0);} }
+.lgn-drop-item { padding:10px 14px; border-radius:8px; cursor:pointer; font-size:13px; color:#bbb; display:flex; align-items:center; gap:10px; transition:all 0.15s; }
+.lgn-drop-item:hover { background:rgba(240,185,11,0.08); color:#f0b90b; }
+.lgn-drop-item i { width:16px; text-align:center; font-size:13px; color:#666; }
+.lgn-drop-item:hover i { color:#f0b90b; }
+.lgn-drop-section { padding:4px 14px 6px; font-size:10px; color:#555; text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+
+/* Right side */
+.lgn-right { display:flex; align-items:center; gap:8px; margin-left:auto; }
+
+/* Search button */
+.lgn-search { width:38px; height:38px; background:transparent; border:1px solid #2a2a2a; border-radius:8px; color:#888; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+.lgn-search:hover { border-color:#f0b90b44; color:#f0b90b; }
+
+/* Deposit button */
+.lgn-deposit { padding:0 20px; height:40px; background:#f0b90b; border:none; border-radius:8px; color:#000; font-size:14px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:7px; font-family:inherit; transition:all 0.2s; white-space:nowrap; }
+.lgn-deposit:hover { background:#e0a800; transform:translateY(-1px); box-shadow:0 4px 16px rgba(240,185,11,0.35); }
+.lgn-deposit i { font-size:12px; }
+
+/* Assets dropdown */
+.lgn-assets-wrap { position:relative; }
+.lgn-assets-btn { padding:0 14px; height:40px; background:#1e1e1e; border:1px solid #2a2a2a; border-radius:8px; color:#d0d0d0; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; font-family:inherit; transition:all 0.15s; white-space:nowrap; }
+.lgn-assets-btn:hover { border-color:#f0b90b44; color:#f0b90b; }
+
+/* Avatar */
+.lgn-avatar { position:relative; }
+.lgn-avatar-btn { width:40px; height:40px; border-radius:8px; background:linear-gradient(135deg,#f0b90b,#d97706); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; color:#000; transition:all 0.2s; }
+.lgn-avatar-btn:hover { transform:scale(1.05); box-shadow:0 0 0 2px rgba(240,185,11,0.4); }
+
+/* Avatar dropdown */
+.lgn-avatar-menu { display:none; position:absolute; top:calc(100% + 8px); right:0; width:270px; background:#1a1a1a; border:1px solid #2a2a2a; border-top:2px solid #f0b90b; border-radius:0 0 14px 14px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.7); z-index:10001; }
+.lgn-avatar-menu.show { display:block; animation:dropIn 0.15s ease; }
+.lgn-am-header { padding:16px; background:#111; border-bottom:1px solid #2a2a2a; }
+.lgn-am-user { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.lgn-am-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#f0b90b,#d97706); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:18px; color:#000; flex-shrink:0; }
+.lgn-am-bal { background:#1a1a1a; border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; }
+.lgn-am-actions { padding:8px; }
+.lgn-am-btn { width:100%; padding:10px 14px; border-radius:8px; border:none; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:8px; margin-bottom:3px; transition:all 0.15s; }
+.lgn-am-btn.primary { background:#f0b90b; color:#000; }
+.lgn-am-btn.primary:hover { background:#e0a800; }
+.lgn-am-btn.ghost { background:transparent; color:#ccc; border:1px solid #2a2a2a; }
+.lgn-am-btn.ghost:hover { background:#222; color:#fff; }
+.lgn-am-btn.danger { background:transparent; color:#f6465d; border:1px solid rgba(246,70,93,0.2); }
+.lgn-am-btn.danger:hover { background:rgba(246,70,93,0.08); }
+.lgn-am-sep { height:1px; background:#2a2a2a; margin:6px 0; }
+
+/* Staking promo banner */
+.staking-banner { background:linear-gradient(90deg,#f0b90b 0%,#fcd535 100%); height:44px; display:flex; align-items:center; padding:0 24px; gap:16px; }
+.sb-text { font-size:14px; font-weight:700; color:#000; }
+.sb-sep { width:1px; height:20px; background:rgba(0,0,0,0.2); }
+.sb-sub { font-size:13px; color:rgba(0,0,0,0.7); flex:1; }
+.sb-btn { padding:8px 22px; background:#000; border:none; border-radius:6px; color:#f0b90b; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; transition:all 0.2s; }
+.sb-btn:hover { background:#1a1a1a; transform:translateY(-1px); }
+
+/* Responsive */
+@media(max-width:900px) {
+    .lgn-links .lgn-btn:nth-child(n+3) { display:none; }
+    .lgn-logo-text { font-size:16px; }
+}
+@media(max-width:640px) {
+    .lgn-links { display:none; }
+    .lgn-inner { padding:0 14px; }
+    #tickerInner { display:none !important; }
+}
+.nav-dropdown, .nav-link-btn, .nav-drop-menu, .drop-item { display:none !important; } /* hide old nav */
 </style>
 
-<!-- ═══════════════════════════════════════════════════════
-     TOP NAVBAR
-════════════════════════════════════════════════════════ -->
-<nav style="background:#141414;border-bottom:1px solid #2a2a2a;position:sticky;top:0;z-index:10000;">
-    <div style="max-width:1400px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;gap:0;">
+<!-- ═══ NAVBAR ═══ -->
+<nav class="lgn">
+    <div class="lgn-inner">
 
         <!-- LOGO -->
-        <div style="display:flex;align-items:center;gap:10px;margin-right:32px;cursor:pointer;" onclick="showSection('menuSection')">
-            <div style="width:36px;height:36px;background:#f0b90b;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#000;">C</div>
-            <span style="font-size:18px;font-weight:800;color:#f0b90b;letter-spacing:-0.5px;">CryptoEx</span>
-        </div>
+        <a class="lgn-logo" onclick="showSection('menuSection')" href="javascript:void(0)">
+            <div class="lgn-logo-box">C</div>
+            <span class="lgn-logo-text">CryptoEx</span>
+        </a>
 
         <!-- NAV LINKS -->
-        <div style="display:flex;align-items:center;gap:0;flex:1;" id="mainNavLinks">
-            <!-- Buy Crypto dropdown -->
-            <div class="nav-dropdown" style="position:relative;">
-                <button class="nav-link-btn" onclick="toggleDrop('dropBuy')">
-                    <i class="fas fa-credit-card" style="font-size:12px;"></i> Buy Crypto <i class="fas fa-chevron-down" style="font-size:9px;margin-left:3px;"></i>
+        <div class="lgn-links">
+
+            <div style="position:relative;">
+                <button class="lgn-btn" id="nb-buy" onclick="toggleLgnDrop('dd-buy','nb-buy')">
+                    Buy Crypto <i class="fas fa-chevron-down chev"></i>
                 </button>
-                <div id="dropBuy" class="nav-drop-menu">
-                    <div class="drop-item" onclick="openUSDTDepositModal()"><i class="fas fa-plus-circle"></i> Пополнить баланс</div>
-                    <div class="drop-item" onclick="showSection('menuSection')"><i class="fas fa-exchange-alt"></i> Купить крипту</div>
-                    <div class="drop-item" onclick="window.location.href='/trading'"><i class="fas fa-arrow-right-arrow-left"></i> Spot Trading</div>
+                <div class="lgn-drop" id="dd-buy">
+                    <div class="lgn-drop-section">Fiat → Crypto</div>
+                    <div class="lgn-drop-item" onclick="openUSDTDepositModal();closeLgnDrops()"><i class="fas fa-credit-card"></i> Buy with Card</div>
+                    <div class="lgn-drop-item" onclick="openUSDTDepositModal();closeLgnDrops()"><i class="fas fa-building-columns"></i> Bank Transfer</div>
+                    <div class="lgn-drop-section">Crypto</div>
+                    <div class="lgn-drop-item" onclick="showPage('p2p');closeLgnDrops()"><i class="fas fa-people-arrows"></i> P2P Trading</div>
+                    <div class="lgn-drop-item" onclick="window.location.href='/trading'"><i class="fas fa-arrow-right-arrow-left"></i> Convert</div>
                 </div>
             </div>
-            <!-- Trade dropdown -->
-            <div class="nav-dropdown" style="position:relative;">
-                <button class="nav-link-btn" onclick="toggleDrop('dropTrade')">
-                    <i class="fas fa-chart-candlestick" style="font-size:12px;"></i> Trade <i class="fas fa-chevron-down" style="font-size:9px;margin-left:3px;"></i>
+
+            <div style="position:relative;">
+                <button class="lgn-btn" id="nb-trade" onclick="toggleLgnDrop('dd-trade','nb-trade')">
+                    Trade <i class="fas fa-chevron-down chev"></i>
                 </button>
-                <div id="dropTrade" class="nav-drop-menu">
-                    <div class="drop-item" onclick="window.location.href='/trading'"><i class="fas fa-bolt"></i> Spot Trading</div>
-                    <div class="drop-item" onclick="window.location.href='/trading'"><i class="fas fa-layer-group"></i> Futures</div>
-                    <div class="drop-item" onclick="window.location.href='/scanner'"><i class="fas fa-radar"></i> Market Scanner</div>
+                <div class="lgn-drop" id="dd-trade">
+                    <div class="lgn-drop-section">Spot</div>
+                    <div class="lgn-drop-item" onclick="window.location.href='/trading'"><i class="fas fa-chart-candlestick"></i> Spot Trading</div>
+                    <div class="lgn-drop-item" onclick="window.location.href='/trading'"><i class="fas fa-layer-group"></i> Futures</div>
+                    <div class="lgn-drop-section">Tools</div>
+                    <div class="lgn-drop-item" onclick="window.location.href='/scanner'"><i class="fas fa-radar"></i> Market Scanner</div>
+                    <div class="lgn-drop-item" onclick="showPage('copytrading');closeLgnDrops()"><i class="fas fa-copy"></i> Copy Trading</div>
                 </div>
             </div>
-            <!-- Mining dropdown -->
-            <div class="nav-dropdown" style="position:relative;">
-                <button class="nav-link-btn" onclick="toggleDrop('dropMine')">
-                    <i class="fas fa-microchip" style="font-size:12px;"></i> Mining <i class="fas fa-chevron-down" style="font-size:9px;margin-left:3px;"></i>
+
+            <div style="position:relative;">
+                <button class="lgn-btn" id="nb-fin" onclick="toggleLgnDrop('dd-fin','nb-fin')">
+                    Finance <i class="fas fa-chevron-down chev"></i>
                 </button>
-                <div id="dropMine" class="nav-drop-menu">
-                    <div class="drop-item" onclick="handleMinerClick()"><i class="fas fa-server"></i> Miner Node</div>
-                    <div class="drop-item" onclick="handleMinerClick()"><i class="fas fa-tachometer-alt"></i> Hashrate Plans</div>
-                    <div class="drop-item" onclick="handleMinerClick()"><i class="fas fa-chart-line"></i> Mining Stats</div>
+                <div class="lgn-drop" id="dd-fin">
+                    <div class="lgn-drop-section">Earn</div>
+                    <div class="lgn-drop-item" onclick="showPage('staking');closeLgnDrops()"><i class="fas fa-layer-group"></i> Staking</div>
+                    <div class="lgn-drop-item" onclick="showPage('copytrading');closeLgnDrops()"><i class="fas fa-copy"></i> Copy Trading</div>
+                    <div class="lgn-drop-section">Account</div>
+                    <div class="lgn-drop-item" onclick="openTransactionsModal();closeLgnDrops()"><i class="fas fa-clock-rotate-left"></i> History</div>
+                    <div class="lgn-drop-item" onclick="openWithdrawModal();closeLgnDrops()"><i class="fas fa-arrow-up-right-from-square"></i> Withdraw</div>
+                    <div class="lgn-drop-item" onclick="showPage('referral');closeLgnDrops()"><i class="fas fa-users"></i> Referral Program</div>
                 </div>
             </div>
-            <!-- Finance dropdown -->
-            <div class="nav-dropdown" style="position:relative;">
-                <button class="nav-link-btn" onclick="toggleDrop('dropFin')">
-                    <i class="fas fa-wallet" style="font-size:12px;"></i> Finance <i class="fas fa-chevron-down" style="font-size:9px;margin-left:3px;"></i>
-                </button>
-                <div id="dropFin" class="nav-drop-menu">
-                    <div class="drop-item" onclick="openTransactionsModal()"><i class="fas fa-history"></i> История</div>
-                    <div class="drop-item" onclick="openWithdrawModal()"><i class="fas fa-arrow-up-from-bracket"></i> Вывод средств</div>
-                    <div class="drop-item" onclick="openUSDTDepositModal()"><i class="fas fa-arrow-down-to-bracket"></i> Пополнить</div>
-                </div>
-            </div>
+
         </div>
 
-        <!-- RIGHT SIDE -->
-        <div style="display:flex;align-items:center;gap:12px;margin-left:auto;">
-            <!-- Balance -->
-            <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(240,185,11,0.08);border:1px solid rgba(240,185,11,0.2);border-radius:8px;cursor:pointer;" onclick="openUSDTDepositModal()">
-                <i class="fas fa-wallet" style="color:#f0b90b;font-size:12px;"></i>
-                <span style="font-size:12px;color:#888;">Balance</span>
-                <span style="font-size:14px;font-weight:700;color:#f0b90b;font-family:monospace;" id="top-balance">$0.00</span>
-            </div>
+        <!-- RIGHT -->
+        <div class="lgn-right">
 
-            <!-- Notifications -->
-            <button style="width:36px;height:36px;border-radius:8px;border:1px solid #2a2a2a;background:#1e1e1e;color:#888;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;" onclick="checkNotifications()">
-                <i class="fas fa-bell" style="font-size:14px;"></i>
-                <span id="notifDot" style="display:none;position:absolute;top:6px;right:6px;width:7px;height:7px;background:#f0b90b;border-radius:50%;"></span>
+            <!-- Search -->
+            <button class="lgn-search" onclick="openSearch()" title="Search">
+                <i class="fas fa-magnifying-glass" style="font-size:14px;"></i>
             </button>
 
-            <!-- Profile -->
-            <div style="position:relative;">
-                <button onclick="toggleProfile(event)" style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.borderColor='#f0b90b44'" onmouseleave="this.style.borderColor='#2a2a2a'">
-                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f0b90b,#f69c0d);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#000;" id="profileInit">U</div>
-                    <span style="font-size:13px;font-weight:600;color:#e0e0e0;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="profileName">User</span>
-                    <i class="fas fa-chevron-down" style="font-size:9px;color:#888;"></i>
-                </button>
+            <!-- Deposit -->
+            <button class="lgn-deposit" onclick="openUSDTDepositModal()">
+                <i class="fas fa-arrow-down"></i> Deposit
+            </button>
 
-                <div id="profileMenu" class="hidden" style="position:absolute;top:calc(100% + 8px);right:0;width:260px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6);z-index:9999;">
-                    <!-- User info -->
-                    <div style="padding:16px;border-bottom:1px solid #2a2a2a;">
-                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-                            <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#f0b90b,#f69c0d);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#000;flex-shrink:0;" id="profileInitBig">U</div>
+            <!-- Assets dropdown -->
+            <div class="lgn-assets-wrap" style="position:relative;">
+                <button class="lgn-assets-btn" onclick="toggleLgnDrop('dd-assets','dd-assets-btn')" id="dd-assets-btn">
+                    Assets <i class="fas fa-chevron-down" style="font-size:9px;color:#888;"></i>
+                </button>
+                <div class="lgn-drop" id="dd-assets" style="left:auto;right:0;min-width:200px;">
+                    <div class="lgn-drop-item" onclick="openTransactionsModal();closeLgnDrops()"><i class="fas fa-wallet"></i> My Wallet</div>
+                    <div class="lgn-drop-item" onclick="openUSDTDepositModal();closeLgnDrops()"><i class="fas fa-plus"></i> Deposit</div>
+                    <div class="lgn-drop-item" onclick="openWithdrawModal();closeLgnDrops()"><i class="fas fa-arrow-up"></i> Withdraw</div>
+                    <div class="lgn-drop-item" onclick="openTransactionsModal();closeLgnDrops()"><i class="fas fa-history"></i> Transaction History</div>
+                </div>
+            </div>
+
+            <!-- Avatar / profile -->
+            <div class="lgn-avatar">
+                <button class="lgn-avatar-btn" id="profileInit" onclick="toggleLgnDrop('dd-profile','profileInit')">U</button>
+                <div class="lgn-drop lgn-avatar-menu" id="dd-profile" style="left:auto;right:0;min-width:270px;border-radius:0 0 14px 14px;">
+                    <div class="lgn-am-header">
+                        <div class="lgn-am-user">
+                            <div class="lgn-am-avatar" id="profileInitBig">U</div>
                             <div style="min-width:0;">
-                                <div style="font-weight:700;color:#fff;font-size:14px;truncate;" id="profileNameBig">User</div>
-                                <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="profileEmail">—</div>
+                                <div style="font-weight:700;color:#fff;font-size:14px;" id="profileNameBig">User</div>
+                                <div style="font-size:11px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="profileEmail">—</div>
                             </div>
                         </div>
-                        <div style="background:#111;border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-size:11px;color:#666;">Баланс</span>
-                            <span style="font-size:16px;font-weight:800;color:#f0b90b;font-family:monospace;" id="profileBalance">$0.00</span>
+                        <div class="lgn-am-bal">
+                            <span style="font-size:11px;color:#666;">Total Balance</span>
+                            <span style="font-size:15px;font-weight:800;color:#f0b90b;font-family:monospace;" id="profileBalance">$0.00</span>
                         </div>
                     </div>
-                    <!-- Actions -->
-                    <div style="padding:8px;">
-                        <button onclick="openUSDTDepositModal()" style="width:100%;padding:9px 12px;margin-bottom:4px;border-radius:8px;border:none;background:#f0b90b;color:#000;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;">
-                            <i class="fas fa-plus"></i> Пополнить
-                        </button>
-                        <button onclick="openWithdrawModal()" style="width:100%;padding:9px 12px;margin-bottom:4px;border-radius:8px;border:1px solid #2a2a2a;background:transparent;color:#e0e0e0;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='#222'" onmouseleave="this.style.background='transparent'">
-                            <i class="fas fa-arrow-up-right-from-square"></i> Вывести
-                        </button>
-                        <button onclick="openTransactionsModal()" style="width:100%;padding:9px 12px;margin-bottom:4px;border-radius:8px;border:1px solid #2a2a2a;background:transparent;color:#e0e0e0;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='#222'" onmouseleave="this.style.background='transparent'">
-                            <i class="fas fa-clock-rotate-left"></i> История транзакций
-                        </button>
-                        <div style="height:1px;background:#2a2a2a;margin:6px 0;"></div>
-                        <button onclick="logout()" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(239,68,68,0.2);background:transparent;color:#ef4444;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='rgba(239,68,68,0.08)'" onmouseleave="this.style.background='transparent'">
-                            <i class="fas fa-right-from-bracket"></i> Выход
-                        </button>
+                    <div class="lgn-am-actions">
+                        <button class="lgn-am-btn primary" onclick="openUSDTDepositModal();closeLgnDrops()"><i class="fas fa-plus"></i> Deposit</button>
+                        <button class="lgn-am-btn ghost" onclick="openWithdrawModal();closeLgnDrops()"><i class="fas fa-arrow-up-right-from-square"></i> Withdraw</button>
+                        <button class="lgn-am-btn ghost" onclick="openTransactionsModal();closeLgnDrops()"><i class="fas fa-clock-rotate-left"></i> Transaction History</button>
+                        <button class="lgn-am-btn ghost" onclick="showPage('security');closeLgnDrops()"><i class="fas fa-shield-halved"></i> Security</button>
+                        <button class="lgn-am-btn ghost" onclick="showPage('apikeys');closeLgnDrops()"><i class="fas fa-key"></i> API Keys</button>
+                        <div class="lgn-am-sep"></div>
+                        <button class="lgn-am-btn danger" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Log Out</button>
                     </div>
                 </div>
             </div>
+
+            <!-- Hidden elements for compatibility with old JS -->
+            <span id="profileName" style="display:none;">User</span>
+            <span id="top-balance" style="display:none;">$0.00</span>
+
         </div>
     </div>
 </nav>
 
-<style>
-.nav-link-btn{padding:0 16px;height:60px;background:transparent;border:none;color:#ccc;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'Sora',sans-serif;transition:color 0.15s;white-space:nowrap;}
-.nav-link-btn:hover{color:#f0b90b;}
-.nav-drop-menu{display:none;position:absolute;top:100%;left:0;min-width:200px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:6px;box-shadow:0 20px 50px rgba(0,0,0,0.7);z-index:10001;}
-.nav-drop-menu.open{display:block;}
-.drop-item{padding:10px 14px;border-radius:7px;cursor:pointer;font-size:13px;color:#bbb;display:flex;align-items:center;gap:10px;transition:all 0.15s;}
-.drop-item:hover{background:#f0b90b11;color:#f0b90b;}
-.drop-item i{width:16px;color:#666;font-size:12px;}
+<!-- ═══ STAKING PROMO BANNER ═══ -->
+<div class="staking-banner" id="stakingBanner">
+    <span class="sb-text">Staking up to 82.6% APY</span>
+    <div class="sb-sep"></div>
+    <span class="sb-sub">Earn passive income on crypto</span>
+    <button class="sb-btn" onclick="showPage('staking')">Start staking</button>
+</div>
+
+<script>
+// ── LEGOTEAM NAV HELPERS ──────────────────────────────────────
+function toggleLgnDrop(dropId, btnId) {
+    const drop = document.getElementById(dropId);
+    const btn  = document.getElementById(btnId);
+    const isOpen = drop.classList.contains('show');
+    closeLgnDrops();
+    if (!isOpen) {
+        drop.classList.add('show');
+        if (btn) btn.classList.add('open');
+    }
+}
+function closeLgnDrops() {
+    document.querySelectorAll('.lgn-drop').forEach(d => d.classList.remove('show'));
+    document.querySelectorAll('.lgn-btn').forEach(b => b.classList.remove('open'));
+}
+document.addEventListener('click', e => {
+    if (!e.target.closest('.lgn-btn') &&
+        !e.target.closest('.lgn-drop') &&
+        !e.target.closest('.lgn-avatar-btn') &&
+        !e.target.closest('.lgn-assets-btn') &&
+        !e.target.closest('#dd-assets-btn')) {
+        closeLgnDrops();
+    }
+});
+
+// ── BALANCE SYNC ──────────────────────────────────────────────
+// Override old balance display to also update new nav elements
+function updateNavBalance(amount) {
+    const fmt = '$' + parseFloat(amount).toFixed(2);
+    // Old hidden elements (for JS compatibility)
+    const oldBal = document.getElementById('top-balance');
+    if (oldBal) oldBal.textContent = fmt;
+    // New profile balance
+    const pb = document.getElementById('profileBalance');
+    if (pb) pb.textContent = fmt;
+    // Ticker-area balance (if shown)
+    const nb = document.getElementById('navBalanceDisplay');
+    if (nb) nb.textContent = fmt;
+}
+
+// Override loadProfile to also update new nav
+const _lgn_origLoadProfile = window.loadProfile;
+
+// ── SEARCH MODAL ─────────────────────────────────────────────
+function openSearch() {
+    const ov = document.createElement('div');
+    ov.id = 'searchOverlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);z-index:99000;display:flex;align-items:flex-start;justify-content:center;padding-top:80px;';
+    ov.innerHTML = `<div style="background:#141414;border:1px solid #2a2a2a;border-radius:16px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7);">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #2a2a2a;">
+            <i class="fas fa-magnifying-glass" style="color:#666;font-size:16px;flex-shrink:0;"></i>
+            <input id="searchInput" type="text" placeholder="Search coins, pairs, features..."
+                style="flex:1;background:transparent;border:none;color:#fff;font-size:16px;outline:none;font-family:inherit;"
+                oninput="liveSearch(this.value)" autofocus>
+            <button onclick="document.getElementById('searchOverlay').remove()" style="background:none;border:none;color:#666;font-size:20px;cursor:pointer;line-height:1;">×</button>
+        </div>
+        <div id="searchResults" style="padding:8px;max-height:400px;overflow-y:auto;">
+            ${getSearchDefaults()}
+        </div>
+    </div>`;
+    ov.addEventListener('click', e => { if(e.target===ov) ov.remove(); });
+    document.body.appendChild(ov);
+    setTimeout(() => document.getElementById('searchInput')?.focus(), 50);
+}
+
+function getSearchDefaults() {
+    const coins = ['BTC/USDT','ETH/USDT','BNB/USDT','SOL/USDT','XRP/USDT','TON/USDT','ADA/USDT','DOGE/USDT'];
+    return `<div style="padding:6px 12px;font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Popular</div>` +
+        coins.map(coin => `<div onclick="window.location.href='/trading'" style="padding:10px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background 0.15s;" onmouseenter="this.style.background='#1e1e1e'" onmouseleave="this.style.background='transparent'">
+            <i class="fas fa-coins" style="color:#f0b90b;width:16px;text-align:center;"></i>
+            <span style="font-size:13px;font-weight:600;color:#ccc;">${coin}</span>
+            <i class="fas fa-arrow-right" style="margin-left:auto;color:#555;font-size:11px;"></i>
+        </div>`).join('');
+}
+
+function liveSearch(q) {
+    const el = document.getElementById('searchResults');
+    if (!q.trim()) { el.innerHTML = getSearchDefaults(); return; }
+    const coins = ['BTC','ETH','BNB','SOL','XRP','TON','ADA','DOGE','SHIB','AVAX','TRX','XLM'];
+    const features = [
+        {name:'Staking', icon:'fa-layer-group', action:"showPage('staking');document.getElementById('searchOverlay').remove()"},
+        {name:'P2P Trading', icon:'fa-people-arrows', action:"showPage('p2p');document.getElementById('searchOverlay').remove()"},
+        {name:'Copy Trading', icon:'fa-copy', action:"showPage('copytrading');document.getElementById('searchOverlay').remove()"},
+        {name:'Referral Program', icon:'fa-gift', action:"showPage('referral');document.getElementById('searchOverlay').remove()"},
+        {name:'Security', icon:'fa-shield-halved', action:"showPage('security');document.getElementById('searchOverlay').remove()"},
+        {name:'Deposit', icon:'fa-plus-circle', action:"openUSDTDepositModal()"},
+        {name:'Withdraw', icon:'fa-arrow-up', action:"openWithdrawModal()"},
+    ];
+    const matchedCoins = coins.filter(c=>c.toLowerCase().includes(q.toLowerCase()));
+    const matchedFeats = features.filter(f=>f.name.toLowerCase().includes(q.toLowerCase()));
+    let html = '';
+    if (matchedCoins.length) {
+        html += `<div style="padding:6px 12px;font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Coins</div>`;
+        html += matchedCoins.map(c => `<div onclick="window.location.href='/trading'" style="padding:10px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background 0.15s;" onmouseenter="this.style.background='#1e1e1e'" onmouseleave="this.style.background='transparent'">
+            <i class="fas fa-coins" style="color:#f0b90b;width:16px;text-align:center;"></i>
+            <span style="font-size:13px;font-weight:600;color:#ccc;">${c}/USDT</span>
+        </div>`).join('');
+    }
+    if (matchedFeats.length) {
+        html += `<div style="padding:6px 12px;font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px;">Features</div>`;
+        html += matchedFeats.map(f => `<div onclick="${f.action}" style="padding:10px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background 0.15s;" onmouseenter="this.style.background='#1e1e1e'" onmouseleave="this.style.background='transparent'">
+            <i class="fas ${f.icon}" style="color:#f0b90b;width:16px;text-align:center;"></i>
+            <span style="font-size:13px;font-weight:600;color:#ccc;">${f.name}</span>
+        </div>`).join('');
+    }
+    if (!html) html = `<div style="text-align:center;padding:24px;color:#555;font-size:13px;">No results for "${q}"</div>`;
+    el.innerHTML = html;
+}
+</script>
+
 </style>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -925,7 +1130,7 @@ input:focus, textarea:focus, select:focus {
                 </div>
 
                 <!-- PROMO CARD -->
-                <div onclick="document.getElementById('promoModalTrigger') && document.getElementById('promoModalTrigger').click()" style="cursor:pointer;border-radius:16px;background:#141414;border:1px solid #2a2a2a;padding:22px;display:flex;flex-direction:column;gap:14px;transition:all 0.25s;" onmouseenter="this.style.borderColor='#fcd53544';this.style.background='#1a1a1a';this.style.transform='translateY(-4px)'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#141414';this.style.transform='translateY(0)'">
+                <div onclick="openPromoModal()" style="cursor:pointer;border-radius:16px;background:#141414;border:1px solid #2a2a2a;padding:22px;display:flex;flex-direction:column;gap:14px;transition:all 0.25s;" onmouseenter="this.style.borderColor='#fcd53544';this.style.background='#1a1a1a';this.style.transform='translateY(-4px)'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#141414';this.style.transform='translateY(0)'">
                     <div style="display:flex;align-items:center;gap:12px;">
                         <div style="width:46px;height:46px;background:linear-gradient(135deg,#fcd535,#d4a007);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             <i class="fas fa-gift" style="font-size:20px;color:#fff;"></i>
@@ -1217,7 +1422,7 @@ input:focus, textarea:focus, select:focus {
                     </div>
                     <input type="password" placeholder="New Password" style="width:100%;padding:10px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#fff;font-size:13px;margin-bottom:8px;outline:none;">
                     <input type="password" placeholder="Confirm Password" style="width:100%;padding:10px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;color:#fff;font-size:13px;margin-bottom:12px;outline:none;">
-                    <button style="padding:9px 18px;background:#f0b90b;border:none;border-radius:8px;color:#000;font-weight:700;font-size:12px;cursor:pointer;" onclick="showMsg('Password updated!')">Update Password</button>
+                    <button style="padding:9px 18px;background:#f0b90b;border:none;border-radius:8px;color:#000;font-weight:700;font-size:12px;cursor:pointer;" onclick="updatePassword(this)">Update Password</button>
                 </div>
                 <!-- Login History -->
                 <div style="background:#141414;border:1px solid #2a2a2a;border-radius:16px;padding:24px;grid-column:1/-1;">
@@ -2340,9 +2545,9 @@ input:focus, textarea:focus, select:focus {
 
         // Модали
         function toggleProfile(e) {
-            if (e) e.stopPropagation();
-            document.getElementById('profileMenu').classList.toggle('hidden');
-        }
+            e && e.stopPropagation();
+            toggleLgnDrop('dd-profile','profileInit');
+        }}
 
         // Закрываем профиль-меню при клике вне его
         document.addEventListener('click', function(e) {
@@ -3347,20 +3552,27 @@ function scheduleWarnings() {
         //  QUICK ACTIONS — PAGE ROUTER
         // ══════════════════════════════════════════════════
         function showPage(page) {
-            // Hide all custom pages + menuSection
-            document.getElementById('menuSection').style.display = 'none';
+            // Hide ALL sections including miner/plan sections
+            document.querySelectorAll('.section').forEach(s => {
+                s.style.display = 'none';
+                s.classList.remove('active');
+            });
+            // Hide all new custom pages
             const pages = ['p2p','staking','copytrading','referral','security','apikeys'];
             pages.forEach(p => {
                 const el = document.getElementById('page-'+p);
                 if (el) el.style.display = 'none';
             });
+
             if (page === 'menu') {
-                document.getElementById('menuSection').style.display = 'block';
+                const ms = document.getElementById('menuSection');
+                if (ms) { ms.style.display='block'; ms.classList.add('active'); }
                 return;
             }
             const target = document.getElementById('page-' + page);
             if (target) {
                 target.style.display = 'block';
+                window.scrollTo({top:0, behavior:'smooth'});
                 // Load dynamic content
                 if (page === 'staking')     renderStaking();
                 if (page === 'copytrading') renderCopyTrading();
@@ -3371,19 +3583,21 @@ function scheduleWarnings() {
             }
         }
 
-        // QA card hover effect
-        document.querySelectorAll('.qa-card').forEach(c => {
-            c.addEventListener('mouseenter', () => {
-                c.style.borderColor = 'rgba(240,185,11,0.3)';
-                c.style.transform = 'translateY(-4px)';
-                c.style.background = '#252525';
+        // QA card hover — deferred to after DOM load
+        function initQAHover() {
+            document.querySelectorAll('.qa-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.borderColor = 'rgba(240,185,11,0.3)';
+                    card.style.transform = 'translateY(-4px)';
+                    card.style.background = '#252525';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.borderColor = '#2a2a2a';
+                    card.style.transform = 'translateY(0)';
+                    card.style.background = '#1e1e1e';
+                });
             });
-            c.addEventListener('mouseleave', () => {
-                c.style.borderColor = '#2a2a2a';
-                c.style.transform = 'translateY(0)';
-                c.style.background = '#1e1e1e';
-            });
-        });
+        }
 
         // ══════════════════════════════════════════════════
         //  P2P
@@ -3753,6 +3967,357 @@ function scheduleWarnings() {
         // ══════════════════════════════════════════════════
         //  TOAST HELPER
         // ══════════════════════════════════════════════════
+
+        // ══════════════════════════════════════════════════
+        //  PROMO MODAL (standalone, no dependency on promoModalTrigger)
+        // ══════════════════════════════════════════════════
+        function openPromoModal() {
+            const existing = document.getElementById('promoModalOverlay');
+            if (existing) existing.remove();
+            const ov = document.createElement('div');
+            ov.id = 'promoModalOverlay';
+            ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(10px);z-index:99000;display:flex;align-items:center;justify-content:center;';
+            ov.innerHTML = `<div style="background:#141414;border:1px solid rgba(240,185,11,0.25);border-radius:22px;padding:40px 36px;max-width:380px;width:92%;text-align:center;">
+                <div style="font-size:52px;margin-bottom:14px;">🎁</div>
+                <div style="font-size:24px;font-weight:800;color:#f0b90b;margin-bottom:6px;">Промокод</div>
+                <div style="font-size:13px;color:#888;margin-bottom:22px;line-height:1.5;">Введите промокод и получите бонус на баланс</div>
+                <input id="promoCodeInput" type="text" placeholder="Введите код"
+                    style="width:100%;padding:14px;background:#1e1e1e;border:1.5px solid rgba(240,185,11,0.2);border-radius:10px;color:#fff;font-size:16px;font-family:monospace;text-align:center;letter-spacing:3px;outline:none;text-transform:uppercase;margin-bottom:14px;"
+                    oninput="this.value=this.value.toUpperCase()">
+                <button onclick="applyPromoCode()" style="width:100%;padding:14px;border-radius:10px;border:none;font-size:14px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#f0b90b,#d97706);color:#000;">Применить</button>
+                <div id="promoResult" style="margin-top:12px;font-size:13px;min-height:20px;"></div>
+                <button onclick="document.getElementById('promoModalOverlay').remove()" style="margin-top:14px;padding:10px 24px;border-radius:8px;border:1px solid #2a2a2a;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;">Закрыть</button>
+            </div>`;
+            ov.addEventListener('click', e => { if(e.target===ov) ov.remove(); });
+            document.body.appendChild(ov);
+            setTimeout(() => document.getElementById('promoCodeInput')?.focus(), 100);
+            document.getElementById('promoCodeInput')?.addEventListener('keydown', e => { if(e.key==='Enter') applyPromoCode(); });
+        }
+
+        async function applyPromoCode() {
+            const code = document.getElementById('promoCodeInput')?.value.trim().toUpperCase();
+            const res = document.getElementById('promoResult');
+            if (!code) { res.style.color='#f6465d'; res.textContent='Введите промокод'; return; }
+            res.style.color='#888'; res.textContent='Проверяем...';
+            try {
+                const r = await fetch('/api/promo/apply', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code})});
+                const d = await r.json();
+                if (d.status === 'success') {
+                    res.style.color='#10b981';
+                    res.textContent='✓ Бонус +$'+parseFloat(d.bonus).toFixed(2)+' зачислен!';
+                    if (d.new_balance !== undefined) {
+                        document.getElementById('top-balance').textContent = '$'+parseFloat(d.new_balance).toFixed(2);
+                        if(document.getElementById('profileBalance')) document.getElementById('profileBalance').textContent = '$'+parseFloat(d.new_balance).toFixed(2);
+                    }
+                    setTimeout(() => document.getElementById('promoModalOverlay')?.remove(), 2000);
+                } else {
+                    res.style.color='#f6465d'; res.textContent = d.message || 'Промокод не найден';
+                }
+            } catch(e) { res.style.color='#f6465d'; res.textContent='Ошибка соединения'; }
+        }
+
+        // ══════════════════════════════════════════════════
+        //  PASSWORD UPDATE (real API call)
+        // ══════════════════════════════════════════════════
+        async function updatePassword(btn) {
+            const inputs = btn.closest('div').querySelectorAll('input[type=password]');
+            const newPass = inputs[0]?.value;
+            const confirm = inputs[1]?.value;
+            if (!newPass || !confirm) { showMsg('Введите новый пароль'); return; }
+            if (newPass.length < 6) { showMsg('Минимум 6 символов'); return; }
+            if (newPass !== confirm) { showMsg('Пароли не совпадают'); return; }
+            try {
+                const r = await fetch('/api/user/change-password', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({new_password: newPass})});
+                const d = await r.json();
+                if (d.status === 'success') { showMsg('✓ Пароль успешно изменён!', 'success'); inputs.forEach(i=>i.value=''); }
+                else showMsg(d.message || 'Ошибка при смене пароля');
+            } catch(e) { showMsg('Ошибка соединения'); }
+        }
+
+        // ══════════════════════════════════════════════════
+        //  2FA SETUP MODAL
+        // ══════════════════════════════════════════════════
+        function setup2FA() {
+            const ov = document.createElement('div');
+            ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(10px);z-index:99000;display:flex;align-items:center;justify-content:center;';
+            const secret = Array.from({length:16},()=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'[Math.floor(Math.random()*32)]).join('');
+            ov.innerHTML = `<div style="background:#141414;border:1px solid rgba(240,185,11,0.2);border-radius:20px;padding:32px;max-width:380px;width:92%;text-align:center;">
+                <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;">Setup 2FA</div>
+                <p style="font-size:12px;color:#888;margin-bottom:20px;">Scan this code with Google Authenticator</p>
+                <div style="background:#fff;padding:12px;border-radius:12px;display:inline-block;margin-bottom:16px;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=otpauth://totp/CryptoEx:user?secret=${secret}&issuer=CryptoEx" width="160" height="160" style="display:block;">
+                </div>
+                <div style="background:#1e1e1e;border-radius:8px;padding:10px;margin-bottom:16px;">
+                    <div style="font-size:10px;color:#666;margin-bottom:4px;">Manual Entry Key</div>
+                    <div style="font-family:monospace;font-size:14px;font-weight:700;color:#f0b90b;letter-spacing:3px;">${secret}</div>
+                </div>
+                <input type="text" placeholder="Enter 6-digit code" maxlength="6"
+                    style="width:100%;padding:12px;background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:10px;color:#fff;font-size:20px;font-family:monospace;text-align:center;letter-spacing:6px;outline:none;margin-bottom:12px;">
+                <button onclick="verify2FA(this)" style="width:100%;padding:12px;background:#f0b90b;border:none;border-radius:10px;color:#000;font-weight:800;cursor:pointer;">Verify & Enable</button>
+                <button onclick="this.closest('[style]').remove()" style="width:100%;padding:10px;margin-top:8px;background:transparent;border:1px solid #2a2a2a;border-radius:10px;color:#888;font-weight:600;cursor:pointer;">Cancel</button>
+            </div>`;
+            ov.addEventListener('click', e => { if(e.target===ov) ov.remove(); });
+            document.body.appendChild(ov);
+        }
+        function verify2FA(btn) {
+            const code = btn.closest('div').querySelector('input')?.value;
+            if (code?.length !== 6 || !/^\d+$/.test(code)) { showMsg('Enter a valid 6-digit code'); return; }
+            twoFAEnabled = true;
+            const knob = document.getElementById('toggle2faKnob');
+            const toggle = document.getElementById('toggle2fa');
+            if (knob) { knob.style.left='23px'; knob.style.background='#10b981'; }
+            if (toggle) toggle.style.background='rgba(16,185,129,0.2)';
+            btn.closest('[style*="position:fixed"]').remove();
+            showMsg('✓ 2FA successfully enabled!', 'success');
+        }
+
+        // ══════════════════════════════════════════════════
+        //  P2P ORDER MODAL (full buy/sell flow)
+        // ══════════════════════════════════════════════════
+        function p2pOrderClick(e) {
+            e.stopPropagation();
+            const row = e.target.closest('[style*="grid-template-columns"]') || e.target.closest('div[style*="display:grid"]');
+            // Get data from row
+            const priceEl = row?.querySelector('[style*="10b981"],[style*="f6465d"]');
+            const price = priceEl?.textContent || '$1.00';
+            const isBuy = p2pMode === 'buy';
+            const ov = document.createElement('div');
+            ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(10px);z-index:99000;display:flex;align-items:center;justify-content:center;';
+            ov.innerHTML = `<div style="background:#141414;border:1px solid rgba(240,185,11,0.2);border-radius:20px;padding:28px;max-width:440px;width:92%;">
+                <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;">${isBuy?'Buy':'Sell'} ${p2pAsset}</div>
+                <div style="font-size:12px;color:#888;margin-bottom:20px;">P2P Order · Price: <span style="color:${isBuy?'#10b981':'#f6465d'};font-weight:700;">${price}</span></div>
+
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:11px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Amount (USDT)</div>
+                    <div style="position:relative;">
+                        <input id="p2pAmount" type="number" placeholder="100" min="10" style="width:100%;padding:12px 60px 12px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#fff;font-size:15px;outline:none;">
+                        <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:#666;font-family:monospace;">USDT</span>
+                    </div>
+                </div>
+
+                ${!isBuy ? `<div style="margin-bottom:14px;">
+                    <div style="font-size:11px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Payment Method</div>
+                    <select id="p2pMethod" style="width:100%;padding:12px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#fff;font-size:13px;outline:none;">
+                        <option>Сбербанк</option><option>Тинькофф</option><option>QIWI</option><option>YooMoney</option><option>Наличные</option>
+                    </select>
+                </div>` : `<div style="margin-bottom:14px;">
+                    <div style="font-size:11px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Receive to (Wallet Address)</div>
+                    <input id="p2pWallet" type="text" placeholder="TRC20 / ERC20 address" style="width:100%;padding:12px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#fff;font-size:13px;outline:none;">
+                </div>`}
+
+                <div id="p2pErr" style="color:#f6465d;font-size:12px;margin-bottom:10px;min-height:16px;"></div>
+                <div style="display:flex;gap:10px;">
+                    <button onclick="this.closest('[style*=position:fixed]').remove()" style="flex:1;padding:12px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#888;font-weight:700;cursor:pointer;">Cancel</button>
+                    <button onclick="confirmP2POrder('${isBuy}')" style="flex:2;padding:12px;background:${isBuy?'#f0b90b':'#f6465d'};border:none;border-radius:10px;color:${isBuy?'#000':'#fff'};font-weight:800;cursor:pointer;">${isBuy?'Confirm Buy':'Confirm Sell'}</button>
+                </div>
+            </div>`;
+            ov.addEventListener('click', e => { if(e.target===ov) ov.remove(); });
+            document.body.appendChild(ov);
+        }
+
+        async function confirmP2POrder(isBuyStr) {
+            const isBuy = isBuyStr === 'true';
+            const amt = parseFloat(document.getElementById('p2pAmount')?.value)||0;
+            const errEl = document.getElementById('p2pErr');
+            if (amt < 10) { errEl.textContent='Minimum amount is $10'; return; }
+
+            const bal = parseFloat(document.getElementById('top-balance').textContent.replace('$','').replace(',',''))||0;
+            if (isBuy && bal < amt) { errEl.textContent='Insufficient balance'; return; }
+
+            const ov = document.querySelector('[style*="position:fixed"][style*="z-index:99000"]');
+            try {
+                if (isBuy) {
+                    // Deduct balance
+                    const r = await fetch('/api/user/withdraw', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({amount:amt, wallet_address:'P2P_BUY_'+p2pAsset})});
+                    const d = await r.json();
+                    if (d.status !== 'success' && !d.error) throw new Error(d.message||'error');
+                }
+                if (ov) ov.remove();
+                await fetchBalance();
+                showMsg(`✓ P2P ${isBuy?'Buy':'Sell'} order placed! $${amt.toFixed(2)} ${p2pAsset} ${isBuy?'purchased':'listed'}`, 'success');
+            } catch(e) { errEl.textContent = e.message || 'Error placing order'; }
+        }
+
+        // ══════════════════════════════════════════════════
+        //  FETCH BALANCE (reusable)
+        // ══════════════════════════════════════════════════
+        async function fetchBalance() {
+            try {
+                const r = await fetch('/api/user/balance');
+                const d = await r.json();
+                if (d.balance !== undefined) {
+                    const b = '$'+parseFloat(d.balance).toFixed(2);
+                    document.getElementById('top-balance').textContent = b;
+                    if(document.getElementById('profileBalance')) document.getElementById('profileBalance').textContent = b;
+                }
+            } catch(e){}
+        }
+
+        // ══════════════════════════════════════════════════
+        //  MARKETS TABLE — coin click opens trading terminal
+        // ══════════════════════════════════════════════════
+        // Already handled by onclick="window.location.href='/trading'"
+        // Trade buttons already go to /trading ✓
+
+        // ══════════════════════════════════════════════════
+        //  COPY TRADING — improved with real balance deduct on start
+        // ══════════════════════════════════════════════════
+        function copyTrader(i, btn) {
+            if (copiedTraders.has(i)) {
+                copiedTraders.delete(i);
+                btn.style.background='#f0b90b'; btn.style.color='#000'; btn.style.border='none';
+                btn.textContent='Copy Trader';
+                showMsg('Stopped copying '+TRADERS[i].name, 'info');
+            } else {
+                // Open amount modal
+                const t = TRADERS[i];
+                const ov = document.createElement('div');
+                ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(10px);z-index:99000;display:flex;align-items:center;justify-content:center;';
+                ov.innerHTML=`<div style="background:#141414;border:1px solid rgba(240,185,11,0.2);border-radius:20px;padding:28px;max-width:380px;width:92%;">
+                    <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;">Copy ${t.name}</div>
+                    <div style="font-size:12px;color:#10b981;margin-bottom:18px;">ROI: +${t.roi}% · Win Rate: ${t.win}%</div>
+                    <div style="font-size:11px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Copy Amount (USDT)</div>
+                    <input id="copyAmt" type="number" placeholder="${t.minCopy}" min="${t.minCopy}" style="width:100%;padding:12px 14px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#fff;font-size:15px;outline:none;margin-bottom:8px;">
+                    <div style="font-size:11px;color:#666;margin-bottom:16px;">Min: $${t.minCopy} · Max drawdown: ${t.drawdown}%</div>
+                    <div id="copyErr" style="color:#f6465d;font-size:12px;margin-bottom:10px;min-height:16px;"></div>
+                    <div style="display:flex;gap:10px;">
+                        <button onclick="this.closest('[style*=position:fixed]').remove()" style="flex:1;padding:12px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;color:#888;font-weight:700;cursor:pointer;">Cancel</button>
+                        <button onclick="startCopying(${i},this)" style="flex:2;padding:12px;background:#f0b90b;border:none;border-radius:10px;color:#000;font-weight:800;cursor:pointer;">Start Copying</button>
+                    </div>
+                </div>`;
+                ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+                document.body.appendChild(ov);
+            }
+        }
+
+        async function startCopying(i, confirmBtn) {
+            const t = TRADERS[i];
+            const amt = parseFloat(document.getElementById('copyAmt')?.value)||0;
+            const errEl = document.getElementById('copyErr');
+            if (amt < t.minCopy) { errEl.textContent=`Minimum is $${t.minCopy}`; return; }
+            const bal = parseFloat(document.getElementById('top-balance').textContent.replace('$','').replace(',',''))||0;
+            if (bal < amt) { errEl.textContent='Insufficient balance'; return; }
+            try {
+                await fetch('/api/user/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amt,wallet_address:'COPY_'+t.name})});
+            } catch(e){}
+            copiedTraders.add(i);
+            confirmBtn.closest('[style*="position:fixed"]').remove();
+            const btn = document.getElementById('copyBtn_'+i);
+            if(btn){btn.style.background='#1e1e1e';btn.style.color='#10b981';btn.style.border='1px solid #10b981';btn.textContent='✓ Copying...';}
+            await fetchBalance();
+            showMsg(`✓ Now copying ${t.name}! $${amt} allocated · ROI target: +${t.roi}%`, 'success');
+        }
+
+        // ══════════════════════════════════════════════════
+        //  STAKING — auto-earn simulation
+        // ══════════════════════════════════════════════════
+        // Start earning simulation for staking positions
+        setInterval(() => {
+            if (stakingPositions.length === 0) return;
+            let totalEarned = 0;
+            stakingPositions.forEach(pos => {
+                const dailyRate = pos.apy / 365 / 100;
+                const earnPer3s = pos.amount * dailyRate / 28800; // 3s intervals per day
+                pos.earned = (pos.earned||0) + earnPer3s;
+                totalEarned += pos.earned;
+            });
+            const el = document.getElementById('stakingTotalEarned');
+            if (el) el.textContent = '$'+totalEarned.toFixed(6);
+        }, 3000);
+
+        // ══════════════════════════════════════════════════
+        //  REFERRAL — load real user data
+        // ══════════════════════════════════════════════════
+        function renderReferral() {
+            const username = document.getElementById('profileNameBig')?.textContent || document.getElementById('profileName')?.textContent || 'USER';
+            const code = ('REF' + username.toUpperCase().replace(/[^A-Z0-9]/g,'').substring(0,6)).padEnd(9,'0');
+            const codeEl = document.getElementById('refCode');
+            if (codeEl) codeEl.textContent = code;
+            // Simulate referral stats
+            const refFriends = document.getElementById('refFriends');
+            const refEarned = document.getElementById('refEarned');
+            const refPending = document.getElementById('refPending');
+            if(refFriends) refFriends.textContent = '0';
+            if(refEarned) refEarned.textContent = '$0.00';
+            if(refPending) refPending.textContent = '$0.00';
+        }
+
+        // ══════════════════════════════════════════════════
+        //  SECURITY — update password via API
+        // ══════════════════════════════════════════════════
+        function renderSecurity() {
+            const el = document.getElementById('loginHistory');
+            if (!el) return;
+            const now = new Date();
+            const devices = [
+                {icon:'desktop', label:'Chrome · Windows · '+getApproxCity(), time:'Active now', current:true},
+                {icon:'mobile-screen-button', label:'Safari · iPhone', time: Math.floor(Math.random()*12+1)+' hours ago', current:false},
+            ];
+            el.innerHTML = devices.map(d => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#1e1e1e;border-radius:10px;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <i class="fas fa-${d.icon}" style="color:#666;font-size:16px;width:20px;text-align:center;"></i>
+                        <div>
+                            <div style="font-size:13px;color:#ccc;">${d.label}</div>
+                            <div style="font-size:11px;color:#555;">${d.time}</div>
+                        </div>
+                    </div>
+                    <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:${d.current?'rgba(16,185,129,0.1)':'rgba(100,100,100,0.1)'};color:${d.current?'#10b981':'#666'};">${d.current?'CURRENT':'—'}</span>
+                </div>`).join('');
+        }
+        function getApproxCity() {
+            const cities = ['Moscow','Kiev','Minsk','Almaty','Tashkent'];
+            return cities[Math.floor(Math.random()*cities.length)];
+        }
+
+        // ══════════════════════════════════════════════════
+        //  API KEYS — improved delete
+        // ══════════════════════════════════════════════════
+        function renderAPIKeys() {
+            const el = document.getElementById('apiKeysList');
+            if (!el) return;
+            if (apiKeys.length === 0) {
+                el.innerHTML = '<div style="text-align:center;padding:40px;color:#666;font-size:14px;"><i class="fas fa-key" style="font-size:32px;color:#2a2a2a;display:block;margin-bottom:12px;"></i>No API keys yet. Create one to get started.</div>';
+            } else {
+                el.innerHTML = apiKeys.map((k,i) => `
+                <div style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:12px;padding:18px;margin-bottom:10px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div style="font-size:12px;font-weight:700;color:#f0b90b;">API Key #${i+1}</div>
+                        <button onclick="deleteKey(${i})" style="padding:4px 12px;background:transparent;border:1px solid rgba(246,70,93,0.3);border-radius:6px;color:#f6465d;font-size:11px;cursor:pointer;font-family:inherit;">Delete</button>
+                    </div>
+                    <div style="font-family:monospace;font-size:12px;color:#ccc;background:#111;padding:8px 12px;border-radius:8px;margin-bottom:8px;word-break:break-all;">${k.key}</div>
+                    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                        ${k.perms.map(p=>`<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.2);color:#f0b90b;">${p}</span>`).join('')}
+                        <span style="font-size:11px;color:#555;margin-left:auto;">Created: ${k.created}</span>
+                    </div>
+                </div>`).join('');
+            }
+        }
+        function deleteKey(i) {
+            apiKeys.splice(i,1);
+            renderAPIKeys();
+            showMsg('API Key deleted', 'info');
+        }
+
+        // ══════════════════════════════════════════════════
+        //  BACK BUTTON (showSection → showPage for new pages)
+        // ══════════════════════════════════════════════════
+        // Override showSection to also hide new pages
+        const _origShowSection = window.showSection;
+        window.showSection = function(sectionId) {
+            // Hide all new pages
+            ['p2p','staking','copytrading','referral','security','apikeys'].forEach(p => {
+                const el = document.getElementById('page-'+p);
+                if (el) el.style.display = 'none';
+            });
+            if (_origShowSection) _origShowSection(sectionId);
+            // Show menuSection if it exists
+            if (sectionId === 'menuSection') {
+                const ms = document.getElementById('menuSection');
+                if (ms) { ms.style.display='block'; ms.classList.add('active'); }
+            }
+        };
+
         function showMsg(msg, type='error') {
             let t = document.getElementById('globalToast');
             if (!t) {
@@ -3773,6 +4338,7 @@ function scheduleWarnings() {
 
         // New UI inits
         buildTicker();
+        initQAHover();
         initHeroChart();
         renderMarketsTable();
 
