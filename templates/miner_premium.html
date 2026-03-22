@@ -631,6 +631,47 @@
                     </div>
                 </div>
 
+                <!-- TRADING CARD -->
+                <div style="cursor:pointer;border-radius:20px;transition:transform 0.3s,box-shadow 0.3s;background:rgba(15,23,42,0.7);border:1px solid rgba(0,192,118,0.2);padding:28px;display:flex;flex-direction:column;gap:18px;"
+                     onmouseenter="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 60px rgba(0,192,118,0.2)'"
+                     onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='none'"
+                     onclick="window.location.href='/trading'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:52px;height:52px;background:linear-gradient(135deg,#00c076,#059669);border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fas fa-chart-candlestick" style="font-size:22px;color:white;"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-size:18px;font-weight:700;color:#f1f5f9;">Pro Terminal</div>
+                            <div style="font-size:11px;color:#64748b;">Торгуй как профессионал</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:5px;color:#00c076;font-size:11px;font-weight:600;background:rgba(0,192,118,0.1);border:1px solid rgba(0,192,118,0.25);padding:3px 9px;border-radius:20px;white-space:nowrap;">
+                            <span style="width:5px;height:5px;border-radius:50%;background:#00c076;display:inline-block;animation:pulse 1.5s infinite;"></span> Live
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div style="background:rgba(0,192,118,0.07);border:1px solid rgba(0,192,118,0.12);border-radius:10px;padding:10px;">
+                            <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:1px;font-family:monospace;margin-bottom:3px;">Пары</div>
+                            <div style="font-size:13px;font-weight:700;color:#00c076;font-family:monospace;">6 / USDT</div>
+                        </div>
+                        <div style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.12);border-radius:10px;padding:10px;">
+                            <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:1px;font-family:monospace;margin-bottom:3px;">Плечо</div>
+                            <div style="font-size:13px;font-weight:700;color:#60a5fa;font-family:monospace;">до ×20</div>
+                        </div>
+                        <div style="background:rgba(246,70,93,0.07);border:1px solid rgba(246,70,93,0.12);border-radius:10px;padding:10px;">
+                            <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:1px;font-family:monospace;margin-bottom:3px;">LONG / SHORT</div>
+                            <div style="font-size:13px;font-weight:700;color:#f6465d;font-family:monospace;">✓ оба</div>
+                        </div>
+                        <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.12);border-radius:10px;padding:10px;">
+                            <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:1px;font-family:monospace;margin-bottom:3px;">Order Book</div>
+                            <div style="font-size:13px;font-weight:700;color:#f59e0b;font-family:monospace;">✓ Live</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding-top:4px;border-top:1px solid rgba(0,192,118,0.08);">
+                        <span style="font-size:11px;color:#475569;">Нажмите чтобы открыть терминал</span>
+                        <i class="fas fa-arrow-right" style="color:#00c076;font-size:13px;"></i>
+                    </div>
+                </div>
+
                 <!-- CRYPTO SCANNER CARD -->
                 <div style="cursor:pointer;border-radius:20px;transition:transform 0.3s,box-shadow 0.3s;background:rgba(15,23,42,0.7);border:1px solid rgba(16,185,129,0.2);padding:28px;display:flex;flex-direction:column;gap:18px;"
                      onmouseenter="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 60px rgba(16,185,129,0.25)'"
